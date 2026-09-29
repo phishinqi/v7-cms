@@ -8,6 +8,7 @@ export default [
       '**/node_modules/**',
       '**/dist/**',
       '**/coverage/**',
+      '**/.scratch/**',
       'e2e/test-results/**',
       'e2e/playwright-report/**',
     ],
@@ -15,7 +16,8 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['**/*.ts'],
+    // Source, tests and scripts run in a browser or Node, and both sets of globals are harmless.
+    files: ['**/*.{ts,tsx,mjs,js}'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
 ];

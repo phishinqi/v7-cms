@@ -1,0 +1,362 @@
+/*
+  The editor's own stylesheet. Deliberately small and self-contained: the CMS is mounted into a
+  page it does not control, so it scopes everything under `.v7-cms` and does not assume a reset.
+*/
+.v7-cms {
+  --paper: #f8f5ef;
+  --surface: #f0ebe3;
+  --ink: #29251f;
+  --muted: #71675b;
+  --accent: #964630;
+  --line: #ddd6ca;
+  --danger: #a3372a;
+  --ok: #4d6b4a;
+  --radius: 4px;
+  --heading: 'Iowan Old Style', 'Palatino Linotype', 'Noto Serif CJK SC', Georgia, serif;
+  --ui:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif;
+  --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--ui);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.v7-cms[data-theme='dark'] {
+  --paper: #191817;
+  --surface: #24211e;
+  --ink: #e8e2d8;
+  --muted: #b5aa9c;
+  --accent: #e2a083;
+  --line: #3b352f;
+  --danger: #e08a7a;
+  --ok: #9db598;
+}
+
+.v7-cms *,
+.v7-cms *::before,
+.v7-cms *::after {
+  box-sizing: border-box;
+}
+.v7-cms h1,
+.v7-cms h2,
+.v7-cms h3 {
+  margin: 0 0 0.5rem;
+  font-family: var(--heading);
+  font-weight: 500;
+}
+.v7-cms ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.v7-cms :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Layout: sidebar + main, collapsing to one column on narrow screens. */
+.v7-cms .shell {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  min-height: 100vh;
+}
+.v7-cms .sidebar {
+  padding: 1.25rem 1rem;
+  border-right: 1px solid var(--line);
+  background: var(--surface);
+}
+.v7-cms .brand {
+  margin: 0 0 1.25rem;
+  font-family: var(--heading);
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+.v7-cms .nav-heading {
+  margin: 1.5rem 0 0.4rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.v7-cms .nav-link {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.v7-cms .nav-link:hover {
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
+}
+.v7-cms .nav-link[aria-current='page'] {
+  background: var(--paper);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+.v7-cms .nav-link.muted {
+  color: var(--muted);
+  cursor: default;
+}
+.v7-cms .main {
+  min-width: 0;
+}
+
+/* Editor: entry list beside the form. */
+.v7-cms .editor {
+  display: grid;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  min-height: 100vh;
+}
+.v7-cms .entry-list {
+  padding: 1rem 0.75rem;
+  border-right: 1px solid var(--line);
+}
+.v7-cms .entry-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.v7-cms .entry-list h2 {
+  font-size: 0.95rem;
+}
+.v7-cms .entry-link {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 0.55rem;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.v7-cms .entry-link:hover {
+  background: var(--surface);
+}
+.v7-cms .entry-link[aria-current='true'] {
+  background: var(--surface);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+.v7-cms .entry-editor {
+  padding: 1.25rem 1.5rem 4rem;
+  min-width: 0;
+}
+.v7-cms .editor-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+.v7-cms .editor-path {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.v7-cms .editor-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Buttons and inputs. */
+.v7-cms .button {
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.v7-cms .button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.v7-cms .button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.v7-cms .button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+.v7-cms .button.danger:hover:not(:disabled) {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.v7-cms .input {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--paper) 92%, #fff);
+  color: var(--ink);
+  font: inherit;
+}
+.v7-cms .input:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.v7-cms .textarea {
+  resize: vertical;
+  line-height: 1.7;
+}
+.v7-cms .textarea.body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+/* Fields. */
+.v7-cms .fields {
+  display: grid;
+  gap: 1rem;
+}
+.v7-cms .field-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.v7-cms .field-optional {
+  opacity: 0.7;
+}
+.v7-cms .field-hint {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.v7-cms .field-error {
+  margin: 0.3rem 0 0;
+  color: var(--danger);
+  font-size: 0.78rem;
+}
+.v7-cms .field[data-invalid='true'] .input {
+  border-color: var(--danger);
+}
+.v7-cms .object {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.v7-cms .toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+/* Lists. */
+.v7-cms .list {
+  display: grid;
+  gap: 0.6rem;
+}
+.v7-cms .list-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.v7-cms .list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+.v7-cms .list-summary {
+  overflow-wrap: anywhere;
+  font-size: 0.82rem;
+}
+.v7-cms .list-actions {
+  display: flex;
+  gap: 0.15rem;
+}
+.v7-cms .list-actions button {
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+.v7-cms .list-actions button:hover {
+  border-color: var(--line);
+  color: var(--ink);
+}
+.v7-cms .list-fields {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+.v7-cms .add-item {
+  justify-self: start;
+  margin-top: 0.6rem;
+}
+
+/* Notices. */
+.v7-cms .notice {
+  margin: 0.75rem 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.v7-cms .notice.ok {
+  color: var(--ok);
+}
+.v7-cms .notice.error {
+  color: var(--danger);
+}
+.v7-cms .config-errors {
+  max-width: 42rem;
+  margin: 3rem auto;
+  padding: 1.5rem;
+}
+.v7-cms .config-errors ul {
+  display: grid;
+  gap: 0.5rem;
+}
+.v7-cms .config-errors code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--surface);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+/* One column when there is no room for two; the entry list moves above the form. */
+@media (max-width: 900px) {
+  .v7-cms .shell,
+  .v7-cms .editor {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .v7-cms .sidebar,
+  .v7-cms .entry-list {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .v7-cms .entry-editor {
+    padding: 1rem 1rem 3rem;
+  }
+}

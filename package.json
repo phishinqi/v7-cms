@@ -15,7 +15,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "build": "pnpm -r --if-present build",
-    "verify": "pnpm check && pnpm lint && pnpm format:check && pnpm test && pnpm build"
+    "verify": "pnpm check && pnpm lint && pnpm format:check && pnpm test && pnpm test:e2e && pnpm build"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

@@ -65,6 +65,8 @@ export interface Field extends CommonFieldOptions {
   format?: string;
   /** Regex the value must match, plus the message to show when it does not. */
   pattern?: [string, string];
+  /** Singular label for a list's add button, e.g. "Add 图片". */
+  labelSingular?: string;
   /** Free-form options passed through to the field type. */
   [key: string]: unknown;
 }
