@@ -360,3 +360,90 @@
     padding: 1rem 1rem 3rem;
   }
 }
+
+/* The body field: a rich editor or a source editor, depending on what the file can survive. */
+.v7-cms .body-field {
+  margin-top: 1.5rem;
+}
+.v7-cms .body-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+.v7-cms .body-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.v7-cms .body-warning {
+  color: var(--danger);
+  font-size: 0.75rem;
+}
+.v7-cms .body-field[data-mode='rich'] .body-head {
+  margin-bottom: 0.5rem;
+}
+.v7-cms .source-editor,
+.v7-cms .rich-editor {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--paper) 92%, #fff);
+  overflow: hidden;
+}
+/* CodeMirror sizes itself; these keep it inside the form rather than the viewport. */
+.v7-cms .source-editor .cm-editor {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+.v7-cms .source-editor .cm-editor.cm-focused {
+  outline: none;
+}
+.v7-cms .source-editor .cm-scroller {
+  max-height: 34rem;
+  line-height: 1.7;
+}
+.v7-cms .source-editor .cm-gutters {
+  border-right: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+}
+.v7-cms .rich-editor {
+  padding: 1rem 1.1rem;
+  min-height: 12rem;
+  font-family: var(--heading);
+  font-size: 1.02rem;
+  line-height: 1.8;
+}
+.v7-cms .rich-editor:focus-visible,
+.v7-cms .rich-editor:focus-within {
+  border-color: var(--accent);
+}
+.v7-cms .rich-editor :focus-visible {
+  outline: none;
+}
+.v7-cms .rich-editor h2,
+.v7-cms .rich-editor h3 {
+  font-family: var(--heading);
+}
+.v7-cms .rich-editor blockquote {
+  margin: 1rem 0;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--accent);
+  color: var(--muted);
+}
+.v7-cms .rich-editor pre {
+  padding: 0.8rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  overflow-x: auto;
+}
+.v7-cms .rich-editor img {
+  max-width: 100%;
+  height: auto;
+}
+.v7-cms .rich-editor a {
+  color: var(--accent);
+}

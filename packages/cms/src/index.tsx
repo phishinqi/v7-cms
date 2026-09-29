@@ -15,6 +15,9 @@ export { CmsApp, useApp, useStore } from './app.js';
 export { EntryStore } from './entry-store.js';
 export { Shell } from './frame/Shell.js';
 export { FieldControl } from './frame/FieldControl.js';
+export { BodyField } from './frame/BodyField.js';
+export { SourceEditor } from './frame/SourceEditor.js';
+export { RichEditor, richRoundTrip } from './frame/RichEditor.js';
 
 export interface MountOptions {
   config: unknown;

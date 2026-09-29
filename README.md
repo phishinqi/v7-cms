@@ -10,8 +10,9 @@ makes the editor unsafe to open.
 
 > **Status: early but usable.** The editor runs: it lists collections and entries, renders every
 > field — including a list of nested photo objects — and saves without disturbing what you did not
-> touch. It currently talks to an in-memory backend; GitHub and local directory backends, rich
-> text and the review workflow are next. See [Roadmap](#roadmap).
+> touch. Bodies open in a rich editor or a source editor depending on what the file can survive.
+> It currently talks to an in-memory backend; GitHub and local directory backends and the review
+> workflow are next. See [Roadmap](#roadmap).
 
 ## Why another one
 
@@ -72,12 +73,39 @@ Two details that a naive implementation gets wrong, and which this one handles:
 - **Quoting.** `'2026-09-12'` and `2026-09-12` are different values to some consumers, so a scalar's
   original quote style is available to any field that needs to preserve it.
 
+## The two-track body editor
+
+A rich-text editor normalises Markdown: it re-wraps emphasis, realigns tables, changes fence
+styles. That is fine for prose and fatal for MDX, which carries ESM imports and JSX a Markdown
+editor does not model at all. So every body is classified before it is opened, and anything the
+rich editor would not round-trip is edited as source instead:
+
+| Body contains                                                         | Editor    |
+| --------------------------------------------------------------------- | --------- |
+| Prose, headings, lists, links, images, ordinary code fences           | Rich text |
+| MDX (any `.mdx` file), `import`/`export`, JSX, HTML blocks            | Source    |
+| A structured fence (`mermaid`, `abc`, …), display math, indented code | Source    |
+
+The bias is deliberate: when in doubt, source. A false positive costs the author a nicer editor;
+a false negative silently corrupts their file. The author can still force rich text, but that is an
+explicit act with a warning, never something that happens by opening a file.
+
+`classifyBody()` in `@v7-cms/core` is the decision, and it is tested against real content from a
+real blog — the files that would be damaged are the fixtures.
+
+## Bundle size
+
+The built editor is **502 kB gzipped** (1.8 MB raw) plus 2 kB of CSS. That is the honest cost of
+shipping two real editors: Tiptap/ProseMirror for rich text and CodeMirror for source. For
+comparison it is in the same range as Sveltia and Decap. It is one file, loaded once, and React is
+left external so the host page provides its own copy.
+
 ## Roadmap
 
 - [x] **M0** Workspace, config schema and loader, field contract, storage interface, memory adapter
 - [x] **M1** Fidelity engine, with golden tests against real content
 - [x] **M2** Editor shell, entry list, built-in field controls, end-to-end tests
-- [ ] **M3** Source editor and rich text, with the two-track rule
+- [x] **M3** Source editor and rich text, with the two-track rule
 - [ ] **M4** GitHub backend and both auth flows
 - [ ] **M5** Local backends: browser directory and proxy process
 - [ ] **M6** Markdown preview and in-site preview

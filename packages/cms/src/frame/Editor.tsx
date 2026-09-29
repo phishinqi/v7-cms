@@ -9,6 +9,7 @@ import type { FieldsCollection } from '@v7-cms/core';
 import { ConflictError } from '@v7-cms/core/storage';
 import { useStore } from '../app.js';
 import type { EntrySummary, LoadedEntry } from '../entry-store.js';
+import { BodyField } from './BodyField.js';
 import { FieldControl } from './FieldControl.js';
 
 type SaveState =
@@ -35,6 +36,7 @@ export function Editor({ collectionName }: { collectionName: string }) {
   }, [refresh]);
 
   const issues = useMemo(() => (entry ? store.validate(entry) : []), [entry, store]);
+  const bodyField = collection?.fields.find((field) => field.name === collection.contentField);
 
   if (!collection) {
     return <p className="notice">Unknown collection “{collectionName}”.</p>;
@@ -161,22 +163,12 @@ export function Editor({ collectionName }: { collectionName: string }) {
             </div>
 
             {collection.contentField && (
-              <div className="body-field">
-                <label className="field-label" htmlFor="entry-body">
-                  Body
-                </label>
-                <textarea
-                  id="entry-body"
-                  className="input textarea body"
-                  rows={18}
-                  spellCheck={false}
-                  value={entry.body}
-                  onChange={(event) => setEntry({ ...entry, body: event.target.value })}
-                />
-                <p className="field-hint">
-                  Source view. Content that is not edited here is written back untouched.
-                </p>
-              </div>
+              <BodyField
+                value={entry.body}
+                extension={collection.extension}
+                forceSource={bodyField?.widget === 'source'}
+                onChange={(body) => setEntry({ ...entry, body })}
+              />
             )}
           </>
         )}

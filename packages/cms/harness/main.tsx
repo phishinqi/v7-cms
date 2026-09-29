@@ -6,6 +6,7 @@
 import { mount } from '@v7-cms/cms';
 import { MemoryAdapter } from '@v7-cms/adapters/memory';
 import config from '../../../examples/v7-blog/cms.config.json';
+import { richRoundTrip } from '@v7-cms/cms';
 
 const files: Record<string, string> = {
   'content/albums/paper.md': `---
@@ -64,6 +65,41 @@ images:
 
 一个“摄影”类型的相册示例。
 `,
+  'content/posts/small-components.mdx': `---
+title: '小组件，大边界'
+description: 'MDX 示例。'
+slug: 'small-components'
+pubDate: '2026-09-03'
+category: 'technology'
+tags: ['MDX']
+lang: 'zh-CN'
+---
+
+import Note from '@components/Note.astro';
+
+这是一篇 MDX 示例。
+
+<Note title="先写正文，再考虑组件">
+  组件之外的文字照常书写。
+</Note>
+`,
+  'content/posts/math-and-diagrams.md': `---
+title: '让公式与流程图，成为解释的一部分'
+description: '含图表与公式。'
+slug: 'math-and-diagrams'
+pubDate: '2026-09-21'
+category: 'technology'
+tags: ['数学']
+lang: 'zh-CN'
+---
+
+正文一段。
+
+\`\`\`mermaid
+flowchart LR
+  A[写作] --> B[校验]
+\`\`\`
+`,
   'content/posts/a-smaller-web.md': `---
 title: 'A smaller web, with room to read'
 description: 'An English sample.'
@@ -82,10 +118,11 @@ Body text.
 const storage = new MemoryAdapter(files);
 declare global {
   interface Window {
-    __cms: { storage: MemoryAdapter };
+    __cms: { storage: MemoryAdapter; richRoundTrip(markdown: string): string };
   }
 }
-window.__cms = { storage };
+// Exposed so the browser tests can measure what the rich editor does to Markdown.
+window.__cms = { storage, richRoundTrip };
 
 // The example config targets GitHub. The harness runs against memory instead, which is what makes
 // the editor drivable without a token — the backend block is the only thing that changes.
