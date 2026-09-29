@@ -12,11 +12,12 @@ import { Connect } from './frame/Connect.js';
 
 export interface AppContextValue {
   config: CMSConfig;
-  store: EntryStore;
-  storage: StorageAdapter;
+  /** Absent until a backend is connected; the connect screen is shown in that case. */
+  store?: EntryStore;
+  storage?: StorageAdapter;
   issues: ConfigIssue[];
-  /** Set when the backend needs a token that has not been supplied yet. */
-  connect?(token: string): void;
+  /** Replaces the backend once the author has connected one. */
+  connect?(adapter: StorageAdapter): void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -31,43 +32,33 @@ export interface CmsAppProps {
 
 export function CmsApp({ config: rawConfig, storage, children }: CmsAppProps) {
   const { config, issues } = useMemo(() => loadConfig(rawConfig), [rawConfig]);
-  // A token handed over by the connect screen, or one left from an earlier visit.
-  const [token, setToken] = useState<string | undefined>(() =>
-    config.backend.name === 'github' ? tokenStore.read() : undefined,
+  // A backend the author connected, or one that needs no interaction at all.
+  const [connected, setConnected] = useState<StorageAdapter | undefined>(() =>
+    autoAdapter(config, storage),
   );
 
-  const adapter = useMemo(() => {
-    if (storage) return storage;
-    if (config.backend.name === 'github' && config.backend.repo && token) {
-      const [owner, repo] = config.backend.repo.split('/') as [string, string];
-      return new GitHubAdapter({
-        owner,
-        repo,
-        ...(config.backend.branch ? { branch: config.backend.branch } : {}),
-        token,
-      });
-    }
-    return createAdapter(config);
-  }, [config, storage, token]);
+  const adapter = connected ?? autoAdapter(config, storage);
 
   const value = useMemo<AppContextValue>(
-    () => ({
-      config,
-      issues,
-      storage: adapter,
-      store: new EntryStore(adapter, config.collections),
-      connect: setToken,
-    }),
+    () =>
+      adapter
+        ? {
+            config,
+            issues,
+            storage: adapter,
+            store: new EntryStore(adapter, config.collections),
+            connect: setConnected,
+          }
+        : { config, issues, connect: setConnected },
     [config, issues, adapter],
   );
 
-  // GitHub needs a token before anything can be listed, so the editor waits behind the connect
-  // screen rather than showing an empty, misleading list.
-  const needsToken = !storage && config.backend.name === 'github' && !token;
-  if (needsToken && issues.length === 0) {
+  // A backend that needs credentials waits behind the connect screen rather than showing an
+  // empty, misleading list.
+  if (!adapter && issues.length === 0) {
     return (
       <AppContext.Provider value={value}>
-        <Connect config={config} onConnected={(next) => setToken(next)} />
+        <Connect config={config} onReady={setConnected} />
       </AppContext.Provider>
     );
   }
@@ -82,19 +73,33 @@ export function useApp(): AppContextValue {
 }
 
 export function useStore(): EntryStore {
-  return useApp().store;
+  const store = useApp().store;
+  if (!store) throw new Error('No backend is connected yet.');
+  return store;
 }
 
 /**
- * Pick a backend from the config. Only the memory backend can be constructed without user
- * interaction; the others need a directory handle or a token, so they are created lazily by the
- * views that own that interaction.
+ * A backend that can be built without asking the author anything. Everything else — a folder, a
+ * proxy, GitHub — needs a gesture or a credential, so it is constructed by the connect view.
  */
-function createAdapter(config: CMSConfig): StorageAdapter {
+function autoAdapter(config: CMSConfig, storage?: StorageAdapter): StorageAdapter | undefined {
+  if (storage) return storage;
   const local = config.backend.local;
   if (config.backend.name === 'local' && local?.kind === 'memory') {
     return new MemoryAdapter(local.files ?? {});
   }
-  // Until a real backend is connected, an empty memory store keeps the UI explorable.
-  return new MemoryAdapter({});
+  if (config.backend.name === 'github' && config.backend.repo) {
+    // A token left from an earlier visit is enough to go straight to the editor.
+    const token = tokenStore.read();
+    if (token) {
+      const [owner, repo] = config.backend.repo.split('/') as [string, string];
+      return new GitHubAdapter({
+        owner,
+        repo,
+        ...(config.backend.branch ? { branch: config.backend.branch } : {}),
+        token,
+      });
+    }
+  }
+  return undefined;
 }

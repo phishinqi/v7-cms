@@ -11,6 +11,7 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@v7-cms/core": "workspace:*"
+    "@v7-cms/core": "workspace:*",
+    "@v7-cms/proxy": "workspace:*"
   }
 }

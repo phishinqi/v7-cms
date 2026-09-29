@@ -8,11 +8,11 @@ produces the identical bytes — same quoting, same flow style, same key order, 
 matters more than it sounds: a CMS that reformats your files on save quietly breaks builds, and it
 makes the editor unsafe to open.
 
-> **Status: early but usable.** The editor runs: it lists collections and entries, renders every
-> field — including a list of nested photo objects — and saves without disturbing what you did not
-> touch. Bodies open in a rich editor or a source editor depending on what the file can survive.
-> It currently talks to an in-memory backend; GitHub and local directory backends and the review
-> workflow are next. See [Roadmap](#roadmap).
+> **Status: usable.** The editor lists collections and entries, renders every field — including a
+> list of nested photo objects — and saves without disturbing what you did not touch. Bodies open in
+> a rich editor or a source editor depending on what the file can survive. It talks to GitHub, to a
+> local folder, or to a local proxy process. The review workflow, preview and theming are next. See
+> [Roadmap](#roadmap).
 
 ## Why another one
 
@@ -73,6 +73,31 @@ Two details that a naive implementation gets wrong, and which this one handles:
 - **Quoting.** `'2026-09-12'` and `2026-09-12` are different values to some consumers, so a scalar's
   original quote style is available to any field that needs to preserve it.
 
+## Backends
+
+| Backend      | Needs                             | Works in                                   |
+| ------------ | --------------------------------- | ------------------------------------------ |
+| GitHub       | A token, or OAuth through a relay | Any browser                                |
+| Local folder | Nothing                           | Chromium browsers (File System Access API) |
+| Local proxy  | A one-line command                | Any browser                                |
+
+The local folder is the nicest: no server, no token, and the editor reads and writes your files
+directly through the browser's File System Access API. Pick the folder once and it is remembered;
+permission is asked for again on each visit, which the API requires and which keeps the grant
+honest.
+
+The proxy exists because that API is Chromium-only. It is one small process, bound to loopback,
+guarded by a token, and confined to the folder you point it at:
+
+```sh
+npx @v7-cms/proxy --root .
+```
+
+It prints a URL and a token to paste into the editor. It has no dependencies, no shell access, and
+refuses to bind anything but loopback — it can write files in your repository, so it must never be
+reachable from a network. Paths are resolved and checked, so a `../` or a symlink cannot escape
+your repository, and that is covered by tests.
+
 ## The two-track body editor
 
 A rich-text editor normalises Markdown: it re-wraps emphasis, realigns tables, changes fence
@@ -107,7 +132,7 @@ left external so the host page provides its own copy.
 - [x] **M2** Editor shell, entry list, built-in field controls, end-to-end tests
 - [x] **M3** Source editor and rich text, with the two-track rule
 - [ ] **M4** GitHub backend and both auth flows
-- [ ] **M5** Local backends: browser directory and proxy process
+- [x] **M5** Local backends: browser directory and proxy process
 - [ ] **M6** Markdown preview and in-site preview
 - [ ] **M7** Draft branches and review workflow
 - [ ] **M8** Custom field types and theming

@@ -241,6 +241,9 @@ importers:
       '@v7-cms/core':
         specifier: workspace:*
         version: link:../core
+      '@v7-cms/proxy':
+        specifier: workspace:*
+        version: link:../proxy
 
   packages/cms:
     dependencies:
@@ -323,6 +326,12 @@ importers:
       zod:
         specifier: ^4.6.5
         version: 4.6.5
+
+  packages/proxy:
+    devDependencies:
+      esbuild:
+        specifier: 0.28.2
+        version: 0.28.2
 
 packages:
 

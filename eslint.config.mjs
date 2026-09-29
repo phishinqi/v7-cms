@@ -19,5 +19,13 @@ export default [
     // Source, tests and scripts run in a browser or Node, and both sets of globals are harmless.
     files: ['**/*.{ts,tsx,mjs,js}'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    rules: {
+      // An underscore marks a parameter that exists to satisfy a signature, which the storage
+      // adapters have several of.
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
+    },
   },
 ];

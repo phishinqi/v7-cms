@@ -468,3 +468,37 @@
 .v7-cms .connect .notice.error {
   margin-top: 1rem;
 }
+
+/* The connect tabs, shared with the album view switch so the two read as one control. */
+.v7-cms .view-switch {
+  display: inline-flex;
+  gap: 0.2rem;
+  margin: 0.5rem 0 1rem;
+  padding: 0.2rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+.v7-cms .view-switch button {
+  padding: 0.35rem 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+.v7-cms .view-switch button:hover {
+  color: var(--ink);
+}
+.v7-cms .view-switch button[aria-selected='true'] {
+  background: var(--ink);
+  color: var(--paper);
+}
+.v7-cms .connect code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--surface);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
