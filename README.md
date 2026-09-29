@@ -8,9 +8,10 @@ produces the identical bytes — same quoting, same flow style, same key order, 
 matters more than it sounds: a CMS that reformats your files on save quietly breaks builds, and it
 makes the editor unsafe to open.
 
-> **Status: early.** The fidelity engine, config system and storage contract are in place and
-> tested. The editor, backends and workflow are being built milestone by milestone; see
-> [Roadmap](#roadmap).
+> **Status: early but usable.** The editor runs: it lists collections and entries, renders every
+> field — including a list of nested photo objects — and saves without disturbing what you did not
+> touch. It currently talks to an in-memory backend; GitHub and local directory backends, rich
+> text and the review workflow are next. See [Roadmap](#roadmap).
 
 ## Why another one
 
@@ -75,7 +76,7 @@ Two details that a naive implementation gets wrong, and which this one handles:
 
 - [x] **M0** Workspace, config schema and loader, field contract, storage interface, memory adapter
 - [x] **M1** Fidelity engine, with golden tests against real content
-- [ ] **M2** Editor shell, entry list, built-in field types
+- [x] **M2** Editor shell, entry list, built-in field controls, end-to-end tests
 - [ ] **M3** Source editor and rich text, with the two-track rule
 - [ ] **M4** GitHub backend and both auth flows
 - [ ] **M5** Local backends: browser directory and proxy process
