@@ -1,0 +1,61 @@
+name: Release
+
+# Builds the editor and attaches it to a GitHub release, so a theme can consume it without a
+# checkout of this repository. The theme pins a version and fetches from jsDelivr over the release
+# tag, which is what makes a theme build reproducible.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to build, without the leading v
+        required: true
+        default: 0.0.0-alpha.1
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.16.0
+      - name: Install pinned pnpm
+        run: npm install --global pnpm@12.5.1
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @v7-cms/cms build
+
+      - name: Work out the version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Assemble the release bundle
+        run: |
+          mkdir -p release
+          cp packages/cms/dist/v7-cms.js packages/cms/dist/cms.css release/
+          # The map is large and only useful when debugging a published build.
+          cp packages/cms/dist/v7-cms.js.map release/ 2>/dev/null || true
+          ls -la release
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v${{ steps.version.outputs.value }}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" release/* --clobber
+          else
+            gh release create "$tag" release/* \
+              --title "$tag" \
+              --notes "v7-cms ${{ steps.version.outputs.value }}"
+          fi
