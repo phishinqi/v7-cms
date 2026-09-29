@@ -36,7 +36,9 @@ interface FlowPadding {
   leading: boolean;
 }
 
-const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---[ \t]*(\r?\n|$)/;
+// The frontmatter block may be empty, which is what a brand new entry starts as, so the inner
+// group is optional rather than `[\s\S]*?` between two newlines.
+const FRONTMATTER = /^---[ \t]*\r?\n(?:([\s\S]*?)\r?\n)?---[ \t]*(\r?\n|$)/;
 
 export function parseEntry(raw: string): ParsedEntry {
   const match = FRONTMATTER.exec(raw);

@@ -33,6 +33,21 @@ export interface CommonFieldOptions {
 }
 
 /**
+ * What a field type is handed when asked to validate or summarise. It is the full field spec, not
+ * just the common options, so a `list` can see its `fields`, a `select` its `options`, and so on.
+ * Declared loosely here because `core` cannot import the config module without a cycle.
+ */
+export interface FieldSpec extends CommonFieldOptions {
+  fields?: FieldSpec[];
+  field?: FieldSpec;
+  options?: Array<string | { label: string; value: string }>;
+  pattern?: [string, string];
+  collapseEmpty?: boolean;
+  locales?: string[];
+  [key: string]: unknown;
+}
+
+/**
  * The shape a field type must implement.
  *
  * `TStored` is the value as it appears in the file; `TValue` is the value the editor works with.
@@ -56,10 +71,10 @@ export interface FieldType<TValue = unknown, TStored = TValue> {
   toStored?(value: TValue, context: { originalStyle?: ScalarStyle }): TStored;
 
   /** Validation runs on the editor value. */
-  validate?(value: TValue, options: CommonFieldOptions, path: FieldPath): ValidationIssue[];
+  validate?(value: TValue, options: FieldSpec, path: FieldPath): ValidationIssue[];
 
   /** One-line label for the entry list and for collapsed list items. */
-  summary?(value: TValue, options: CommonFieldOptions): string;
+  summary?(value: TValue, options: FieldSpec): string;
 
   /** A value to use when the user adds a new item. */
   defaultValue?(): TValue;

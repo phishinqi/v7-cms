@@ -17,7 +17,13 @@ export interface BackendConfig {
   /** Base of the OAuth relay, e.g. `https://example.com`. Omit to use a personal access token. */
   authBase?: string;
   /** Where the local backend reads and writes. */
-  local?: { kind: 'fs-access' | 'proxy'; url?: string };
+  local?: {
+    /** `memory` backs the tests, demos and previews; the others are real file access. */
+    kind: 'fs-access' | 'proxy' | 'memory';
+    url?: string;
+    /** Seed files for the memory backend, keyed by repository path. */
+    files?: Record<string, string>;
+  };
 }
 
 export type MediaProvider = 'repo' | 's3';

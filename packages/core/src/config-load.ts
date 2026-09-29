@@ -79,8 +79,11 @@ export const configSchema = z.object({
     authBase: z.string().optional(),
     local: z
       .object({
-        kind: z.enum(['fs-access', 'proxy']),
+        // `memory` backs the tests, demos and previews; the others are real file access.
+        kind: z.enum(['fs-access', 'proxy', 'memory']),
         url: z.string().optional(),
+        /** Seed files for the memory backend, keyed by repository path. */
+        files: z.record(z.string(), z.string()).optional(),
       })
       .optional(),
   }),
