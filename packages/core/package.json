@@ -1,0 +1,18 @@
+{
+  "name": "@v7-cms/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./serialize": "./src/serialize/index.ts",
+    "./storage": "./src/storage/types.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1",
+    "zod": "^4.6.5"
+  }
+}

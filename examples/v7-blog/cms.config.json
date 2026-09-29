@@ -1,0 +1,522 @@
+{
+  "$schema": "../../packages/core/schema/config.json",
+  "backend": {
+    "name": "github",
+    "repo": "phishinqi/astro-theme-v7",
+    "branch": "main"
+  },
+  "media": {
+    "provider": "repo",
+    "repoPath": "public/images/uploads",
+    "publicPath": "/images/uploads",
+    "maxEdge": 2400,
+    "exif": true
+  },
+  "locale": "zh-CN",
+  "editorialWorkflow": true,
+  "preview": {
+    "devServerURL": "http://localhost:4321",
+    "pathTemplate": "/posts/{{slug}}/"
+  },
+  "collections": [
+    {
+      "kind": "fields",
+      "name": "posts-md",
+      "label": "文章 · Markdown",
+      "folder": "content/posts",
+      "extension": "md",
+      "format": "frontmatter",
+      "identifierField": "slug",
+      "contentField": "body",
+      "nested": true,
+      "fields": [
+        { "name": "title", "widget": "string", "label": "标题" },
+        { "name": "description", "widget": "text", "label": "摘要" },
+        {
+          "name": "slug",
+          "widget": "string",
+          "label": "永久链接 slug",
+          "pattern": ["^[a-z0-9]+(?:-[a-z0-9]+)*$", "使用小写英文、数字和连字符。"]
+        },
+        { "name": "pubDate", "widget": "datetime", "label": "发布时间" },
+        {
+          "name": "updatedDate",
+          "widget": "datetime",
+          "label": "更新时间",
+          "required": false
+        },
+        {
+          "name": "category",
+          "widget": "relation",
+          "label": "分类",
+          "collection": "categories",
+          "valueField": "id"
+        },
+        {
+          "name": "tags",
+          "widget": "list",
+          "label": "标签",
+          "required": false,
+          "field": { "name": "tag", "widget": "string" }
+        },
+        {
+          "name": "authors",
+          "widget": "list",
+          "label": "作者",
+          "required": false,
+          "field": {
+            "name": "author",
+            "widget": "relation",
+            "collection": "authors",
+            "valueField": "id"
+          }
+        },
+        {
+          "name": "lang",
+          "widget": "select",
+          "label": "语言",
+          "options": ["zh-CN", "en"]
+        },
+        {
+          "name": "draft",
+          "widget": "boolean",
+          "label": "草稿",
+          "required": false
+        },
+        {
+          "name": "featured",
+          "widget": "boolean",
+          "label": "精选",
+          "required": false
+        },
+        {
+          "name": "cover",
+          "widget": "object",
+          "label": "封面",
+          "required": false,
+          "collapseEmpty": true,
+          "fields": [
+            { "name": "src", "widget": "image", "label": "图片" },
+            { "name": "alt", "widget": "string", "label": "替代文本" },
+            { "name": "width", "widget": "number", "label": "宽度" },
+            { "name": "height", "widget": "number", "label": "高度" },
+            {
+              "name": "focal",
+              "widget": "string",
+              "label": "裁切焦点",
+              "required": false
+            },
+            {
+              "name": "caption",
+              "widget": "string",
+              "label": "说明",
+              "required": false
+            }
+          ]
+        },
+        {
+          "name": "ogImage",
+          "widget": "image",
+          "label": "分享图",
+          "required": false
+        },
+        { "name": "body", "widget": "markdown", "label": "正文" }
+      ]
+    },
+    {
+      "kind": "fields",
+      "name": "posts-mdx",
+      "label": "文章 · MDX 源码",
+      "folder": "content/posts",
+      "extension": "mdx",
+      "format": "frontmatter",
+      "identifierField": "slug",
+      "contentField": "body",
+      "nested": true,
+      "fields": [
+        { "name": "title", "widget": "string", "label": "标题" },
+        { "name": "description", "widget": "text", "label": "摘要" },
+        { "name": "slug", "widget": "string", "label": "永久链接 slug" },
+        { "name": "pubDate", "widget": "datetime", "label": "发布时间" },
+        {
+          "name": "category",
+          "widget": "relation",
+          "label": "分类",
+          "collection": "categories",
+          "valueField": "id"
+        },
+        {
+          "name": "tags",
+          "widget": "list",
+          "label": "标签",
+          "required": false,
+          "field": { "name": "tag", "widget": "string" }
+        },
+        {
+          "name": "authors",
+          "widget": "list",
+          "label": "作者",
+          "required": false,
+          "field": {
+            "name": "author",
+            "widget": "relation",
+            "collection": "authors",
+            "valueField": "id"
+          }
+        },
+        {
+          "name": "lang",
+          "widget": "select",
+          "label": "语言",
+          "options": ["zh-CN", "en"]
+        },
+        {
+          "name": "draft",
+          "widget": "boolean",
+          "label": "草稿",
+          "required": false
+        },
+        {
+          "name": "featured",
+          "widget": "boolean",
+          "label": "精选",
+          "required": false
+        },
+        { "name": "body", "widget": "source", "label": "正文源码" }
+      ]
+    },
+    {
+      "kind": "fields",
+      "name": "albums",
+      "label": "相册",
+      "folder": "content/albums",
+      "extension": "md",
+      "format": "frontmatter",
+      "identifierField": "slug",
+      "contentField": "body",
+      "media": {
+        "repoPath": "public/images/albums/{{slug}}",
+        "publicPath": "/images/albums/{{slug}}"
+      },
+      "fields": [
+        { "name": "title", "widget": "string", "label": "标题" },
+        { "name": "slug", "widget": "string", "label": "slug" },
+        {
+          "name": "date",
+          "widget": "datetime",
+          "label": "日期",
+          "format": "YYYY-MM-DD"
+        },
+        {
+          "name": "draft",
+          "widget": "boolean",
+          "label": "草稿",
+          "required": false
+        },
+        {
+          "name": "description",
+          "widget": "text",
+          "label": "简介",
+          "required": false
+        },
+        {
+          "name": "authors",
+          "widget": "list",
+          "label": "作者",
+          "required": false,
+          "field": {
+            "name": "author",
+            "widget": "relation",
+            "collection": "authors",
+            "valueField": "id"
+          }
+        },
+        {
+          "name": "tags",
+          "widget": "list",
+          "label": "相册标签",
+          "required": false,
+          "field": {
+            "name": "tag",
+            "widget": "relation",
+            "collection": "photoTags",
+            "valueField": "id"
+          }
+        },
+        {
+          "name": "cover",
+          "widget": "string",
+          "label": "封面图片 ID（留空使用第一张）",
+          "required": false
+        },
+        {
+          "name": "images",
+          "widget": "list",
+          "label": "图片",
+          "labelSingular": "图片",
+          "summary": "{{title}} · {{src}}",
+          "fields": [
+            {
+              "name": "src",
+              "widget": "image",
+              "label": "图片",
+              "hint": "上传时自动压缩为 WebP 并移除 EXIF。"
+            },
+            {
+              "name": "alt",
+              "widget": "string",
+              "label": "替代文本（描述画面，供读屏与加载失败时使用）"
+            },
+            {
+              "name": "id",
+              "widget": "string",
+              "label": "图片 ID（用于分享链接）",
+              "required": false
+            },
+            {
+              "name": "kind",
+              "widget": "select",
+              "label": "类型",
+              "options": [
+                { "label": "照片", "value": "photo" },
+                { "label": "创作", "value": "artwork" }
+              ],
+              "default": "photo"
+            },
+            {
+              "name": "title",
+              "widget": "string",
+              "label": "标题",
+              "required": false
+            },
+            {
+              "name": "caption",
+              "widget": "text",
+              "label": "说明",
+              "required": false
+            },
+            {
+              "name": "date",
+              "widget": "datetime",
+              "label": "拍摄 / 创作日期",
+              "format": "YYYY-MM-DD",
+              "required": false
+            },
+            {
+              "name": "location",
+              "widget": "string",
+              "label": "地点",
+              "required": false
+            },
+            {
+              "name": "tags",
+              "widget": "list",
+              "label": "标签",
+              "required": false,
+              "field": {
+                "name": "tag",
+                "widget": "relation",
+                "collection": "photoTags",
+                "valueField": "id"
+              }
+            },
+            {
+              "name": "author",
+              "widget": "relation",
+              "label": "作者（留空沿用相册作者）",
+              "collection": "authors",
+              "valueField": "id",
+              "required": false
+            },
+            {
+              "name": "license",
+              "widget": "select",
+              "label": "许可（留空沿用站点默认）",
+              "required": false,
+              "options": [
+                "all-rights-reserved",
+                "cc-by-4.0",
+                "cc-by-nc-4.0",
+                "cc-by-nc-sa-4.0",
+                "cc0-1.0",
+                "custom"
+              ]
+            },
+            {
+              "name": "licenseText",
+              "widget": "string",
+              "label": "自定义许可文字",
+              "required": false
+            },
+            {
+              "name": "photo",
+              "widget": "object",
+              "label": "摄影参数",
+              "required": false,
+              "collapseEmpty": true,
+              "exifPrefill": true,
+              "fields": [
+                {
+                  "name": "camera",
+                  "widget": "string",
+                  "label": "相机",
+                  "required": false
+                },
+                {
+                  "name": "lens",
+                  "widget": "string",
+                  "label": "镜头",
+                  "required": false
+                },
+                {
+                  "name": "focalLength",
+                  "widget": "string",
+                  "label": "焦距",
+                  "required": false
+                },
+                {
+                  "name": "aperture",
+                  "widget": "string",
+                  "label": "光圈",
+                  "required": false
+                },
+                {
+                  "name": "shutter",
+                  "widget": "string",
+                  "label": "快门",
+                  "required": false
+                },
+                {
+                  "name": "iso",
+                  "widget": "number",
+                  "label": "ISO",
+                  "required": false
+                },
+                {
+                  "name": "film",
+                  "widget": "string",
+                  "label": "胶片",
+                  "required": false
+                },
+                {
+                  "name": "software",
+                  "widget": "string",
+                  "label": "后期软件",
+                  "required": false
+                }
+              ]
+            },
+            {
+              "name": "artwork",
+              "widget": "object",
+              "label": "创作信息",
+              "required": false,
+              "collapseEmpty": true,
+              "fields": [
+                {
+                  "name": "device",
+                  "widget": "string",
+                  "label": "设备",
+                  "required": false
+                },
+                {
+                  "name": "software",
+                  "widget": "string",
+                  "label": "软件或工具",
+                  "required": false
+                },
+                {
+                  "name": "medium",
+                  "widget": "string",
+                  "label": "媒介",
+                  "required": false
+                }
+              ]
+            },
+            {
+              "name": "width",
+              "widget": "number",
+              "label": "宽度",
+              "required": false
+            },
+            {
+              "name": "height",
+              "widget": "number",
+              "label": "高度",
+              "required": false
+            },
+            {
+              "name": "color",
+              "widget": "string",
+              "label": "主色",
+              "required": false
+            },
+            {
+              "name": "srcset",
+              "widget": "string",
+              "label": "响应式图片集",
+              "required": false
+            }
+          ]
+        },
+        {
+          "name": "body",
+          "widget": "markdown",
+          "label": "正文",
+          "required": false
+        }
+      ]
+    },
+    {
+      "kind": "fields",
+      "name": "moments",
+      "label": "动态",
+      "folder": "content/moments",
+      "extension": "md",
+      "format": "frontmatter",
+      "identifierField": "slug",
+      "contentField": "body",
+      "fields": [
+        { "name": "title", "widget": "string" },
+        { "name": "slug", "widget": "string" },
+        { "name": "date", "widget": "datetime" },
+        { "name": "draft", "widget": "boolean", "required": false },
+        { "name": "body", "widget": "markdown" }
+      ]
+    },
+    {
+      "kind": "file",
+      "name": "settings",
+      "label": "站点设置",
+      "format": "json",
+      "files": [
+        {
+          "name": "site",
+          "label": "全站配置",
+          "file": "site.config.json",
+          "inferSchema": true,
+          "fieldOverrides": {
+            "description": { "widget": "i18n-string" },
+            "intro.title": { "widget": "i18n-string" },
+            "intro.description": { "widget": "i18n-string" },
+            "nav.*.label": { "widget": "i18n-string" },
+            "moreNav.*.label": { "widget": "i18n-string" },
+            "postsPerPage": { "widget": "number" },
+            "startedAt": { "widget": "datetime", "format": "YYYY-MM-DD" },
+            "media.license": {
+              "widget": "select",
+              "options": [
+                "all-rights-reserved",
+                "cc-by-4.0",
+                "cc-by-nc-4.0",
+                "cc-by-nc-sa-4.0",
+                "cc0-1.0",
+                "custom"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

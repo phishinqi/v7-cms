@@ -1,0 +1,16 @@
+{
+  "name": "@v7-cms/adapters",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./memory": "./src/memory.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@v7-cms/core": "workspace:*"
+  }
+}

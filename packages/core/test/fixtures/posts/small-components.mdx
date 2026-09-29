@@ -1,0 +1,33 @@
+---
+title: '小组件，大边界：在 MDX 里保持简单'
+description: '用一个没有客户端脚本的提示组件，说明 MDX 如何服务内容，而不是让文章变成应用。'
+slug: 'small-components'
+pubDate: '2026-09-03'
+category: 'technology'
+tags: ['MDX', 'Astro']
+featured: false
+lang: 'zh-CN'
+authors: ['v7', 'guest']
+---
+
+import Note from '@components/Note.astro';
+
+这是一篇 MDX 示例。下面的提示块由 Astro 组件生成静态 HTML，不需要 React 水合。
+
+## 给内容一点结构
+
+<Note title="先写正文，再考虑组件">
+  当一段内容需要在多篇文章里使用相同的语义与外观时，再把它抽成组件。不是每段文字都需要一个新的容器。
+</Note>
+
+## 普通 Markdown 仍然是主角
+
+组件之外，标题、段落、列表与代码仍然照常书写。
+
+```astro
+<Note title="一个小提示">这里是提示内容。</Note>
+```
+
+## 边界比数量重要
+
+让组件负责呈现，让文章保留内容。优先输出静态 HTML，只在用户确实需要交互的地方引入客户端代码。

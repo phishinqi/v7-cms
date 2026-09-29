@@ -1,0 +1,43 @@
+---
+title: '图片与留白：一页笔记的呼吸'
+description: '用一张本地示意图演示尺寸、替代文本与图片说明，不从外部服务加载媒体。'
+slug: 'image-and-space'
+pubDate: '2026-08-12'
+category: 'journal'
+tags: ['排版', '观察']
+featured: false
+lang: 'zh-CN'
+cover:
+  src: '/images/paper-study.png'
+  alt: '纸面上的陶土色圆形与线条'
+  width: 1200
+  height: 720
+  focal: '50% 50%'
+  caption: '主题演示封面'
+---
+
+import Note from '@components/Note.astro';
+
+这是图片排版示例，插图为本地生成的抽象纸面图形，不代表真实地点或摄影作品。
+
+## 让图片有一个位置
+
+<figure>
+  <img
+    src="/images/paper-study.svg"
+    alt="米白纸面上的陶土色圆形与灰色细线，构成简单的几何练习"
+    width="1200"
+    height="720"
+    loading="lazy"
+    decoding="async"
+  />
+  <figcaption>纸面练习 · 本地示意图</figcaption>
+</figure>
+
+图片应当拥有明确的宽高，让浏览器在下载前为它留出位置。替代文本说明画面中的有效信息，图片说明则补充它与文章的关系。
+
+## 不是每篇文章都需要封面
+
+如果文字已经把事情说清楚，空白并不需要被填满。页面的节奏，可以来自段落，也可以来自一次恰到好处的停顿。
+
+<Note title="使用自己的图片">把文件放入 public/images，并同时更新路径、尺寸和替代文本。</Note>

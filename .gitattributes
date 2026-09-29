@@ -1,0 +1,7 @@
+# The round-trip tests compare bytes, so fixture files must not be rewritten on checkout.
+packages/core/test/fixtures/** -text
+
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary
