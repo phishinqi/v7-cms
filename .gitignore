@@ -9,3 +9,5 @@ e2e/test-results/
 e2e/playwright-report/
 packages/proxy/.cms-session
 packages/cms/.scratch/
+test-results/
+playwright-report/
