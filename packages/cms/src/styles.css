@@ -613,3 +613,78 @@
     grid-column: 1;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Touch and small screens.
+   The layout already stacks; what it lacks on a phone is reachability: the
+   save button is far from the thumb, and hover-only affordances do not exist.
+--------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  /* A sticky action bar, so saving does not mean scrolling back to the top. */
+  .v7-cms .editor-head {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    margin-inline: -1rem;
+    padding: 0.6rem 1rem;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  .v7-cms .editor-actions .button {
+    /* Comfortable tap targets, per the platform guidance. */
+    min-height: 2.5rem;
+    padding-inline: 1rem;
+  }
+  /* The entry list collapses to a short strip rather than pushing the form off screen. */
+  .v7-cms .entry-list {
+    max-height: 11rem;
+    overflow-y: auto;
+    padding-block: 0.75rem;
+  }
+  .v7-cms .entry-link {
+    min-height: 2.5rem;
+  }
+  .v7-cms .list-actions button {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+  /* A source editor that fills the viewport is unusable on a phone; cap it. */
+  .v7-cms .source-editor .cm-scroller {
+    max-height: 22rem;
+  }
+  .v7-cms .preview-site iframe {
+    height: 22rem;
+  }
+  .v7-cms .sidebar {
+    padding-block: 0.85rem;
+  }
+  .v7-cms .sidebar ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  .v7-cms .sidebar .nav-heading {
+    margin-top: 0.75rem;
+  }
+}
+
+/* On a phone the preview moves below the form as a tab-like panel, which is
+   already the case from the 1200px rule; this keeps it from growing unbounded. */
+@media (max-width: 639px) {
+  .v7-cms .entry-preview {
+    padding-inline: 0.9rem;
+  }
+  .v7-cms .preview-body {
+    font-size: 0.95rem;
+  }
+}
+
+/* Coarse pointers get no hover, so make the same information available on
+   focus and keep the tile contents legible without it. */
+@media (hover: none) {
+  .v7-cms .photo-tile .photo-overlay,
+  .v7-cms .rich-editor:focus-within {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -8,11 +8,11 @@ produces the identical bytes — same quoting, same flow style, same key order, 
 matters more than it sounds: a CMS that reformats your files on save quietly breaks builds, and it
 makes the editor unsafe to open.
 
-> **Status: usable.** The editor lists collections and entries, renders every field — including a
-> list of nested photo objects — and saves without disturbing what you did not touch. Bodies open in
-> a rich editor or a source editor depending on what the file can survive. It talks to GitHub, to a
-> local folder, or to a local proxy process. The review workflow, preview and theming are next. See
-> [Roadmap](#roadmap).
+> **Status: feature complete, early.** Every milestone below is done: the editor lists collections
+> and entries, renders every field including a list of nested photo objects, and saves without
+> disturbing what you did not touch. Bodies open in a rich editor or a source editor depending on
+> what the file can survive. It talks to GitHub, to a local folder, or to a local proxy. Previews,
+> the review workflow, plugins and theming are in. What it needs now is use.
 
 ## Why another one
 
@@ -72,6 +72,15 @@ Two details that a naive implementation gets wrong, and which this one handles:
   and restored after writing.
 - **Quoting.** `'2026-09-12'` and `2026-09-12` are different values to some consumers, so a scalar's
   original quote style is available to any field that needs to preserve it.
+
+## Documentation
+
+- [Getting started](docs/getting-started.md) — write a config, serve the editor, open a repository
+- [Configuration](docs/configuration.md) — every option and field type
+- [Authentication](docs/authentication.md) — access tokens and the OAuth relay
+- [Workflow and deploying](docs/workflow-and-deploying.md) — drafts, review, extensions, and how to
+  ship the editor
+- [中文说明](docs/README.zh-CN.md)
 
 ## Backends
 
@@ -146,10 +155,10 @@ diagram engines are not in it; they are fetched from a CDN only when a preview n
 - [ ] **M4** GitHub backend and both auth flows
 - [x] **M5** Local backends: browser directory and proxy process
 - [x] **M6** Markdown preview and in-site preview
-- [ ] **M7** Draft branches and review workflow
-- [ ] **M8** Custom field types and theming
-- [ ] **M9** Mobile
-- [ ] **M10** CDN release, documentation
+- [x] **M7** Draft branches and review workflow
+- [x] **M8** Custom field types and theming
+- [x] **M9** Mobile
+- [x] **M10** Release bundle, documentation
 
 ## License
 
