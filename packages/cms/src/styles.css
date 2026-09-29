@@ -447,3 +447,24 @@
 .v7-cms .rich-editor a {
   color: var(--accent);
 }
+
+/* The connect screen: shown when a GitHub backend is configured but no token has been given. */
+.v7-cms .connect {
+  max-width: 34rem;
+  margin: 4rem auto;
+  padding: 1.5rem;
+}
+.v7-cms .connect h1 {
+  font-family: var(--heading);
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+.v7-cms .connect form {
+  margin-top: 1.5rem;
+}
+.v7-cms .connect .toggle {
+  margin-top: 0.9rem;
+}
+.v7-cms .connect .notice.error {
+  margin-top: 1rem;
+}
