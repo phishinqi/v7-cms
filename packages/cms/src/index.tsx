@@ -8,6 +8,7 @@ import { StrictMode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import type { StorageAdapter } from '@v7-cms/core/storage';
 import './styles.css';
+import { setupPlugins } from './plugins.js';
 import { CmsApp } from './app.js';
 import { Shell } from './frame/Shell.js';
 
@@ -16,6 +17,14 @@ export { EntryStore } from './entry-store.js';
 export { Shell } from './frame/Shell.js';
 export { FieldControl } from './frame/FieldControl.js';
 export { BodyField } from './frame/BodyField.js';
+export { registerPlugin, applyTheme, type Plugin, type ThemeTokens } from './plugins.js';
+export {
+  GitWorkflow,
+  FileWorkflow,
+  workflowFor,
+  type Workflow,
+  type EntryStatus,
+} from './workflow/index.js';
 export { SourceEditor } from './frame/SourceEditor.js';
 export { RichEditor, richRoundTrip } from './frame/RichEditor.js';
 
@@ -43,6 +52,8 @@ export function mount(options: MountOptions): Root {
   if (!container) throw new Error('mount(): container not found.');
 
   container.classList.add('v7-cms');
+  // A consumer's plugins may want to restyle the editor, so setup happens before render.
+  setupPlugins(container);
   if (options.theme) container.dataset['theme'] = options.theme;
 
   const existing = roots.get(container);

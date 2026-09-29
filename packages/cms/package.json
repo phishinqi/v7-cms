@@ -39,6 +39,7 @@
     "@types/react-dom": "19.3.0",
     "@v7-cms/adapters": "workspace:*",
     "@vitejs/plugin-react": "^5.1.0",
+    "jsdom": "27.0.0",
     "vite": "^7.1.7"
   }
 }
