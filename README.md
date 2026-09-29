@@ -118,12 +118,24 @@ explicit act with a warning, never something that happens by opening a file.
 `classifyBody()` in `@v7-cms/core` is the decision, and it is tested against real content from a
 real blog — the files that would be damaged are the fixtures.
 
+## Preview
+
+The editor shows the body beside the form, in one of two modes. The Markdown preview is always
+available and renders the body as the site would, including diagrams and math. The site preview
+embeds your development server in an iframe when the config names one, which is the only way to
+see the real layout.
+
+The diagram engines are fetched from a CDN the first time a preview actually contains one. Mermaid
+alone is several megabytes of diagram code, and bundling it turned a 500 kB editor into an 18 MB
+directory of 67 chunks. A post with no diagram downloads none of it — that is asserted by a test.
+
 ## Bundle size
 
-The built editor is **502 kB gzipped** (1.8 MB raw) plus 2 kB of CSS. That is the honest cost of
-shipping two real editors: Tiptap/ProseMirror for rich text and CodeMirror for source. For
-comparison it is in the same range as Sveltia and Decap. It is one file, loaded once, and React is
-left external so the host page provides its own copy.
+The built editor is **646 kB gzipped** as a single self-contained file, plus 10 kB of CSS. That is
+the honest cost of shipping two real editors — Tiptap/ProseMirror for rich text and CodeMirror for
+source — with React bundled in, since a host page loads it with a plain `<script type="module">`
+and resolves no bare specifiers of its own. It is in the same range as Sveltia and Decap. The
+diagram engines are not in it; they are fetched from a CDN only when a preview needs one.
 
 ## Roadmap
 
@@ -133,7 +145,7 @@ left external so the host page provides its own copy.
 - [x] **M3** Source editor and rich text, with the two-track rule
 - [ ] **M4** GitHub backend and both auth flows
 - [x] **M5** Local backends: browser directory and proxy process
-- [ ] **M6** Markdown preview and in-site preview
+- [x] **M6** Markdown preview and in-site preview
 - [ ] **M7** Draft branches and review workflow
 - [ ] **M8** Custom field types and theming
 - [ ] **M9** Mobile

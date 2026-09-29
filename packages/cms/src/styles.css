@@ -502,3 +502,114 @@
   padding: 0.1em 0.35em;
   border-radius: 3px;
 }
+
+/* With a preview open the editor becomes three columns; without one it stays two. */
+.v7-cms .editor:has(> .entry-preview) {
+  grid-template-columns: 15rem minmax(0, 1fr) minmax(0, 24rem);
+}
+.v7-cms .entry-preview {
+  border-left: 1px solid var(--line);
+  padding: 1rem 1.1rem 3rem;
+  min-width: 0;
+}
+.v7-cms .preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.v7-cms .preview-body {
+  font-family: var(--heading);
+  font-size: 0.98rem;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.v7-cms .preview-body h1,
+.v7-cms .preview-body h2,
+.v7-cms .preview-body h3 {
+  font-family: var(--heading);
+  line-height: 1.5;
+}
+.v7-cms .preview-body pre {
+  padding: 0.7rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  overflow-x: auto;
+}
+.v7-cms .preview-body img {
+  max-width: 100%;
+  height: auto;
+}
+.v7-cms .preview-body a {
+  color: var(--accent);
+}
+.v7-cms .preview-body blockquote {
+  margin: 1rem 0;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--accent);
+  color: var(--muted);
+}
+.v7-cms .preview-body table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+.v7-cms .preview-body th,
+.v7-cms .preview-body td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.4rem 0.7rem 0.4rem 0.1rem;
+  text-align: left;
+}
+.v7-cms .preview-diagram,
+.v7-cms .preview-score,
+.v7-cms .preview-math {
+  margin: 1rem 0;
+  overflow-x: auto;
+  text-align: center;
+}
+.v7-cms .preview-diagram svg,
+.v7-cms .preview-score svg {
+  max-width: 100%;
+  height: auto;
+}
+.v7-cms .preview-error {
+  padding: 0.6rem;
+  border: 1px dashed var(--danger);
+  border-radius: var(--radius);
+  color: var(--danger);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-align: left;
+  white-space: pre-wrap;
+}
+.v7-cms .preview-site iframe {
+  width: 100%;
+  height: 34rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+/* Below the three-column breakpoint the preview moves under the form. */
+@media (max-width: 1200px) {
+  .v7-cms .editor:has(> .entry-preview) {
+    grid-template-columns: 15rem minmax(0, 1fr);
+  }
+  .v7-cms .entry-preview {
+    grid-column: 2;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 1.25rem;
+  }
+}
+@media (max-width: 900px) {
+  .v7-cms .editor:has(> .entry-preview) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .v7-cms .entry-preview {
+    grid-column: 1;
+  }
+}

@@ -7,10 +7,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FieldsCollection } from '@v7-cms/core';
 import { ConflictError } from '@v7-cms/core/storage';
-import { useStore } from '../app.js';
+import { useApp, useStore } from '../app.js';
 import type { EntrySummary, LoadedEntry } from '../entry-store.js';
 import { BodyField } from './BodyField.js';
 import { FieldControl } from './FieldControl.js';
+import { Preview } from '../preview/Preview.js';
 
 type SaveState =
   | { kind: 'idle' }
@@ -37,6 +38,7 @@ export function Editor({ collectionName }: { collectionName: string }) {
 
   const issues = useMemo(() => (entry ? store.validate(entry) : []), [entry, store]);
   const bodyField = collection?.fields.find((field) => field.name === collection.contentField);
+  const preview = useApp().config.preview;
 
   if (!collection) {
     return <p className="notice">Unknown collection “{collectionName}”.</p>;
@@ -105,7 +107,7 @@ export function Editor({ collectionName }: { collectionName: string }) {
         {entries.length === 0 && <p className="notice">Nothing here yet.</p>}
       </aside>
 
-      <section className="entry-editor">
+      <section className="entry-editor" data-with-preview={Boolean(entry)}>
         {!entry && <p className="notice">Select an entry, or create one.</p>}
         {entry && (
           <>
@@ -173,6 +175,18 @@ export function Editor({ collectionName }: { collectionName: string }) {
           </>
         )}
       </section>
+
+      {entry && collection.contentField && (
+        <aside className="entry-preview">
+          <Preview
+            body={entry.body}
+            {...(preview?.devServerURL ? { devServerURL: preview.devServerURL } : {})}
+            {...(sitePathOf(preview?.pathTemplate, entry)
+              ? { sitePath: sitePathOf(preview?.pathTemplate, entry)! }
+              : {})}
+          />
+        </aside>
+      )}
     </div>
   );
 }
@@ -186,4 +200,19 @@ function uniqueName(collection: FieldsCollection, entries: EntrySummary[]): stri
     if (!taken.has(candidate)) return `untitled${index === 1 ? '' : `-${index}`}`;
     index += 1;
   }
+}
+
+/**
+ * Where this entry lives on the site, from the config's path template. Returns undefined when the
+ * template needs something the entry does not have, so the preview simply does not offer the site
+ * view rather than pointing at a broken URL.
+ */
+function sitePathOf(template: string | undefined, entry: LoadedEntry): string | undefined {
+  if (!template) return undefined;
+  const values: Record<string, string> = {
+    slug: entry.id,
+    collection: entry.collection.name,
+  };
+  const path = template.replace(/\{\{(\w+)\}\}/g, (_match, key: string) => values[key] ?? '');
+  return path.includes('{{') ? undefined : path;
 }

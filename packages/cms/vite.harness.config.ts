@@ -18,7 +18,10 @@ export default defineConfig({
     strictPort: true,
     host: '127.0.0.1',
     // The workspace packages are resolved from source and live above the harness root.
-    fs: { allow: [here('../../..'), '.'] },
+    fs: { allow: [here('../../..'), here('../../../node_modules/.pnpm'), '.'] },
+  },
+  optimizeDeps: {
+    include: ['markdown-it', 'react', 'react-dom', 'react-dom/client', 'react/jsx-runtime'],
   },
   resolve: {
     alias: {
