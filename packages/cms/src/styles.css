@@ -688,3 +688,20 @@
     transform: none;
   }
 }
+
+/* Localized strings: the locale is a label beside the input, not part of the field name. */
+.v7-cms .localized {
+  display: grid;
+  gap: 0.4rem;
+}
+.v7-cms .localized-row {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.6rem;
+}
+.v7-cms .localized-locale {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}

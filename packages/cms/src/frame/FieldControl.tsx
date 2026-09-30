@@ -170,6 +170,26 @@ export function FieldControl(props: FieldControlProps): React.ReactElement | nul
     case 'list':
       return <ListControl {...props} />;
 
+    // A localized string is one input per locale. The locales come from the config when it names
+    // them and from the value otherwise, so adding a language needs no code change.
+    case 'i18n-string':
+      return <LocalizedControl {...props} />;
+
+    // An image is a path plus optional metadata. Without `fields` it is just the path, which is
+    // what most settings need.
+    case 'image':
+      return (
+        <Wrapper {...props}>
+          <input
+            id={idFor(path)}
+            className="input"
+            value={asText(value)}
+            placeholder="/images/…"
+            onChange={(event) => onChange(event.target.value)}
+          />
+        </Wrapper>
+      );
+
     default:
       return (
         <Wrapper {...props}>
@@ -290,4 +310,39 @@ function emptyItem(fields: Field[]): unknown {
     item[field.name] = field.default ?? type?.defaultValue?.() ?? '';
   }
   return item;
+}
+
+/**
+ * A `{ locale: text }` object, one input per locale.
+ *
+ * Keys already in the value are kept, so a locale the config does not mention survives an edit
+ * rather than being dropped.
+ */
+function LocalizedControl(all: FieldControlProps) {
+  const { field, value, onChange, path } = all;
+  const record = (value && typeof value === 'object' ? value : {}) as Record<string, string>;
+  const configured = (field as { locales?: string[] }).locales;
+  const locales = configured?.length ? configured : Object.keys(record);
+  const shown = locales.length ? locales : ['zh-CN', 'en'];
+
+  return (
+    <Wrapper {...all}>
+      <div className="localized">
+        {shown.map((locale) => (
+          <label className="localized-row" key={locale}>
+            <span className="localized-locale" lang={locale}>
+              {locale}
+            </span>
+            <input
+              id={idFor(`${path}.${locale}`)}
+              className="input"
+              lang={locale}
+              value={record[locale] ?? ''}
+              onChange={(event) => onChange({ ...record, [locale]: event.target.value })}
+            />
+          </label>
+        ))}
+      </div>
+    </Wrapper>
+  );
 }

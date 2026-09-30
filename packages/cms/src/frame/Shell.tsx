@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../app.js';
 import { Editor } from './Editor.js';
+import { FileEditor } from './FileEditor.js';
 
 export function Shell() {
   const { config, issues } = useApp();
@@ -19,6 +20,9 @@ export function Shell() {
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, [collections]);
+
+  // A collection may be either kind, so the shell looks the selected one up rather than assuming.
+  const active = config.collections.find((collection) => collection.name === selected);
 
   const select = (name: string) => {
     setSelected(name);
@@ -64,7 +68,14 @@ export function Shell() {
             <ul>
               {files.map((collection) => (
                 <li key={collection.name}>
-                  <span className="nav-link muted">{collection.label}</span>
+                  <button
+                    type="button"
+                    className="nav-link"
+                    aria-current={selected === collection.name ? 'page' : undefined}
+                    onClick={() => select(collection.name)}
+                  >
+                    {collection.label}
+                  </button>
                 </li>
               ))}
             </ul>
@@ -72,8 +83,12 @@ export function Shell() {
         )}
       </nav>
       <main className="main">
-        {selected ? (
-          <Editor key={selected} collectionName={selected} />
+        {active ? (
+          active.kind === 'file' ? (
+            <FileEditor key={active.name} collection={active} />
+          ) : (
+            <Editor key={active.name} collectionName={active.name} />
+          )
         ) : (
           <p className="notice">Add a collection to your config to get started.</p>
         )}

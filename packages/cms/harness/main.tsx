@@ -115,6 +115,26 @@ Body text.
 `,
 };
 
+// A settings file for the file-editor tests, with the shapes a real one has: plain strings,
+// numbers, a localized object, booleans and a list of objects.
+files['site.config.json'] =
+  JSON.stringify(
+    {
+      title: 'V7',
+      siteURL: 'https://example.com',
+      postsPerPage: 10,
+      startedAt: '2026-09-28',
+      description: { 'zh-CN': '写代码，也写生活。', en: 'On code, and everything around it.' },
+      features: { moments: true, albums: true, stats: true },
+      nav: [
+        { href: '/posts/', label: { 'zh-CN': '文章', en: 'Writing' } },
+        { href: '/about/', label: { 'zh-CN': '关于', en: 'About' } },
+      ],
+    },
+    null,
+    2,
+  ) + '\n';
+
 const storage = new MemoryAdapter(files);
 declare global {
   interface Window {
