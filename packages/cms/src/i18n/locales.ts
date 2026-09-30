@@ -12,7 +12,16 @@ export type { Dictionary, TranslationKey };
 export const zhCN: Dictionary = {
   'nav.collections': '内容',
   'nav.settings': '设置',
+  'common.cancel': '取消',
   'nav.brand': 'V7 CMS',
+  'account.signedInAs': '已登录',
+  'account.viaOauth': 'GitHub 账号登录',
+  'account.viaToken': '访问令牌',
+  'account.signOut': '退出登录',
+  'account.signOutConfirm': '确定退出编辑器？',
+  'account.localFolder': '本地文件夹',
+  'account.localFolderHint': '正在编辑此设备上的文件',
+  'account.disconnect': '关闭文件夹',
 
   'config.title': '配置有问题',
 

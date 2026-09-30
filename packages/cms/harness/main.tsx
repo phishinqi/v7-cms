@@ -144,6 +144,20 @@ declare global {
 // Exposed so the browser tests can measure what the rich editor does to Markdown.
 window.__cms = { storage, richRoundTrip };
 
+// The memory backend has no account, so the account panel is exercised through a subclass that
+// reports one. `?account=1` turns it on; without it the local-backend branch is what renders.
+const wantsAccount = new URLSearchParams(location.search).has('account');
+if (wantsAccount) {
+  const store = storage as unknown as Record<string, unknown>;
+  store['account'] = async () => ({
+    login: 'octocat',
+    name: 'The Octocat',
+    avatar: 'https://avatars.example/octocat.png',
+    via: 'oauth',
+    repo: { owner: 'phishinqi', repo: 'astro-theme-v7', branch: 'main' },
+  });
+}
+
 // A test may ask for a language explicitly, so the interface can be checked in more than one.
 // The example config carries `zh-CN`; `?locale=en` overrides it for the English cases.
 const requested = new URLSearchParams(location.search).get('locale');

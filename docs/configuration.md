@@ -73,6 +73,35 @@ prefill photographic fields — it is never written to the file.
 Because uploads are re-encoded through a canvas, every byte of metadata is dropped on the way in.
 That is deliberate: a photograph's location should not be published because someone forgot.
 
+## The account panel
+
+A backend may report who it is acting as by implementing `account()`. When it does, the sidebar
+shows the login name, how the session was obtained (GitHub sign-in or an access token), and a sign
+out button that clears the stored token and returns to the connect screen.
+
+```ts
+interface AccountInfo {
+  login?: string;
+  name?: string;
+  avatar?: string;
+  via: 'oauth' | 'token';
+  repo?: { owner: string; repo: string; branch: string };
+}
+
+interface StorageAdapter {
+  /** Optional. Absent means "this backend has no account". */
+  account?(): Promise<AccountInfo | undefined>;
+}
+```
+
+It is optional because it is not universal: a folder on disk has no account and neither does the
+in-memory backend, so a local author sees a plain label where the sign-out button would be. A
+lookup that fails also leaves the panel off — by the time it runs the editor is already usable, and
+losing the account name must not blank the interface.
+
+GitHub and proxy backends implement it; the panel reports `via` so the author can tell what signing
+out will drop.
+
 ## `collections`
 
 Two kinds. A `fields` collection holds many entries in a folder; a `file` collection edits one

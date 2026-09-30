@@ -68,9 +68,34 @@ export class NotFoundError extends Error {
   }
 }
 
+/**
+ * Who the backend is acting as, when it has a notion of that.
+ *
+ * Optional because it is not universal: a folder on disk has no account, and neither does the
+ * in-memory backend. The editor shows an account panel only when this is present, so a local author
+ * never sees a sign-out button that would do nothing.
+ */
+export interface AccountInfo {
+  /** Login name, when the backend can report one. */
+  login?: string;
+  /** Display name, if it differs from the login. */
+  name?: string;
+  /** Avatar URL, already absolute. */
+  avatar?: string;
+  /** How the session was obtained, so the panel can explain what signing out drops. */
+  via: 'oauth' | 'token';
+  /** Repository being edited, for a backend that is bound to one. */
+  repo?: RepoRef;
+}
+
 export interface StorageAdapter {
   readonly kind: 'github' | 'fs-access' | 'proxy' | 'memory';
   init(): Promise<void>;
+  /**
+   * The signed-in account, or undefined when the backend has none. Called once the backend is
+   * ready; a failure here must not stop the editor from opening.
+   */
+  account?(): Promise<AccountInfo | undefined>;
   listDir(path: string): Promise<DirEntry[]>;
   readFile(path: string): Promise<FileContents>;
   readBinary(path: string): Promise<Uint8Array>;

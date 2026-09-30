@@ -5,4 +5,10 @@ export * from './fs-access.js';
 export * from './proxy.js';
 
 // Re-exported so consumers can name the interface without a second import.
-export type { StorageAdapter, MediaStore, DirEntry, FileContents } from '@v7-cms/core/storage';
+export type {
+  StorageAdapter,
+  MediaStore,
+  DirEntry,
+  FileContents,
+  AccountInfo,
+} from '@v7-cms/core/storage';

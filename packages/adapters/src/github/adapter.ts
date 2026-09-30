@@ -12,6 +12,7 @@
 import {
   ConflictError,
   NotFoundError,
+  type AccountInfo,
   type DirEntry,
   type FileContents,
   type MediaRef,
@@ -31,6 +32,8 @@ export interface GitHubAdapterOptions {
   apiRoot?: string;
   /** Injected in tests so the network can be faked. */
   fetch?: typeof globalThis.fetch;
+  /** How the token was obtained; reported by `account()` so the UI can explain sign-out. */
+  via?: 'oauth' | 'token';
   /** Commit author. GitHub attributes the commit to the token's user without this. */
   author?: { name: string; email: string };
 }
@@ -49,6 +52,10 @@ export class GitHubAdapter implements StorageAdapter {
   private readonly request: typeof globalThis.fetch;
   private token: string;
   private branch: string;
+  private via: 'oauth' | 'token';
+  /** Cached after the first lookup, so the shell does not re-request on every render. */
+  private accountInfo: AccountInfo | undefined;
+  private accountFetched = false;
   private author?: { name: string; email: string };
   /** Path -> blob sha, filled from one tree request per branch. */
   private tree: Map<string, string> | null = null;
@@ -66,6 +73,7 @@ export class GitHubAdapter implements StorageAdapter {
     const base = options.fetch ?? globalThis.fetch;
     this.request = base === globalThis.fetch ? base.bind(globalThis) : base;
     this.author = options.author;
+    this.via = options.via ?? 'token';
   }
 
   async init(): Promise<void> {
@@ -74,9 +82,42 @@ export class GitHubAdapter implements StorageAdapter {
     if (!response.ok) throw new Error(await describe(response, 'open the repository'));
   }
 
+  /**
+   * The authenticated user, fetched once.
+   *
+   * The token alone says nothing about who holds it, and an author who signed in on a shared
+   * machine needs to see that. `init()` already proved the token works, so a failure here is not
+   * worth failing the editor over — it returns undefined and the panel falls back to the repo.
+   */
+  async account(): Promise<AccountInfo | undefined> {
+    if (this.accountFetched) return this.accountInfo;
+    this.accountFetched = true;
+    try {
+      const response = await this.call('/user');
+      if (!response.ok) return undefined;
+      const user = (await response.json()) as {
+        login?: string;
+        name?: string;
+        avatar_url?: string;
+      };
+      this.accountInfo = {
+        ...(user.login ? { login: user.login } : {}),
+        ...(user.name ? { name: user.name } : {}),
+        ...(user.avatar_url ? { avatar: user.avatar_url } : {}),
+        via: this.via,
+        repo: { owner: this.owner, repo: this.repo, branch: this.branch },
+      };
+      return this.accountInfo;
+    } catch {
+      return undefined;
+    }
+  }
+
   /** Swap the token after a sign-in, so the same adapter can outlive a session change. */
   setToken(token: string): void {
     this.token = token;
+    this.accountInfo = undefined;
+    this.accountFetched = false;
     this.tree = null;
     this.dirCache.clear();
   }

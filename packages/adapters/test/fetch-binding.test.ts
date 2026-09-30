@@ -65,3 +65,63 @@ describe('fetch binding', () => {
     expect(calls[0]).toContain('/repos/o/r');
   });
 });
+
+describe('account reporting', () => {
+  it('names the signed-in user and how the session was obtained', async () => {
+    const injected = () =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
+            login: 'octocat',
+            name: 'The Octocat',
+            avatar_url: 'https://avatars.example/octocat.png',
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        ),
+      );
+    const adapter = new GitHubAdapter({
+      owner: 'o',
+      repo: 'r',
+      token: 't',
+      via: 'oauth',
+      fetch: injected,
+    });
+    await expect(adapter.account()).resolves.toMatchObject({
+      login: 'octocat',
+      name: 'The Octocat',
+      avatar: 'https://avatars.example/octocat.png',
+      via: 'oauth',
+      repo: { owner: 'o', repo: 'r' },
+    });
+  });
+
+  it('looks the account up once, not on every call', async () => {
+    let calls = 0;
+    const injected = () => {
+      calls += 1;
+      return Promise.resolve(
+        new Response(JSON.stringify({ login: 'octocat' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      );
+    };
+    const adapter = new GitHubAdapter({ owner: 'o', repo: 'r', token: 't', fetch: injected });
+    await adapter.account();
+    await adapter.account();
+    expect(calls).toBe(1);
+  });
+
+  it('returns undefined rather than throwing when the lookup fails', async () => {
+    // The editor is already usable by this point; a failed lookup must not blank the interface.
+    const injected = () => Promise.reject(new Error('network down'));
+    const adapter = new GitHubAdapter({ owner: 'o', repo: 'r', token: 't', fetch: injected });
+    await expect(adapter.account()).resolves.toBeUndefined();
+  });
+
+  it('is undefined for a backend with no account, like a folder', async () => {
+    const { MemoryAdapter } = await import('../src/memory.js');
+    const adapter = new MemoryAdapter({});
+    expect(adapter.account).toBeUndefined();
+  });
+});

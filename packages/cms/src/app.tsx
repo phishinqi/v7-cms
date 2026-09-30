@@ -2,8 +2,9 @@
  * The application shell: config loading, backend selection and the store, handed to the views
  * through context. Everything the UI needs is assembled here so views stay presentational.
  */
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { loadConfig, type CMSConfig, type ConfigIssue } from '@v7-cms/core';
+import type { AccountInfo } from '@v7-cms/core/storage';
 import type { Locale } from './i18n/index.js';
 import { MemoryAdapter } from '@v7-cms/adapters/memory';
 import { GitHubAdapter, tokenStore } from '@v7-cms/adapters';
@@ -20,8 +21,16 @@ export interface AppContextValue {
   issues: ConfigIssue[];
   /** The language the editor chrome speaks, from `config.locale`. */
   locale: Locale;
+  /** Who the backend acts as, when it can say. Absent for a folder or the memory backend. */
+  account?: AccountInfo;
   /** Replaces the backend once the author has connected one. */
-  connect?(adapter: StorageAdapter): void;
+  connect?(adapter: StorageAdapter, via?: 'oauth' | 'token'): void;
+  /**
+   * Drop the session and return to the connect screen. Clears a stored token, then forgets the
+   * adapter. A backend that owns no credential — a folder — still disconnects, because the author
+   * asked to leave rather than to keep editing.
+   */
+  disconnect?(): void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -40,11 +49,32 @@ export function CmsApp({ config: rawConfig, storage, children }: CmsAppProps) {
   const [connected, setConnected] = useState<StorageAdapter | undefined>(() =>
     autoAdapter(config, storage),
   );
+  const [account, setAccount] = useState<AccountInfo | undefined>();
+  // Set once the author signs out, so `autoAdapter` cannot immediately sign them back in from the
+  // token still sitting in storage.
+  const [signedOut, setSignedOut] = useState(false);
 
-  const adapter = connected ?? autoAdapter(config, storage);
+  const adapter = signedOut ? undefined : (connected ?? autoAdapter(config, storage));
 
   const locale = resolveLocale(config.locale);
   const translate = useTranslator(locale);
+
+  // Ask the backend who it is, once per adapter. A backend without an account — or one whose
+  // lookup fails — simply leaves the panel off rather than blocking the editor.
+  useEffect(() => {
+    let cancelled = false;
+    setAccount(undefined);
+    if (!adapter?.account) return;
+    void adapter
+      .account()
+      .then((info) => {
+        if (!cancelled) setAccount(info);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [adapter]);
 
   const value = useMemo<AppContextValue>(
     () =>
@@ -55,10 +85,17 @@ export function CmsApp({ config: rawConfig, storage, children }: CmsAppProps) {
             locale,
             storage: adapter,
             store: new EntryStore(adapter, config.collections),
+            ...(account ? { account } : {}),
             connect: setConnected,
+            disconnect: () => {
+              tokenStore.clear();
+              setSignedOut(true);
+              setConnected(undefined);
+              setAccount(undefined);
+            },
           }
         : { config, issues, locale, connect: setConnected },
-    [config, issues, adapter, locale],
+    [config, issues, adapter, locale, account],
   );
 
   // A backend that needs credentials waits behind the connect screen rather than showing an
@@ -112,6 +149,7 @@ function autoAdapter(config: CMSConfig, storage?: StorageAdapter): StorageAdapte
         repo,
         ...(config.backend.branch ? { branch: config.backend.branch } : {}),
         token,
+        via: 'token',
       });
     }
   }

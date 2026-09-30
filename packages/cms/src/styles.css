@@ -65,6 +65,8 @@
   min-height: 100vh;
 }
 .v7-cms .sidebar {
+  display: flex;
+  flex-direction: column;
   padding: 1.25rem 1rem;
   border-right: 1px solid var(--line);
   background: var(--surface);
@@ -107,6 +109,57 @@
 }
 .v7-cms .main {
   min-width: 0;
+}
+
+/* Account: pushed to the bottom of the sidebar, so it reads as chrome rather than content. */
+.v7-cms .account {
+  margin-top: auto;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 0.5rem;
+}
+.v7-cms .account-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.v7-cms .account-avatar {
+  border-radius: 50%;
+  flex: none;
+}
+.v7-cms .account-text {
+  min-width: 0;
+}
+.v7-cms .account-name {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.v7-cms .account-via {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.v7-cms .account-signout {
+  width: 100%;
+  font-size: 0.78rem;
+}
+.v7-cms .account-confirm {
+  display: grid;
+  gap: 0.4rem;
+}
+.v7-cms .account-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+.v7-cms .account-actions .button {
+  flex: 1;
+  font-size: 0.78rem;
 }
 
 /* Editor: entry list beside the form. */
@@ -662,6 +715,12 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
+  }
+  .v7-cms .account {
+    margin-top: 0.75rem;
+  }
+  .v7-cms .account-identity {
+    justify-content: flex-start;
   }
   .v7-cms .sidebar .nav-heading {
     margin-top: 0.75rem;

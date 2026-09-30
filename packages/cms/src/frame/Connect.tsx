@@ -23,9 +23,16 @@ import {
 import type { CMSConfig } from '@v7-cms/core';
 import { useTranslate, type Translate } from '../i18n/index.js';
 
+/** A backend is ready. `via` is only meaningful for a backend that holds a credential. */
+type ReadyHandler = (adapter: StorageAdapter, via?: 'oauth' | 'token') => void;
+
 export interface ConnectProps {
   config: CMSConfig;
-  onReady(adapter: StorageAdapter): void;
+  /**
+   * Called with a working backend. `via` records how the session was obtained, which the account
+   * panel needs to explain what signing out will drop.
+   */
+  onReady: ReadyHandler;
 }
 
 type Tab = 'folder' | 'proxy' | 'github' | 'token';
@@ -90,7 +97,7 @@ function label(tab: Tab, t: Translate): string {
 }
 
 /** The nicest local mode: no server and no token, where the browser supports it. */
-function FolderConnect({ onReady }: { onReady(adapter: StorageAdapter): void }) {
+function FolderConnect({ onReady }: { onReady: ReadyHandler }) {
   const t = useTranslate();
   const [error, setError] = useState<string | null>(null);
   const [remembered, setRemembered] = useState<FileSystemDirectoryHandle | null>(null);
@@ -171,7 +178,7 @@ function FolderConnect({ onReady }: { onReady(adapter: StorageAdapter): void }) 
 }
 
 /** The mode that works in every browser, at the cost of running one small local process. */
-function ProxyConnect({ url, onReady }: { url: string; onReady(adapter: StorageAdapter): void }) {
+function ProxyConnect({ url, onReady }: { url: string; onReady: ReadyHandler }) {
   const t = useTranslate();
   const [address, setAddress] = useState(url);
   const [token, setToken] = useState('');
@@ -252,13 +259,7 @@ function ProxyConnect({ url, onReady }: { url: string; onReady(adapter: StorageA
   );
 }
 
-function GitHubOAuth({
-  config,
-  onReady,
-}: {
-  config: CMSConfig;
-  onReady(adapter: StorageAdapter): void;
-}) {
+function GitHubOAuth({ config, onReady }: { config: CMSConfig; onReady: ReadyHandler }) {
   const t = useTranslate();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -281,7 +282,7 @@ function GitHubOAuth({
                 ...(authEndpoint ? { authEndpoint } : {}),
               });
               tokenStore.write(session.token);
-              onReady(await githubAdapter(config, session.token));
+              onReady(await githubAdapter(config, session.token, 'oauth'), 'oauth');
             } catch (problem) {
               setError((problem as Error).message);
             } finally {
@@ -301,13 +302,7 @@ function GitHubOAuth({
   );
 }
 
-function TokenConnect({
-  config,
-  onReady,
-}: {
-  config: CMSConfig;
-  onReady(adapter: StorageAdapter): void;
-}) {
+function TokenConnect({ config, onReady }: { config: CMSConfig; onReady: ReadyHandler }) {
   const t = useTranslate();
   const [token, setToken] = useState('');
   const [remember, setRemember] = useState(false);
@@ -322,7 +317,7 @@ function TokenConnect({
       // Checked immediately, so a wrong token fails here rather than on the first save.
       const session = await verifyToken(token.trim());
       tokenStore.write(session.token, (remember ? 'local' : 'session') as TokenStorage);
-      onReady(await githubAdapter(config, session.token));
+      onReady(await githubAdapter(config, session.token, 'token'), 'token');
     } catch (problem) {
       setError((problem as Error).message);
     } finally {
@@ -368,7 +363,11 @@ function TokenConnect({
 }
 
 /** Build the GitHub adapter from the config, so both auth paths share the wiring. */
-async function githubAdapter(config: CMSConfig, token: string): Promise<StorageAdapter> {
+async function githubAdapter(
+  config: CMSConfig,
+  token: string,
+  via: 'oauth' | 'token',
+): Promise<StorageAdapter> {
   const { GitHubAdapter } = await import('@v7-cms/adapters');
   const [owner, repo] = (config.backend.repo ?? '').split('/') as [string, string];
   return new GitHubAdapter({
@@ -376,5 +375,6 @@ async function githubAdapter(config: CMSConfig, token: string): Promise<StorageA
     repo,
     ...(config.backend.branch ? { branch: config.backend.branch } : {}),
     token,
+    via,
   });
 }

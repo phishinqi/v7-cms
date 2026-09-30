@@ -6,6 +6,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useApp } from '../app.js';
+import { AccountPanel } from './AccountPanel.js';
 import { Editor } from './Editor.js';
 import { FileEditor } from './FileEditor.js';
 import { useTranslate } from '../i18n/index.js';
@@ -83,6 +84,7 @@ export function Shell() {
             </ul>
           </>
         )}
+        <AccountPanel />
       </nav>
       <main className="main">
         {active ? (

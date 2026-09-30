@@ -15,7 +15,16 @@ export type Locale = 'en' | 'zh-CN';
 export const en = {
   'nav.collections': 'Collections',
   'nav.settings': 'Settings',
+  'common.cancel': 'Cancel',
   'nav.brand': 'V7 CMS',
+  'account.signedInAs': 'Signed in',
+  'account.viaOauth': 'signed in with GitHub',
+  'account.viaToken': 'access token',
+  'account.signOut': 'Sign out',
+  'account.signOutConfirm': 'Sign out of the editor?',
+  'account.localFolder': 'Local folder',
+  'account.localFolderHint': 'Editing files on this device',
+  'account.disconnect': 'Close folder',
 
   'config.title': 'Configuration problems',
 
