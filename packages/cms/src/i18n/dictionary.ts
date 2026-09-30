@@ -56,7 +56,7 @@ export const en = {
   'connect.reopenFolder': 'Reopen the last folder',
   'connect.forgetFolder': 'Forget it',
   'connect.proxyCommand':
-    'Run npx @v7-cms/proxy --root . in your repository. It prints a URL and a token; paste both here. It only listens on your own machine.',
+    'Run the proxy from a v7-cms checkout: node packages/proxy/dist/cli.mjs --root . It prints a URL and a token; paste both here. It only listens on your own machine.',
   'connect.proxyUrl': 'Proxy URL',
   'connect.serving': 'Serving “{repo}”.',
   'connect.proxyToken': 'Token',

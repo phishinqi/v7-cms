@@ -48,7 +48,9 @@ Decap CMS 已停止实质维护，而且它的自定义字段**不能复用**自
 **本地代理**是为 Firefox 和 Safari 准备的 —— 那两个浏览器没有上面那个 API：
 
 ```sh
-npx @v7-cms/proxy --root .
+# 尚未发布到 npm：从本仓库检出后运行。
+pnpm install && pnpm --filter @v7-cms/proxy build
+node packages/proxy/dist/cli.mjs --root .
 ```
 
 它会打印一个 URL 和一个令牌，粘进编辑器即可。它零依赖，只监听 loopback，并且**拒绝**绑定其他

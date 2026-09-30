@@ -44,7 +44,10 @@ test.beforeEach(async ({ page }) => {
 test('offers the proxy option and explains where the token comes from', async ({ page }) => {
   await mountWith(page, localConfig);
   await expect(page.locator('.connect h1')).toContainText('local repository');
-  await expect(page.locator('.connect')).toContainText('npx @v7-cms/proxy');
+  // The command has to be one that works: this pointed at an npm package that was never published.
+  const hint = await page.locator('.connect').innerText();
+  expect(hint).toContain('packages/proxy/dist/cli.mjs');
+  expect(hint).not.toContain('npx @v7-cms/proxy');
   await expect(page.locator('#proxy-url')).toHaveValue('http://127.0.0.1:5177');
   await expect(page.locator('#proxy-token')).toBeVisible();
   // Connecting is not possible without a token, so the button says so.

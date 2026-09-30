@@ -6,13 +6,22 @@
   "exports": {
     ".": "./src/index.ts",
     "./serialize": "./src/serialize/index.ts",
-    "./storage": "./src/storage/types.ts"
+    "./storage": "./src/storage/types.ts",
+    "./schema/config.json": "./schema/config.json"
   },
   "scripts": {
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "schema": "node --experimental-strip-types scripts/emit-schema.mjs"
   },
   "dependencies": {
     "yaml": "^2.8.1",
     "zod": "^4.6.5"
+  },
+  "files": [
+    "src",
+    "schema"
+  ],
+  "devDependencies": {
+    "prettier": "3.9.9"
   }
 }

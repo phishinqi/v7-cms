@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "v7-cms configuration",
+  "description": "The file passed to mount(). See docs/configuration.md for the prose version.",
+  "type": "object",
+  "properties": {
+    "backend": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "enum": ["github", "local"] },
+        "repo": { "type": "string", "pattern": "^[\\w.-]+\\/[\\w.-]+$" },
+        "branch": { "type": "string", "minLength": 1 },
+        "authBase": { "type": "string" },
+        "authEndpoint": { "type": "string" },
+        "local": {
+          "type": "object",
+          "properties": {
+            "kind": { "type": "string", "enum": ["fs-access", "proxy", "memory"] },
+            "url": { "type": "string" },
+            "files": {
+              "type": "object",
+              "propertyNames": { "type": "string" },
+              "additionalProperties": { "type": "string" }
+            }
+          },
+          "required": ["kind"]
+        }
+      },
+      "required": ["name"]
+    },
+    "media": {
+      "type": "object",
+      "properties": {
+        "provider": { "type": "string", "enum": ["repo", "s3"] },
+        "repoPath": { "type": "string" },
+        "publicPath": { "type": "string" },
+        "maxEdge": { "type": "integer", "exclusiveMinimum": 0, "maximum": 9007199254740991 },
+        "exif": { "type": "boolean" },
+        "s3": {
+          "type": "object",
+          "properties": {
+            "endpoint": { "type": "string" },
+            "bucket": { "type": "string" },
+            "publicBase": { "type": "string" }
+          },
+          "required": ["endpoint", "bucket", "publicBase"]
+        }
+      },
+      "required": ["provider"]
+    },
+    "collections": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": { "type": "string", "const": "fields" },
+              "name": { "type": "string", "minLength": 1 },
+              "label": { "type": "string", "minLength": 1 },
+              "labelSingular": { "type": "string" },
+              "folder": { "type": "string", "minLength": 1 },
+              "extension": { "type": "string", "enum": ["md", "mdx", "json", "yaml"] },
+              "format": { "type": "string", "enum": ["frontmatter", "json"] },
+              "identifierField": { "type": "string" },
+              "contentField": { "type": "string" },
+              "nested": { "type": "boolean" },
+              "media": {
+                "type": "object",
+                "propertyNames": { "type": "string" },
+                "additionalProperties": {}
+              },
+              "create": { "type": "boolean" },
+              "fields": { "minItems": 1, "type": "array", "items": { "$ref": "#/$defs/__schema0" } }
+            },
+            "required": ["kind", "name", "label", "folder", "extension", "format", "fields"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": { "type": "string", "const": "file" },
+              "name": { "type": "string", "minLength": 1 },
+              "label": { "type": "string", "minLength": 1 },
+              "format": { "type": "string", "enum": ["yaml", "json"] },
+              "files": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "minLength": 1 },
+                    "label": { "type": "string", "minLength": 1 },
+                    "file": { "type": "string", "minLength": 1 },
+                    "fields": { "type": "array", "items": { "$ref": "#/$defs/__schema0" } },
+                    "inferSchema": { "type": "boolean" },
+                    "fieldOverrides": {
+                      "type": "object",
+                      "propertyNames": { "type": "string" },
+                      "additionalProperties": {
+                        "type": "object",
+                        "propertyNames": { "type": "string" },
+                        "additionalProperties": {}
+                      }
+                    }
+                  },
+                  "required": ["name", "label", "file"]
+                }
+              }
+            },
+            "required": ["kind", "name", "label", "files"]
+          }
+        ]
+      }
+    },
+    "locale": { "type": "string" },
+    "editorialWorkflow": { "type": "boolean" },
+    "preview": {
+      "type": "object",
+      "properties": {
+        "devServerURL": { "type": "string" },
+        "pathTemplate": { "type": "string" },
+        "editAttribute": { "type": "string" }
+      }
+    },
+    "plugins": { "type": "array", "items": {} }
+  },
+  "required": ["backend", "collections"],
+  "$defs": {
+    "__schema0": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "label": { "type": "string" },
+        "widget": { "type": "string", "minLength": 1 },
+        "required": { "type": "boolean" },
+        "hint": { "type": "string" },
+        "fields": { "type": "array", "items": { "$ref": "#/$defs/__schema0" } },
+        "field": { "$ref": "#/$defs/__schema0" },
+        "options": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              {
+                "type": "object",
+                "properties": { "label": { "type": "string" }, "value": { "type": "string" } },
+                "required": ["label", "value"]
+              }
+            ]
+          }
+        },
+        "default": {},
+        "collapseEmpty": { "type": "boolean" },
+        "collection": { "type": "string" },
+        "valueField": { "type": "string" },
+        "displayFields": { "type": "array", "items": { "type": "string" } },
+        "format": { "type": "string" },
+        "pattern": {
+          "type": "array",
+          "prefixItems": [{ "type": "string" }, { "type": "string" }],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "required": ["name", "widget"],
+      "additionalProperties": {}
+    }
+  }
+}

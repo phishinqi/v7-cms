@@ -104,7 +104,8 @@ The proxy exists because that API is Chromium-only. It is one small process, bou
 guarded by a token, and confined to the folder you point it at:
 
 ```sh
-npx @v7-cms/proxy --root .
+# Not on npm yet — from a checkout:
+pnpm --filter @v7-cms/proxy build && node packages/proxy/dist/cli.mjs --root .
 ```
 
 It prints a URL and a token to paste into the editor. It has no dependencies, no shell access, and

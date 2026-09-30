@@ -51,7 +51,7 @@ export const zhCN: Dictionary = {
   'connect.reopenFolder': '重新打开上次的文件夹',
   'connect.forgetFolder': '清除记录',
   'connect.proxyCommand':
-    '在你的仓库里运行 npx @v7-cms/proxy --root . ，它会打印一个地址和一个令牌，把两者填到这里。它只监听你自己的机器。',
+    '从 v7-cms 检出后运行：node packages/proxy/dist/cli.mjs --root . 它会打印一个地址和一个令牌，填到这里。它只监听你自己的机器。',
   'connect.proxyUrl': '代理地址',
   'connect.serving': '正在提供 “{repo}”。',
   'connect.proxyToken': '令牌',

@@ -154,3 +154,36 @@ describe('config loading', () => {
     }
   });
 });
+
+describe('the published JSON schema', () => {
+  it('exists, because a consumer config points at it', async () => {
+    // `$schema` in a cms.config.json resolves to this file. It was referenced for a while without
+    // ever being generated, so an author copying the example got a dangling path.
+    const { readFile } = await import('node:fs/promises');
+    const { resolve } = await import('node:path');
+    const text = await readFile(resolve(import.meta.dirname, '../schema/config.json'), 'utf8');
+    const schema = JSON.parse(text) as {
+      required?: string[];
+      properties?: Record<string, unknown>;
+    };
+    expect(schema.required).toEqual(expect.arrayContaining(['backend', 'collections']));
+    expect(schema.properties).toHaveProperty('backend');
+    expect(schema.properties).toHaveProperty('collections');
+  });
+
+  it('accepts the example config an author would copy', async () => {
+    const { readFile } = await import('node:fs/promises');
+    const { resolve } = await import('node:path');
+    const { loadConfig } = await import('../src/config-load.js');
+    const example = JSON.parse(
+      await readFile(
+        resolve(import.meta.dirname, '../../../examples/v7-blog/cms.config.json'),
+        'utf8',
+      ),
+    ) as Record<string, unknown>;
+    delete example['$schema'];
+    // If the shipped example did not load, every author who copied it would start from a broken
+    // config and see the editor's error screen instead of their content.
+    expect(loadConfig(example).issues).toEqual([]);
+  });
+});

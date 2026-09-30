@@ -78,11 +78,16 @@ Only Chromium browsers implement the File System Access API, so this option is h
 Works everywhere, at the cost of one small process:
 
 ```sh
-npx @v7-cms/proxy --root .
+# Not on npm yet: run it from a checkout of this repository.
+pnpm install && pnpm --filter @v7-cms/proxy build
+node packages/proxy/dist/cli.mjs --root .
 ```
 
 It prints a URL and a token; paste both into the editor. It listens on loopback only and refuses
 to bind anything else, because it can write files in your repository.
+
+This mode exists for browsers without the File System Access API — Firefox and Safari. In Chromium,
+**a local folder** needs no process at all, so most people never need this.
 
 ### GitHub
 
@@ -105,6 +110,48 @@ works everywhere and needs no server.
 
 The editor lists entries by their identifier, opens one, and renders every field. Where it gets
 interesting is the body.
+
+## Using this with any site, not just the one it ships with
+
+Nothing here is bound to a particular theme or generator. The editor is a single ES module that
+takes a config and a DOM node; it never imports your framework and has no build step of its own.
+
+A site needs three things:
+
+1. **Files to edit.** Whatever your generator reads — Markdown with frontmatter, JSON, YAML. The
+   editor reads and writes them in place and leaves everything it did not edit byte-identical.
+2. **A config.** One `cms.config.json` describing where those files are and what fields they have.
+   The JSON Schema ships with the package, so an editor with schema support completes the keys:
+   `"$schema": "./node_modules/@v7-cms/core/schema/config.json"`.
+3. **A page that mounts it.** One HTML page with a container element.
+
+```html
+<link rel="stylesheet" href="/cms/cms.css" />
+<div id="cms-root"></div>
+<script type="module">
+  import { mount } from '/cms/v7-cms.js';
+  mount({
+    container: '#cms-root',
+    config: await fetch('/cms.config.json').then((r) => r.json()),
+  });
+</script>
+```
+
+That works on Hugo, Eleventy, Jekyll, Next, a hand-written site, or anything else: the editor only
+needs the repository.
+
+### What is theme-specific
+
+Two optional integrations, both of which a new site can skip:
+
+- **The editor page itself.** `astro-theme-v7` ships a 40-line page that inlines the config and
+  calls `mount()`. Any site can do the same in its own idiom.
+- **In-context editing marks.** Clicking a field in a live preview needs the site to render
+  `data-v7-field="<frontmatter path>"` on the elements showing each field. Without the marks the
+  preview still works; only the click-to-edit does not.
+
+`scripts/copy-cms.mjs` in that theme is a convenience, not a requirement: fetch `v7-cms.js` and
+`cms.css` from a [release](https://github.com/phishinqi/v7-cms/releases) however you prefer.
 
 ## The body editor
 
