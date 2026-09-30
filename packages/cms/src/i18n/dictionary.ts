@@ -111,7 +111,7 @@ export const en = {
   'preview.rendered': 'Markdown',
   'preview.site': 'Site',
   'preview.siteHint':
-    'The real site, from your development server. If it is not running, start it and reload.',
+    'The real site, embedded from the preview origin in your config. It shows what is published, not your unsaved edits.',
   'preview.markdownHint': 'Markdown preview. The published page may lay this out differently.',
   'preview.inContextHint': 'Click text in the page to edit the field that produced it.',
   'preview.inContextNeedsPath':

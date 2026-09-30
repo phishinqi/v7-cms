@@ -105,7 +105,8 @@ export const zhCN: Dictionary = {
   'preview.title': '预览',
   'preview.rendered': 'Markdown',
   'preview.site': '站点',
-  'preview.siteHint': '来自你的开发服务器的真实站点。如果没有运行，启动后重新加载。',
+  'preview.siteHint':
+    '来自配置中预览地址的真实站点。它显示的是已发布的内容，不是你尚未保存的改动。',
   'preview.markdownHint': 'Markdown 预览。发布后的页面排版可能不同。',
   'preview.inContextHint': '点击页面上的文字，直接编辑产生它的字段。',
   'preview.inContextNeedsPath':
