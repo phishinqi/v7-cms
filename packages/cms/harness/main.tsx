@@ -146,6 +146,12 @@ window.__cms = { storage, richRoundTrip };
 
 // The memory backend has no account, so the account panel is exercised through a subclass that
 // reports one. `?account=1` turns it on; without it the local-backend branch is what renders.
+// `?incontext=1` points the preview at the same-origin fixture page and turns the bridge on, which
+// is the only way to exercise the iframe protocol end to end.
+const inContext = new URLSearchParams(location.search).has('incontext')
+  ? { editAttribute: 'data-v7-field', pathTemplate: '/preview.html' }
+  : {};
+
 const wantsAccount = new URLSearchParams(location.search).has('account');
 if (wantsAccount) {
   const store = storage as unknown as Record<string, unknown>;
@@ -169,6 +175,9 @@ mount({
   config: {
     ...(config as object),
     ...(requested ? { locale: requested } : {}),
+    ...(Object.keys(inContext).length
+      ? { preview: { devServerURL: location.origin, ...inContext } }
+      : {}),
     backend: { name: 'local', local: { kind: 'memory' } },
   },
   storage,

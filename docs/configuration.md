@@ -102,6 +102,52 @@ losing the account name must not blank the interface.
 GitHub and proxy backends implement it; the panel reports `via` so the author can tell what signing
 out will drop.
 
+## In-context editing
+
+With `preview.editAttribute` set, the embedded site preview becomes editable in place: the editor
+outlines whatever the page marked, and clicking a marked element focuses the field that produced it.
+
+A theme opts in by rendering that attribute on the element showing each field. The value is the
+dotted frontmatter path:
+
+```html
+<h1 data-v7-field="title">{title}</h1>
+<p data-v7-field="description">{description}</p>
+<img data-v7-field="cover.src" src="{cover.src}" />
+```
+
+```json
+{
+  "preview": {
+    "devServerURL": "http://localhost:4321",
+    "pathTemplate": "/posts/{{slug}}/",
+    "editAttribute": "data-v7-field"
+  }
+}
+```
+
+Nothing is guessed. An editor that inferred which node showed which field would be wrong often
+enough to be worse than no feature, so a page with no marked nodes is simply a preview.
+
+**Origins.** The editor injects the bridge when the frame is same-origin — the usual case, since
+`/admin/` is served by the same dev server that renders the site. When they differ (a deployed
+editor pointing at a local dev server) the injection cannot reach in, and the site serves the
+bridge itself:
+
+```ts
+import { bridgeScript } from '@v7-cms/cms';
+
+const script = bridgeScript({ attribute: 'data-v7-field', accent: '#964630' });
+```
+
+**What a click does.** It reports the path; the editor scrolls to the matching `[data-field]`
+control and focuses its input. Only the first segment of a nested path is used, because a form
+control is addressed by its top-level field — `cover.alt` opens `cover`. A click also cancels the
+default, so following a link out of the frame never loses the author's place.
+
+**What it does not do.** It changes field _values_, never file structure. The body still goes
+through the two-track decision, and MDX still opens in the source editor.
+
 ## `collections`
 
 Two kinds. A `fields` collection holds many entries in a folder; a `file` collection edits one

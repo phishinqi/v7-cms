@@ -113,6 +113,9 @@ export const en = {
   'preview.siteHint':
     'The real site, from your development server. If it is not running, start it and reload.',
   'preview.markdownHint': 'Markdown preview. The published page may lay this out differently.',
+  'preview.inContextHint': 'Click text in the page to edit the field that produced it.',
+  'preview.inContextNeedsPath':
+    'In-context editing needs a pathTemplate so the editor can address this entry on your dev server.',
   'preview.open': 'Open in a new tab',
 } as const;
 

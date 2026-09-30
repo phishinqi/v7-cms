@@ -36,6 +36,9 @@ export {
   type TranslationKey,
 } from './i18n/index.js';
 export { RichEditor, richRoundTrip } from './frame/RichEditor.js';
+// Exported so a theme can serve the in-context bridge from its own pages, which is what makes it
+// work when the editor and the site are on different origins.
+export { bridgeScript, parseBridgeMessage, type InContextPick } from './preview/bridge.js';
 
 export interface MountOptions {
   config: unknown;

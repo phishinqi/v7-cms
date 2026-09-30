@@ -12,7 +12,8 @@ makes the editor unsafe to open.
 > and entries, renders every field including a list of nested photo objects, and saves without
 > disturbing what you did not touch. The interface itself is translated — `locale` picks the
 > language of the editor chrome, independent of the languages your content carries — and the
-> sidebar names the signed-in account and offers a way out of it. Bodies open in a rich editor or a source editor depending on
+> sidebar names the signed-in account and offers a way out of it. With `preview.editAttribute`,
+> a site that marks its fields can be edited by clicking the page itself. Bodies open in a rich editor or a source editor depending on
 > what the file can survive. It talks to GitHub, to a local folder, or to a local proxy. Previews,
 > the review workflow, plugins and theming are in. What it needs now is use.
 

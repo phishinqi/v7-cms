@@ -13,6 +13,7 @@ import type { EntrySummary, LoadedEntry } from '../entry-store.js';
 import { BodyField } from './BodyField.js';
 import { FieldControl } from './FieldControl.js';
 import { Preview } from '../preview/Preview.js';
+import type { InContextPick } from '../preview/bridge.js';
 
 type SaveState =
   | { kind: 'idle' }
@@ -28,6 +29,8 @@ export function Editor({ collectionName }: { collectionName: string }) {
   const [entries, setEntries] = useState<EntrySummary[]>([]);
   const [entry, setEntry] = useState<LoadedEntry | null>(null);
   const [state, setState] = useState<SaveState>({ kind: 'idle' });
+  /** Field the frame should scroll to, bumped so repeated picks of the same field re-fire. */
+  const [reveal, setReveal] = useState<{ path: string; nonce: number } | undefined>();
 
   const refresh = useCallback(async () => {
     setEntries(await store.list(collectionName));
@@ -59,6 +62,28 @@ export function Editor({ collectionName }: { collectionName: string }) {
   const open = async (path: string) => {
     setEntry(await store.load(collectionName, path));
     setState({ kind: 'idle' });
+    setReveal(undefined);
+  };
+
+  /**
+   * A click in the embedded page, turned into a focus on the control that produced it.
+   *
+   * The path is a dotted frontmatter path, so only its first segment names a control here; a
+   * nested path like `cover.alt` opens its object, which is as far as the form can be addressed
+   * without teaching every widget to accept a path from outside.
+   */
+  const revealField = (pick: InContextPick) => {
+    const [head] = pick.path.split('.');
+    if (!head) return;
+    setReveal({ path: pick.path, nonce: Date.now() });
+    // The path comes from the page, so it is quoted into the selector rather than interpolated raw.
+    const escaped = head.replace(/["\\]/g, '\\$&');
+    const target = document.querySelector<HTMLElement>(`[data-field="${escaped}"]`);
+    if (!target) return;
+    target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    // Focus the first control inside, so the author can type without reaching for the mouse.
+    const control = target.querySelector<HTMLElement>('input, textarea, select, [contenteditable]');
+    control?.focus({ preventScroll: true });
   };
 
   const create = () => {
@@ -200,6 +225,9 @@ export function Editor({ collectionName }: { collectionName: string }) {
             {...(sitePathOf(preview?.pathTemplate, entry)
               ? { sitePath: sitePathOf(preview?.pathTemplate, entry)! }
               : {})}
+            {...(preview?.editAttribute ? { editAttribute: preview.editAttribute } : {})}
+            onPick={revealField}
+            {...(reveal ? { revealPath: reveal.path, revealNonce: reveal.nonce } : {})}
           />
         </aside>
       )}

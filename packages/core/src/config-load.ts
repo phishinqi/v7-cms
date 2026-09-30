@@ -111,6 +111,7 @@ export const configSchema = z.object({
     .object({
       devServerURL: z.string().optional(),
       pathTemplate: z.string().optional(),
+      editAttribute: z.string().optional(),
     })
     .optional(),
   plugins: z.array(z.unknown()).optional(),

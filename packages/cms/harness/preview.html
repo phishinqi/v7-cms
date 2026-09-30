@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>Site preview fixture</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 2rem;
+        font:
+          16px/1.7 Georgia,
+          serif;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+      p {
+        max-width: 30rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Stands in for a theme that opted into in-context editing: each element that renders a
+      frontmatter field carries the attribute naming that field. The editor outlines these and
+      turns a click into a focus on the matching control.
+    -->
+    <h1 data-v7-field="title">一篇示例文章</h1>
+    <p data-v7-field="description">这是摘要字段渲染出来的段落。</p>
+    <p>这一段没有标记，点击它不应该做任何事。</p>
+  </body>
+</html>

@@ -129,6 +129,17 @@ export interface PreviewConfig {
   devServerURL?: string;
   /** URL of an entry inside that server, with `{{slug}}` and `{{collection}}` placeholders. */
   pathTemplate?: string;
+  /**
+   * In-context editing: the attribute the site marks editable nodes with.
+   *
+   * A theme opts in by rendering `data-v7-field="title"` on the element that shows that field — the
+   * value is the dotted frontmatter path. The editor then outlines those nodes in the embedded
+   * page, and clicking one focuses the matching control.
+   *
+   * Off unless a site asks for it, because it can only work when the site cooperates: an editor
+   * that guessed which node showed which field would be wrong often enough to be worse than none.
+   */
+  editAttribute?: string;
 }
 
 export interface CMSConfig {

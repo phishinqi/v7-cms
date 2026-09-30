@@ -107,6 +107,9 @@ export const zhCN: Dictionary = {
   'preview.site': '站点',
   'preview.siteHint': '来自你的开发服务器的真实站点。如果没有运行，启动后重新加载。',
   'preview.markdownHint': 'Markdown 预览。发布后的页面排版可能不同。',
+  'preview.inContextHint': '点击页面上的文字，直接编辑产生它的字段。',
+  'preview.inContextNeedsPath':
+    '内联编辑需要配置 pathTemplate，编辑器才知道这个条目在开发服务器上的地址。',
   'preview.open': '在新标签页打开',
 };
 
