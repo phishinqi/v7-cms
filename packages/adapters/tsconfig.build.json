@@ -1,0 +1,20 @@
+{
+  // Emits the JavaScript and declarations that ship in the package.
+  //
+  // The source uses extensionless relative imports (`./fields.js` resolves to `fields.ts`), which
+  // bundlers and vite handle but plain Node does not. `rewriteRelativeImportExtensions` is what
+  // keeps the emitted output importable without hand-editing every specifier.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"]
+}

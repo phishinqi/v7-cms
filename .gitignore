@@ -11,3 +11,6 @@ packages/proxy/.cms-session
 packages/cms/.scratch/
 test-results/
 playwright-report/
+
+# Tarballs from a local `pnpm pack`, which the publish workflow builds fresh.
+packed/

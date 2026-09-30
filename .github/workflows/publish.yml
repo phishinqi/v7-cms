@@ -1,0 +1,82 @@
+name: Publish to npm
+
+# Publishes the four packages to npm using Trusted Publishing: GitHub mints a short-lived OIDC
+# token that npm exchanges for publish rights. There is no NPM_TOKEN to leak, rotate or scope —
+# which is the reason this exists rather than a secret.
+#
+# Each package must have a Trusted Publisher configured on npmjs.com pointing at this repository
+# and this workflow filename. npm validates that claim, so renaming this file breaks publishing
+# until the setting is updated too.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Build and pack, but do not publish
+        type: boolean
+        default: true
+
+# The OIDC exchange needs id-token: write. contents: read is for the checkout.
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # A tag push is a real release; a manual run defaults to a dry run, so the button is safe to
+      # press. Computing it once here keeps the per-step conditions readable.
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.16.0
+          # The npm CLI that ships with Node 24 is new enough for Trusted Publishing, but the
+          # registry field has to point at npmjs.com: a mirror cannot accept a publish.
+          registry-url: https://registry.npmjs.org
+      - name: Install pinned pnpm
+        run: npm install --global pnpm@12.5.1
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # `files` in each package points at `dist/`, which a fresh checkout does not have. Without
+      # this the tarballs would be empty and npm would publish them anyway.
+      - name: Build every package
+        run: pnpm build
+
+      # Order matters. `core` and `proxy` have no workspace dependencies; `adapters` depends on
+      # both. pnpm rewrites `workspace:*` to the real version when it packs, but only if the
+      # version it names already exists on the registry.
+      - name: Publish @v7-cms/core
+        run: pnpm --filter @v7-cms/core publish --access public --no-git-checks
+        if: env.DRY_RUN != 'true'
+      - name: Publish @v7-cms/proxy
+        run: pnpm --filter @v7-cms/proxy publish --access public --no-git-checks
+        if: env.DRY_RUN != 'true'
+      - name: Publish @v7-cms/adapters
+        run: pnpm --filter @v7-cms/adapters publish --access public --no-git-checks
+        if: env.DRY_RUN != 'true'
+      - name: Publish @v7-cms/cms
+        run: pnpm --filter @v7-cms/cms publish --access public --no-git-checks
+        if: env.DRY_RUN != 'true'
+
+      # A dry run still builds and packs, so the tarballs can be inspected from the run's
+      # artifacts. This is what makes it worth running before a real release.
+      - name: Pack without publishing
+        if: env.DRY_RUN == 'true'
+        run: |
+          mkdir -p packed
+          for package in core proxy adapters cms; do
+            pnpm --filter "@v7-cms/$package" pack --pack-destination packed
+          done
+          ls -la packed
+      - uses: actions/upload-artifact@v4
+        if: env.DRY_RUN == 'true'
+        with:
+          name: npm-tarballs
+          path: packed/*.tgz
+          retention-days: 7

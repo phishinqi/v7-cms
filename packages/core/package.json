@@ -1,27 +1,59 @@
 {
   "name": "@v7-cms/core",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.0.0-alpha.9",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./serialize": "./src/serialize/index.ts",
-    "./storage": "./src/storage/types.ts",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./serialize": {
+      "types": "./dist/serialize/index.d.ts",
+      "default": "./dist/serialize/index.js"
+    },
+    "./storage": {
+      "types": "./dist/storage/types.d.ts",
+      "default": "./dist/storage/types.js"
+    },
     "./schema/config.json": "./schema/config.json"
   },
   "scripts": {
     "check": "tsc --noEmit",
-    "schema": "node --experimental-strip-types scripts/emit-schema.mjs"
+    "schema": "node --experimental-strip-types scripts/emit-schema.mjs",
+    "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
     "yaml": "^2.8.1",
     "zod": "^4.6.5"
   },
   "files": [
-    "src",
+    "dist",
     "schema"
   ],
   "devDependencies": {
     "prettier": "3.9.9"
+  },
+  "description": "The engine behind v7-cms: config schema, field contract, byte-faithful frontmatter serialization. No DOM.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phishinqi/v7-cms.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/phishinqi/v7-cms#readme",
+  "bugs": {
+    "url": "https://github.com/phishinqi/v7-cms/issues"
+  },
+  "keywords": [
+    "frontmatter",
+    "yaml",
+    "markdown",
+    "serialize",
+    "cms",
+    "byte-faithful"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   }
 }

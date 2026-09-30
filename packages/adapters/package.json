@@ -1,17 +1,49 @@
 {
   "name": "@v7-cms/adapters",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.0.0-alpha.9",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./memory": "./src/memory.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./memory": {
+      "types": "./dist/memory.d.ts",
+      "default": "./dist/memory.js"
+    }
   },
   "scripts": {
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
     "@v7-cms/core": "workspace:*",
     "@v7-cms/proxy": "workspace:*"
+  },
+  "description": "Storage backends for v7-cms: GitHub, a local folder, a local proxy, and in-memory.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phishinqi/v7-cms.git",
+    "directory": "packages/adapters"
+  },
+  "homepage": "https://github.com/phishinqi/v7-cms#readme",
+  "bugs": {
+    "url": "https://github.com/phishinqi/v7-cms/issues"
+  },
+  "keywords": [
+    "cms",
+    "git",
+    "github",
+    "storage",
+    "adapter",
+    "v7-cms"
+  ],
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   }
 }

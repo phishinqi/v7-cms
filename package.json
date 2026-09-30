@@ -8,7 +8,7 @@
     "pnpm": ">=12.5.1 <13"
   },
   "scripts": {
-    "check": "pnpm -r --if-present check",
+    "check": "pnpm --filter @v7-cms/core build && pnpm -r --if-present check",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

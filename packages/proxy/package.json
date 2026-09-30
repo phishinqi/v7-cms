@@ -1,7 +1,6 @@
 {
   "name": "@v7-cms/proxy",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.0.0-alpha.9",
   "type": "module",
   "exports": {
     ".": "./src/server.ts",
@@ -19,6 +18,29 @@
     "esbuild": "0.28.2"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phishinqi/v7-cms.git",
+    "directory": "packages/proxy"
+  },
+  "homepage": "https://github.com/phishinqi/v7-cms#readme",
+  "bugs": {
+    "url": "https://github.com/phishinqi/v7-cms/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "description": "Local write proxy for v7-cms, for browsers without the File System Access API.",
+  "keywords": [
+    "cms",
+    "git",
+    "proxy",
+    "local",
+    "v7-cms"
   ]
 }
