@@ -8,9 +8,11 @@ import { useEffect, useState } from 'react';
 import { useApp } from '../app.js';
 import { Editor } from './Editor.js';
 import { FileEditor } from './FileEditor.js';
+import { useTranslate } from '../i18n/index.js';
 
 export function Shell() {
   const { config, issues } = useApp();
+  const t = useTranslate();
   const collections = config.collections.filter((collection) => collection.kind === 'fields');
   const files = config.collections.filter((collection) => collection.kind === 'file');
   const [selected, setSelected] = useState(() => hashCollection() ?? collections[0]?.name ?? '');
@@ -32,7 +34,7 @@ export function Shell() {
   if (issues.length > 0) {
     return (
       <div className="config-errors" role="alert">
-        <h1>Configuration problems</h1>
+        <h1>{t('config.title')}</h1>
         <ul>
           {issues.map((issue) => (
             <li key={`${issue.path}:${issue.message}`}>
@@ -46,8 +48,8 @@ export function Shell() {
 
   return (
     <div className="shell">
-      <nav className="sidebar" aria-label="Collections">
-        <p className="brand">{config.locale === 'zh-CN' ? 'V7 CMS' : 'V7 CMS'}</p>
+      <nav className="sidebar" aria-label={t('nav.collections')}>
+        <p className="brand">{t('nav.brand')}</p>
         <ul>
           {collections.map((collection) => (
             <li key={collection.name}>
@@ -64,7 +66,7 @@ export function Shell() {
         </ul>
         {files.length > 0 && (
           <>
-            <p className="nav-heading">Settings</p>
+            <p className="nav-heading">{t('nav.settings')}</p>
             <ul>
               {files.map((collection) => (
                 <li key={collection.name}>

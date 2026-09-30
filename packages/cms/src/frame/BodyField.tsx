@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { classifyBody, type BodyModeResult } from '@v7-cms/core';
 import { RichEditor } from './RichEditor.js';
 import { SourceEditor } from './SourceEditor.js';
+import { useTranslate, type Translate } from '../i18n/index.js';
 
 export interface BodyFieldProps {
   value: string;
@@ -32,6 +33,7 @@ export function BodyField({
   structuredFences,
   onOverrideSource,
 }: BodyFieldProps) {
+  const t = useTranslate();
   const verdict: BodyModeResult = classifyBody(value, { extension, forceSource, structuredFences });
   const [override, setOverride] = useState(false);
   const canUseRich = verdict.mode === 'rich' || override;
@@ -39,7 +41,7 @@ export function BodyField({
   return (
     <div className="body-field" data-mode={canUseRich ? 'rich' : 'source'}>
       <div className="body-head">
-        <span className="field-label">Body</span>
+        <span className="field-label">{t('field.body')}</span>
         <div className="body-actions">
           {verdict.mode === 'source' && !override && (
             <button
@@ -50,16 +52,16 @@ export function BodyField({
                 setOverride(true);
               }}
             >
-              Edit as rich text anyway
+              {t('action.editRich')}
             </button>
           )}
-          {override && <span className="body-warning">Rich text will reformat this file.</span>}
+          {override && <span className="body-warning">{t('body.richWarning')}</span>}
         </div>
       </div>
 
       {verdict.mode === 'source' && !override && (
         <p className="field-hint" data-reason={verdict.reason}>
-          {explain(verdict.reason)} Editing as source.
+          {explain(verdict.reason, t)} {t('body.sourceOnly')}
         </p>
       )}
 
@@ -73,24 +75,24 @@ export function BodyField({
 }
 
 /** Why the source editor was chosen, in terms the author can act on. */
-function explain(reason: BodyResult['reason']): string {
+function explain(reason: BodyResult['reason'], t: Translate): string {
   switch (reason) {
     case 'mdx':
-      return 'This file is MDX, which carries imports and components.';
+      return t('body.reason.mdx');
     case 'imports':
-      return 'This body contains an import or export.';
+      return t('body.reason.imports');
     case 'jsx':
-      return 'This body contains a component.';
+      return t('body.reason.jsx');
     case 'html':
-      return 'This body contains HTML.';
+      return t('body.reason.html');
     case 'structured-fence':
-      return 'This body contains a diagram or other structured block.';
+      return t('body.reason.structuredFence');
     case 'math':
-      return 'This body contains display math.';
+      return t('body.reason.math');
     case 'indented-code':
-      return 'This body contains an indented code block.';
+      return t('body.reason.indentedCode');
     case 'configured':
-      return 'This field is configured as source only.';
+      return t('body.reason.configured');
     default:
       return '';
   }

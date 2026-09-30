@@ -7,6 +7,9 @@
  */
 import { test, expect, type Page } from '@playwright/test';
 
+// These tests assert behaviour, not language, so they pin the harness to English. The
+// editor's own translations are covered in i18n.spec.ts.
+
 const files = (page: Page) =>
   page.evaluate(() =>
     (
@@ -27,7 +30,7 @@ const openMdx = async (page: Page, label: string) => {
 };
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?locale=en');
 });
 
 test('an MDX body opens in the source editor, with the reason shown', async ({ page }) => {

@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FieldsCollection } from '@v7-cms/core';
 import { ConflictError } from '@v7-cms/core/storage';
 import { useApp, useStore } from '../app.js';
+import { useTranslate } from '../i18n/index.js';
 import type { EntrySummary, LoadedEntry } from '../entry-store.js';
 import { BodyField } from './BodyField.js';
 import { FieldControl } from './FieldControl.js';
@@ -22,6 +23,7 @@ type SaveState =
 
 export function Editor({ collectionName }: { collectionName: string }) {
   const store = useStore();
+  const t = useTranslate();
   const collection = store.collection(collectionName);
   const [entries, setEntries] = useState<EntrySummary[]>([]);
   const [entry, setEntry] = useState<LoadedEntry | null>(null);
@@ -47,7 +49,11 @@ export function Editor({ collectionName }: { collectionName: string }) {
   };
 
   if (!collection) {
-    return <p className="notice">Unknown collection “{collectionName}”.</p>;
+    return (
+      <p className="notice">
+        {t('list.unknownCollection')} “{collectionName}”.
+      </p>
+    );
   }
 
   const open = async (path: string) => {
@@ -92,7 +98,7 @@ export function Editor({ collectionName }: { collectionName: string }) {
           <h2>{collection.label}</h2>
           {collection.create !== false && (
             <button type="button" className="button" onClick={create}>
-              New
+              {t('action.new')}
             </button>
           )}
         </div>
@@ -110,11 +116,11 @@ export function Editor({ collectionName }: { collectionName: string }) {
             </li>
           ))}
         </ul>
-        {entries.length === 0 && <p className="notice">Nothing here yet.</p>}
+        {entries.length === 0 && <p className="notice">{t('list.empty')}</p>}
       </aside>
 
       <section className="entry-editor" data-with-preview={Boolean(entry)}>
-        {!entry && <p className="notice">Select an entry, or create one.</p>}
+        {!entry && <p className="notice">{t('list.selectEntry')}</p>}
         {entry && (
           <>
             <header className="editor-head">
@@ -122,7 +128,7 @@ export function Editor({ collectionName }: { collectionName: string }) {
               <div className="editor-actions">
                 {!entry.isNew && (
                   <button type="button" className="button danger" onClick={() => void remove()}>
-                    Delete
+                    {t('action.delete')}
                   </button>
                 )}
                 <button
@@ -131,17 +137,20 @@ export function Editor({ collectionName }: { collectionName: string }) {
                   onClick={() => void save()}
                   disabled={state.kind === 'saving' || issues.length > 0}
                 >
-                  {state.kind === 'saving' ? 'Saving…' : 'Save'}
+                  {state.kind === 'saving' ? t('action.saving') : t('action.save')}
                 </button>
               </div>
             </header>
 
             {issues.length > 0 && (
               <p className="notice error" role="alert">
-                {issues.length} field{issues.length === 1 ? '' : 's'} need attention.
+                {issues.length}
+                {issues.length === 1
+                  ? t('notice.fieldsNeedAttention')
+                  : t('notice.fieldsNeedAttentionPlural')}
               </p>
             )}
-            {state.kind === 'saved' && <p className="notice ok">Saved.</p>}
+            {state.kind === 'saved' && <p className="notice ok">{t('action.saved')}</p>}
             {state.kind === 'error' && (
               <p className="notice error" role="alert">
                 {state.message}
@@ -149,7 +158,7 @@ export function Editor({ collectionName }: { collectionName: string }) {
             )}
             {state.kind === 'conflict' && (
               <p className="notice error" role="alert">
-                This file changed elsewhere. Reopen it before saving.
+                {t('notice.conflict')}
               </p>
             )}
 

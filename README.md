@@ -10,7 +10,8 @@ makes the editor unsafe to open.
 
 > **Status: feature complete, early.** Every milestone below is done: the editor lists collections
 > and entries, renders every field including a list of nested photo objects, and saves without
-> disturbing what you did not touch. Bodies open in a rich editor or a source editor depending on
+> disturbing what you did not touch. The interface itself is translated — `locale` picks the
+> language of the editor chrome, independent of the languages your content carries. Bodies open in a rich editor or a source editor depending on
 > what the file can survive. It talks to GitHub, to a local folder, or to a local proxy. Previews,
 > the review workflow, plugins and theming are in. What it needs now is use.
 

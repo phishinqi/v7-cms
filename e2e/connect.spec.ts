@@ -7,6 +7,9 @@
  */
 import { test, expect, type Page } from '@playwright/test';
 
+// These tests assert behaviour, not language, so they pin the harness to English. The
+// editor's own translations are covered in i18n.spec.ts.
+
 const mountWith = (page: Page, config: unknown) =>
   page.evaluate(async (value) => {
     const { mount } = await import('/@fs/E:/Code/vibecoding/v7-cms/packages/cms/src/index.tsx');
@@ -35,7 +38,7 @@ const githubConfig = {
 };
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?locale=en');
 });
 
 test('offers the proxy option and explains where the token comes from', async ({ page }) => {

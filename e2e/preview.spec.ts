@@ -7,6 +7,9 @@
  */
 import { test, expect, type Page } from '@playwright/test';
 
+// These tests assert behaviour, not language, so they pin the harness to English. The
+// editor's own translations are covered in i18n.spec.ts.
+
 const POST = 'content/posts/a-smaller-web.md';
 
 /** Replace the body, so each test controls exactly what is previewed. */
@@ -32,7 +35,7 @@ async function setBody(page: Page, body: string): Promise<void> {
 }
 
 const openEditor = async (page: Page, body?: string) => {
-  await page.goto('/');
+  await page.goto('/?locale=en');
   if (body !== undefined) await setBody(page, body);
   await page.getByRole('button', { name: '文章 · Markdown', exact: true }).click();
   await page.locator('.entry-link', { hasText: 'A smaller web' }).first().click();
@@ -83,7 +86,7 @@ test('offers the site preview when the config points at a dev server', async ({ 
 });
 
 test('offers only the Markdown preview when no dev server is configured', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?locale=en');
   await page.evaluate(async () => {
     const { mount } = await import('/@fs/E:/Code/vibecoding/v7-cms/packages/cms/src/index.tsx');
     document.body.innerHTML = '<div id="bare"></div>';
@@ -116,7 +119,7 @@ test('offers only the Markdown preview when no dev server is configured', async 
 });
 
 test('shows the preview for a collection that has a body', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?locale=en');
   await page.getByRole('button', { name: '相册', exact: true }).click();
   await page.locator('.entry-link').first().click();
   await expect(page.locator('.preview')).toBeVisible();

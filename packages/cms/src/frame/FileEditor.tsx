@@ -14,6 +14,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Field, FileCollection, FileEntry } from '@v7-cms/core';
 import { runFieldValidation } from '@v7-cms/core';
 import { useApp } from '../app.js';
+import { useTranslate } from '../i18n/index.js';
 import { FieldControl } from './FieldControl.js';
 import { inferFields } from './infer-schema.js';
 
@@ -21,6 +22,7 @@ type SaveState = 'idle' | 'saving' | 'saved' | 'conflict' | 'error';
 
 export function FileEditor({ collection }: { collection: FileCollection }) {
   const { storage } = useApp();
+  const t = useTranslate();
   const [entry, setEntry] = useState<FileEntry | undefined>(collection.files[0]);
   const [values, setValues] = useState<Record<string, unknown>>({});
   const [original, setOriginal] = useState<Record<string, unknown>>({});
@@ -97,7 +99,12 @@ export function FileEditor({ collection }: { collection: FileCollection }) {
     }
   };
 
-  if (loading) return <p className="notice">Reading {entry?.label}…</p>;
+  if (loading)
+    return (
+      <p className="notice">
+        {t('field.reading')} {entry?.label}…
+      </p>
+    );
 
   return (
     <div className="file-editor">
@@ -110,7 +117,7 @@ export function FileEditor({ collection }: { collection: FileCollection }) {
             disabled={!dirty || state === 'saving' || issues.length > 0}
             onClick={() => void save()}
           >
-            {state === 'saving' ? 'Saving…' : 'Save'}
+            {state === 'saving' ? t('action.saving') : t('action.save')}
           </button>
         </div>
       </header>
@@ -133,10 +140,13 @@ export function FileEditor({ collection }: { collection: FileCollection }) {
 
       {issues.length > 0 && (
         <p className="notice error" role="alert">
-          {issues.length} field{issues.length === 1 ? '' : 's'} need attention.
+          {issues.length}
+          {issues.length === 1
+            ? t('notice.fieldsNeedAttention')
+            : t('notice.fieldsNeedAttentionPlural')}
         </p>
       )}
-      {state === 'saved' && <p className="notice ok">Saved.</p>}
+      {state === 'saved' && <p className="notice ok">{t('action.saved')}</p>}
       {state === 'error' && (
         <p className="notice error" role="alert">
           {message}
@@ -144,7 +154,7 @@ export function FileEditor({ collection }: { collection: FileCollection }) {
       )}
       {state === 'conflict' && (
         <p className="notice error" role="alert">
-          This file changed elsewhere. Reload the page before saving.
+          {t('notice.conflict')}
         </p>
       )}
 
@@ -161,7 +171,7 @@ export function FileEditor({ collection }: { collection: FileCollection }) {
         ))}
       </div>
 
-      {fields.length === 0 && <p className="notice">This file has nothing editable in it.</p>}
+      {fields.length === 0 && <p className="notice">{t('notice.nothingEditable')}</p>}
     </div>
   );
 }

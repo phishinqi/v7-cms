@@ -7,6 +7,9 @@
  */
 import { test, expect, type Page } from '@playwright/test';
 
+// These tests assert behaviour, not language, so they pin the harness to English. The
+// editor's own translations are covered in i18n.spec.ts.
+
 const ALBUM = 'content/albums/city-corners.md';
 
 const files = (page: Page) =>
@@ -17,7 +20,7 @@ const files = (page: Page) =>
   );
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?locale=en');
   await page.getByRole('button', { name: '相册', exact: true }).click();
   await expect(page.locator('.entry-link').first()).toBeVisible();
 });

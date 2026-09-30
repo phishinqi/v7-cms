@@ -8,6 +8,7 @@
 import type { Field } from '@v7-cms/core';
 import { getFieldType } from '@v7-cms/core';
 import { ImagePicker } from './ImagePicker.js';
+import { useTranslate } from '../i18n/index.js';
 
 // A sensible default, so an image field works before a collection configures where media goes.
 const DEFAULT_MEDIA = { repoPath: 'public/images/uploads', publicPath: '/images/uploads' };
@@ -32,12 +33,13 @@ function Wrapper({
   issues,
   path,
 }: FieldControlProps & { children: React.ReactNode }) {
+  const t = useTranslate();
   const messages = issuesAt(issues, path);
   return (
     <div className="field" data-field={field.name} data-invalid={messages.length > 0}>
       <label className="field-label" htmlFor={idFor(path)}>
         {field.label ?? field.name}
-        {field.required !== true && <span className="field-optional"> (optional)</span>}
+        {field.required !== true && <span className="field-optional"> {t('field.optional')}</span>}
       </label>
       {children}
       {field.hint && <p className="field-hint">{field.hint}</p>}
@@ -229,6 +231,7 @@ export function FieldControl(props: FieldControlProps): React.ReactElement | nul
  * it works on a touch screen without a drag library.
  */
 function ListControl(all: FieldControlProps) {
+  const t = useTranslate();
   const { field, value, onChange, issues, path } = all;
   const items = Array.isArray(value) ? value : [];
   const itemFields = field.fields ?? (field.field ? [field.field] : []);
@@ -266,10 +269,18 @@ function ListControl(all: FieldControlProps) {
             <div className="list-row">
               <span className="list-summary">{summaryOf(item, index)}</span>
               <div className="list-actions">
-                <button type="button" onClick={() => move(index, -1)} aria-label="Move up">
+                <button
+                  type="button"
+                  onClick={() => move(index, -1)}
+                  aria-label={t('action.moveUp')}
+                >
                   ↑
                 </button>
-                <button type="button" onClick={() => move(index, 1)} aria-label="Move down">
+                <button
+                  type="button"
+                  onClick={() => move(index, 1)}
+                  aria-label={t('action.moveDown')}
+                >
                   ↓
                 </button>
                 <button
@@ -313,7 +324,7 @@ function ListControl(all: FieldControlProps) {
         className="button add-item"
         onClick={() => onChange([...items, emptyItem(itemFields)])}
       >
-        Add {field.labelSingular ?? field.label ?? 'item'}
+        {t('action.add')} {field.labelSingular ?? field.label ?? ''}
       </button>
     </Wrapper>
   );

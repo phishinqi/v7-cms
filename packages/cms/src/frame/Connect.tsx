@@ -21,6 +21,7 @@ import {
   type TokenStorage,
 } from '@v7-cms/adapters';
 import type { CMSConfig } from '@v7-cms/core';
+import { useTranslate, type Translate } from '../i18n/index.js';
 
 export interface ConnectProps {
   config: CMSConfig;
@@ -30,6 +31,7 @@ export interface ConnectProps {
 type Tab = 'folder' | 'proxy' | 'github' | 'token';
 
 export function Connect({ config, onReady }: ConnectProps) {
+  const t = useTranslate();
   const wantsLocal = config.backend.name === 'local';
   const localKind = config.backend.local?.kind;
   const proxyURL = config.backend.local?.url ?? 'http://127.0.0.1:5177';
@@ -46,9 +48,13 @@ export function Connect({ config, onReady }: ConnectProps) {
 
   return (
     <div className="connect">
-      <h1>Open {config.backend.name === 'github' ? config.backend.repo : 'a local repository'}</h1>
+      <h1>
+        {config.backend.name === 'github'
+          ? t('connect.openRepo', { repo: config.backend.repo ?? '' })
+          : t('connect.openLocal')}
+      </h1>
       {tabs.length > 1 && (
-        <div className="view-switch" role="tablist" aria-label="How to connect">
+        <div className="view-switch" role="tablist" aria-label={t('connect.howTo')}>
           {tabs.map((name) => (
             <button
               key={name}
@@ -57,7 +63,7 @@ export function Connect({ config, onReady }: ConnectProps) {
               aria-selected={tab === name}
               onClick={() => setTab(name)}
             >
-              {label(name)}
+              {label(name, t)}
             </button>
           ))}
         </div>
@@ -70,21 +76,22 @@ export function Connect({ config, onReady }: ConnectProps) {
   );
 }
 
-function label(tab: Tab): string {
+function label(tab: Tab, t: Translate): string {
   switch (tab) {
     case 'folder':
-      return 'Local folder';
+      return t('connect.tabFolder');
     case 'proxy':
-      return 'Local proxy';
+      return t('connect.tabProxy');
     case 'github':
-      return 'Sign in with GitHub';
+      return t('connect.tabGithub');
     case 'token':
-      return 'Access token';
+      return t('connect.tabToken');
   }
 }
 
 /** The nicest local mode: no server and no token, where the browser supports it. */
 function FolderConnect({ onReady }: { onReady(adapter: StorageAdapter): void }) {
+  const t = useTranslate();
   const [error, setError] = useState<string | null>(null);
   const [remembered, setRemembered] = useState<FileSystemDirectoryHandle | null>(null);
 
@@ -103,20 +110,12 @@ function FolderConnect({ onReady }: { onReady(adapter: StorageAdapter): void }) 
   };
 
   if (!supportsFileSystemAccess()) {
-    return (
-      <p className="notice">
-        This browser cannot open a local folder. Use the local proxy instead, which works
-        everywhere.
-      </p>
-    );
+    return <p className="notice">{t('connect.noFileSystem')}</p>;
   }
 
   return (
     <div>
-      <p className="notice">
-        Pick your repository folder. The editor reads and writes the files directly — no server and
-        no token — and nothing is committed until you push it yourself.
-      </p>
+      <p className="notice">{t('connect.folderHint')}</p>
       {remembered && (
         <p>
           <button
@@ -125,13 +124,13 @@ function FolderConnect({ onReady }: { onReady(adapter: StorageAdapter): void }) 
             onClick={async () => {
               // Permission may have lapsed since last time; the API needs a gesture to renew it.
               if (!(await requestPermission(remembered))) {
-                setError('Permission to that folder was not granted. Choose it again.');
+                setError(t('connect.folderDenied'));
                 return;
               }
               await open(remembered, false);
             }}
           >
-            Reopen the last folder
+            {t('connect.reopenFolder')}
           </button>{' '}
           <button
             type="button"
@@ -141,7 +140,7 @@ function FolderConnect({ onReady }: { onReady(adapter: StorageAdapter): void }) 
               setRemembered(null);
             }}
           >
-            Forget it
+            {t('connect.forgetFolder')}
           </button>
         </p>
       )}
@@ -159,7 +158,7 @@ function FolderConnect({ onReady }: { onReady(adapter: StorageAdapter): void }) 
             }
           }}
         >
-          Choose folder
+          {t('connect.chooseFolder')}
         </button>
       </p>
       {error && (
@@ -173,6 +172,7 @@ function FolderConnect({ onReady }: { onReady(adapter: StorageAdapter): void }) 
 
 /** The mode that works in every browser, at the cost of running one small local process. */
 function ProxyConnect({ url, onReady }: { url: string; onReady(adapter: StorageAdapter): void }) {
+  const t = useTranslate();
   const [address, setAddress] = useState(url);
   const [token, setToken] = useState('');
   const [busy, setBusy] = useState(false);
@@ -214,12 +214,9 @@ function ProxyConnect({ url, onReady }: { url: string; onReady(adapter: StorageA
 
   return (
     <form onSubmit={(event) => void connect(event)}>
-      <p className="notice">
-        Run <code>npx @v7-cms/proxy --root .</code> in your repository. It prints a URL and a token;
-        paste both here. It only listens on your own machine.
-      </p>
+      <p className="notice">{t('connect.proxyCommand')}</p>
       <label className="field-label" htmlFor="proxy-url">
-        Proxy URL
+        {t('connect.proxyUrl')}
       </label>
       <input
         id="proxy-url"
@@ -227,10 +224,10 @@ function ProxyConnect({ url, onReady }: { url: string; onReady(adapter: StorageA
         value={address}
         onChange={(event) => setAddress(event.target.value)}
       />
-      {serving && <p className="field-hint">Serving “{serving}”.</p>}
+      {serving && <p className="field-hint">{t('connect.serving', { repo: serving })}</p>}
 
       <label className="field-label" htmlFor="proxy-token">
-        Token
+        {t('connect.proxyToken')}
       </label>
       <input
         id="proxy-token"
@@ -243,7 +240,7 @@ function ProxyConnect({ url, onReady }: { url: string; onReady(adapter: StorageA
 
       <p>
         <button type="submit" className="button primary" disabled={busy || !token.trim()}>
-          {busy ? 'Connecting…' : 'Connect'}
+          {busy ? t('connect.connecting') : t('connect.connect')}
         </button>
       </p>
       {error && (
@@ -262,15 +259,13 @@ function GitHubOAuth({
   config: CMSConfig;
   onReady(adapter: StorageAdapter): void;
 }) {
+  const t = useTranslate();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   return (
     <div>
-      <p className="notice">
-        Sign in with GitHub. The editor receives a token for your account and can only reach
-        repositories you can already write to.
-      </p>
+      <p className="notice">{t('connect.githubNotice')}</p>
       <p>
         <button
           type="button"
@@ -290,7 +285,7 @@ function GitHubOAuth({
             }
           }}
         >
-          {busy ? 'Waiting for GitHub…' : 'Sign in with GitHub'}
+          {busy ? t('connect.waiting') : t('connect.signIn')}
         </button>
       </p>
       {error && (
@@ -309,6 +304,7 @@ function TokenConnect({
   config: CMSConfig;
   onReady(adapter: StorageAdapter): void;
 }) {
+  const t = useTranslate();
   const [token, setToken] = useState('');
   const [remember, setRemember] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -333,7 +329,7 @@ function TokenConnect({
   return (
     <form onSubmit={(event) => void submit(event)}>
       <label className="field-label" htmlFor="token">
-        Personal access token
+        {t('connect.patLabel')}
       </label>
       <input
         id="token"
@@ -344,21 +340,18 @@ function TokenConnect({
         placeholder="github_pat_… or ghp_…"
         onChange={(event) => setToken(event.target.value)}
       />
-      <p className="field-hint">
-        Needs repository contents read and write. Create one under GitHub → Settings → Developer
-        settings → Personal access tokens.
-      </p>
+      <p className="field-hint">{t('connect.patHint')}</p>
       <label className="toggle">
         <input
           type="checkbox"
           checked={remember}
           onChange={(event) => setRemember(event.target.checked)}
         />
-        <span>Remember on this device</span>
+        <span>{t('connect.remember')}</span>
       </label>
       <p>
         <button type="submit" className="button primary" disabled={busy || token.trim() === ''}>
-          {busy ? 'Checking…' : 'Connect'}
+          {busy ? t('connect.checking') : t('connect.connect')}
         </button>
       </p>
       {error && (

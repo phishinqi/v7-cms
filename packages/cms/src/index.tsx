@@ -26,6 +26,15 @@ export {
   type EntryStatus,
 } from './workflow/index.js';
 export { SourceEditor } from './frame/SourceEditor.js';
+export {
+  createTranslate,
+  resolveLocale,
+  LOCALE_NAMES,
+  locales,
+  type Locale,
+  type Translate,
+  type TranslationKey,
+} from './i18n/index.js';
 export { RichEditor, richRoundTrip } from './frame/RichEditor.js';
 
 export interface MountOptions {

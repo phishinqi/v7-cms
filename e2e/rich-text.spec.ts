@@ -8,6 +8,9 @@
  */
 import { test, expect } from '@playwright/test';
 
+// These tests assert behaviour, not language, so they pin the harness to English. The
+// editor's own translations are covered in i18n.spec.ts.
+
 // The harness exposes the same serialiser the editor uses.
 const roundTrip = (page: import('@playwright/test').Page, markdown: string) =>
   page.evaluate(
@@ -21,7 +24,7 @@ const roundTrip = (page: import('@playwright/test').Page, markdown: string) =>
   );
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?locale=en');
 });
 
 test('preserves headings, emphasis, links and lists', async ({ page }) => {

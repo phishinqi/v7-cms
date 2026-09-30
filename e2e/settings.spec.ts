@@ -65,8 +65,8 @@ test('a list of objects renders its item shape, including a localized label', as
 test('editing a value saves it and leaves the other keys alone', async ({ page }) => {
   await openSettings(page);
   await page.locator('#title-field').fill('My blog');
-  await page.getByRole('button', { name: 'Save', exact: true }).click();
-  await expect(page.locator('.notice.ok')).toHaveText(/Saved/);
+  await page.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(page.locator('.notice.ok')).toHaveText(/已保存|Saved/);
 
   const saved = JSON.parse((await stored(page))!) as Record<string, unknown>;
   expect(saved['title']).toBe('My blog');
@@ -83,8 +83,8 @@ test('editing a value saves it and leaves the other keys alone', async ({ page }
 test('keeps the file readable: two-space indent and a trailing newline', async ({ page }) => {
   await openSettings(page);
   await page.locator('#title-field').fill('My blog');
-  await page.getByRole('button', { name: 'Save', exact: true }).click();
-  await expect(page.locator('.notice.ok')).toHaveText(/Saved/);
+  await page.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(page.locator('.notice.ok')).toHaveText(/已保存|Saved/);
   const text = (await stored(page))!;
   expect(text).toContain('\n  "title": "My blog"');
   expect(text.endsWith('\n')).toBe(true);
@@ -93,15 +93,15 @@ test('keeps the file readable: two-space indent and a trailing newline', async (
 test('toggles a feature switch', async ({ page }) => {
   await openSettings(page);
   await page.locator('#features-moments-field').uncheck();
-  await page.getByRole('button', { name: 'Save', exact: true }).click();
-  await expect(page.locator('.notice.ok')).toHaveText(/Saved/);
+  await page.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(page.locator('.notice.ok')).toHaveText(/已保存|Saved/);
   const saved = JSON.parse((await stored(page))!) as { features: { moments: boolean } };
   expect(saved.features.moments).toBe(false);
 });
 
 test('save is unavailable until something changes', async ({ page }) => {
   await openSettings(page);
-  const save = page.getByRole('button', { name: 'Save', exact: true });
+  const save = page.getByRole('button', { name: '保存', exact: true });
   await expect(save).toBeDisabled();
   await page.locator('#title-field').fill('Changed');
   await expect(save).toBeEnabled();
@@ -112,11 +112,11 @@ test('save is unavailable until something changes', async ({ page }) => {
 
 test('adding a navigation entry writes it to the file', async ({ page }) => {
   await openSettings(page);
-  await page.getByRole('button', { name: /Add Nav/ }).click();
+  await page.getByRole('button', { name: /添加 Nav|Add Nav/ }).click();
   await page.locator('#nav-2-href-field').fill('/tags/');
   await page.locator('#nav-2-label-zh-CN-field').fill('标签');
-  await page.getByRole('button', { name: 'Save', exact: true }).click();
-  await expect(page.locator('.notice.ok')).toHaveText(/Saved/);
+  await page.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(page.locator('.notice.ok')).toHaveText(/已保存|Saved/);
 
   const saved = JSON.parse((await stored(page))!) as { nav: Array<Record<string, unknown>> };
   expect(saved.nav).toHaveLength(3);

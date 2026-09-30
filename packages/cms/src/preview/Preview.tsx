@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState } from 'react';
 import MarkdownIt from 'markdown-it';
 import { renderPreview } from './renderers.js';
+import { useTranslate } from '../i18n/index.js';
 
 export interface PreviewProps {
   /** Markdown body, exactly as it will be written to the file. */
@@ -23,6 +24,7 @@ const md = new MarkdownIt({ html: false, linkify: true, typographer: false });
 type Mode = 'rendered' | 'site';
 
 export function Preview({ body, devServerURL, sitePath }: PreviewProps) {
+  const t = useTranslate();
   const [mode, setMode] = useState<Mode>('rendered');
   const [theme, setTheme] = useState<'light' | 'dark'>(() => readTheme());
   const host = useRef<HTMLDivElement | null>(null);
@@ -59,15 +61,15 @@ export function Preview({ body, devServerURL, sitePath }: PreviewProps) {
   return (
     <div className="preview">
       <div className="preview-head">
-        <span className="field-label">Preview</span>
-        <div className="view-switch" role="tablist" aria-label="Preview mode">
+        <span className="field-label">{t('preview.title')}</span>
+        <div className="view-switch" role="tablist" aria-label={t('preview.title')}>
           <button
             type="button"
             role="tab"
             aria-selected={mode === 'rendered'}
             onClick={() => setMode('rendered')}
           >
-            Markdown
+            {t('preview.rendered')}
           </button>
           {siteURL && (
             <button
@@ -76,7 +78,7 @@ export function Preview({ body, devServerURL, sitePath }: PreviewProps) {
               aria-selected={mode === 'site'}
               onClick={() => setMode('site')}
             >
-              Site
+              {t('preview.site')}
             </button>
           )}
         </div>
@@ -86,18 +88,12 @@ export function Preview({ body, devServerURL, sitePath }: PreviewProps) {
         <div className="preview-body" ref={host} />
       ) : (
         <div className="preview-site">
-          <iframe title="Site preview" src={siteURL} />
-          <p className="field-hint">
-            The real site, from your development server. If it is not running, start it and reload.
-          </p>
+          <iframe title={t('preview.site')} src={siteURL} />
+          <p className="field-hint">{t('preview.siteHint')}</p>
         </div>
       )}
 
-      {mode === 'rendered' && (
-        <p className="field-hint">
-          Markdown preview. The published page may lay this out differently.
-        </p>
-      )}
+      {mode === 'rendered' && <p className="field-hint">{t('preview.markdownHint')}</p>}
     </div>
   );
 }

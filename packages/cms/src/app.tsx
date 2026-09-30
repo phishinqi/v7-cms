@@ -4,11 +4,13 @@
  */
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import { loadConfig, type CMSConfig, type ConfigIssue } from '@v7-cms/core';
+import type { Locale } from './i18n/index.js';
 import { MemoryAdapter } from '@v7-cms/adapters/memory';
 import { GitHubAdapter, tokenStore } from '@v7-cms/adapters';
 import type { StorageAdapter } from '@v7-cms/core/storage';
 import { EntryStore } from './entry-store.js';
 import { Connect } from './frame/Connect.js';
+import { TranslateProvider, resolveLocale, useTranslator } from './i18n/index.js';
 
 export interface AppContextValue {
   config: CMSConfig;
@@ -16,6 +18,8 @@ export interface AppContextValue {
   store?: EntryStore;
   storage?: StorageAdapter;
   issues: ConfigIssue[];
+  /** The language the editor chrome speaks, from `config.locale`. */
+  locale: Locale;
   /** Replaces the backend once the author has connected one. */
   connect?(adapter: StorageAdapter): void;
 }
@@ -39,31 +43,41 @@ export function CmsApp({ config: rawConfig, storage, children }: CmsAppProps) {
 
   const adapter = connected ?? autoAdapter(config, storage);
 
+  const locale = resolveLocale(config.locale);
+  const translate = useTranslator(locale);
+
   const value = useMemo<AppContextValue>(
     () =>
       adapter
         ? {
             config,
             issues,
+            locale,
             storage: adapter,
             store: new EntryStore(adapter, config.collections),
             connect: setConnected,
           }
-        : { config, issues, connect: setConnected },
-    [config, issues, adapter],
+        : { config, issues, locale, connect: setConnected },
+    [config, issues, adapter, locale],
   );
 
   // A backend that needs credentials waits behind the connect screen rather than showing an
   // empty, misleading list.
   if (!adapter && issues.length === 0) {
     return (
-      <AppContext.Provider value={value}>
-        <Connect config={config} onReady={setConnected} />
-      </AppContext.Provider>
+      <TranslateProvider value={translate}>
+        <AppContext.Provider value={value}>
+          <Connect config={config} onReady={setConnected} />
+        </AppContext.Provider>
+      </TranslateProvider>
     );
   }
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <TranslateProvider value={translate}>
+      <AppContext.Provider value={value}>{children}</AppContext.Provider>
+    </TranslateProvider>
+  );
 }
 
 export function useApp(): AppContextValue {

@@ -10,6 +10,7 @@
  */
 import { useState } from 'react';
 import { prepareImage, uploadName, type PreparedImage } from '../upload/image-pipeline.js';
+import { useTranslate } from '../i18n/index.js';
 
 export interface ImagePickerProps {
   id: string;
@@ -20,16 +21,17 @@ export interface ImagePickerProps {
 }
 
 export function ImagePicker({ id, value, onChange, target }: ImagePickerProps) {
+  const t = useTranslate();
   const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
 
   const choose = async (file: File) => {
     setBusy(true);
-    setStatus('Compressing and removing metadata…');
+    setStatus(t('image.compressing'));
     try {
       const prepared = await prepareImage(file, { longEdge: 2400 });
       const [image] = prepared.variants;
-      if (!image) throw new Error('The image produced no output.');
+      if (!image) throw new Error(t('image.noOutput'));
       const name = `${uploadName(file.name)}.webp`;
       setStatus('');
       onChange(`${target.publicPath.replace(/\/$/, '')}/${name}`, {
@@ -55,7 +57,7 @@ export function ImagePicker({ id, value, onChange, target }: ImagePickerProps) {
         onChange={(event) => onChange(event.target.value)}
       />
       <label className="button image-upload">
-        {busy ? 'Working…' : 'Upload'}
+        {busy ? t('action.working') : t('action.upload')}
         <input
           type="file"
           accept="image/jpeg,image/png,image/webp"

@@ -22,10 +22,25 @@ hand the editor is what it uses.
 | `backend`           | Where content lives. See below.                              |
 | `media`             | Where uploads go.                                            |
 | `collections`       | What the editor edits. At least one.                         |
-| `locale`            | Interface language. Built in: `en`, `zh-CN`.                 |
+| `locale`            | Language of the editor's own interface. Built in: `en`, `zh-CN`. |
 | `editorialWorkflow` | Offer draft and review status.                               |
 | `preview`           | Embed a development server, and how to build an entry's URL. |
 | `plugins`           | Registered in code, not here; see [extending](extending.md). |
+
+### `locale`
+
+The editor chrome speaks this language: the sidebar headings, the connect screen, the save and
+delete buttons, the notices and the reasons the source editor was chosen. It is independent of the
+language your *content* carries — an `i18n-string` field renders one input per locale present in
+the value, whatever the editor itself is set to.
+
+```json
+{ "locale": "zh-CN" }
+```
+
+A value the editor does not ship falls back to `en` rather than rendering blank labels. Adding a
+language means adding a dictionary beside `packages/cms/src/i18n/locales.ts`; the `Dictionary` type
+is derived from the English keys, so a missing translation is a compile error.
 
 ## `backend`
 

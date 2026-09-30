@@ -144,10 +144,18 @@ declare global {
 // Exposed so the browser tests can measure what the rich editor does to Markdown.
 window.__cms = { storage, richRoundTrip };
 
+// A test may ask for a language explicitly, so the interface can be checked in more than one.
+// The example config carries `zh-CN`; `?locale=en` overrides it for the English cases.
+const requested = new URLSearchParams(location.search).get('locale');
+
 // The example config targets GitHub. The harness runs against memory instead, which is what makes
 // the editor drivable without a token — the backend block is the only thing that changes.
 mount({
   container: '#cms',
-  config: { ...(config as object), backend: { name: 'local', local: { kind: 'memory' } } },
+  config: {
+    ...(config as object),
+    ...(requested ? { locale: requested } : {}),
+    backend: { name: 'local', local: { kind: 'memory' } },
+  },
   storage,
 });

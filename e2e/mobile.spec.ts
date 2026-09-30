@@ -7,10 +7,13 @@
  */
 import { test, expect, type Page } from '@playwright/test';
 
+// These tests assert behaviour, not language, so they pin the harness to English. The
+// editor's own translations are covered in i18n.spec.ts.
+
 const PHONE = { width: 390, height: 844 };
 
 const openEntry = async (page: Page) => {
-  await page.goto('/');
+  await page.goto('/?locale=en');
   await page.getByRole('button', { name: '文章 · Markdown', exact: true }).click();
   await page.locator('.entry-link', { hasText: 'A smaller web' }).first().click();
   await expect(page.locator('.body-field')).toBeVisible();
@@ -21,7 +24,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('nothing overflows sideways', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?locale=en');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await openEntry(page);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -44,7 +47,7 @@ test('tap targets are large enough to hit', async ({ page }) => {
 });
 
 test('the source editor is bounded rather than filling the screen', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?locale=en');
   await page.getByRole('button', { name: '文章 · MDX 源码', exact: true }).click();
   await page.locator('.entry-link').first().click();
   const scroller = page.locator('.source-editor .cm-scroller');
@@ -57,7 +60,7 @@ test('the source editor is bounded rather than filling the screen', async ({ pag
 test('the editor is usable with a touch pointer', async ({ browser }) => {
   const context = await browser.newContext({ hasTouch: true, viewport: PHONE });
   const page = await context.newPage();
-  await page.goto('/');
+  await page.goto('/?locale=en');
   await page.getByRole('button', { name: '文章 · Markdown', exact: true }).tap();
   await page.locator('.entry-link').first().tap();
   await expect(page.locator('.field-label').first()).toBeVisible();
