@@ -7,6 +7,10 @@
  */
 import type { Field } from '@v7-cms/core';
 import { getFieldType } from '@v7-cms/core';
+import { ImagePicker } from './ImagePicker.js';
+
+// A sensible default, so an image field works before a collection configures where media goes.
+const DEFAULT_MEDIA = { repoPath: 'public/images/uploads', publicPath: '/images/uploads' };
 
 export interface FieldControlProps {
   field: Field;
@@ -15,6 +19,8 @@ export interface FieldControlProps {
   onChange(value: unknown): void;
   /** Dotted path of this field, used to match issues and to build child paths. */
   path: string;
+  /** Where an uploaded image goes, and the URL it is served from. */
+  mediaTarget?: { repoPath: string; publicPath: string };
 }
 
 const issuesAt = (issues: FieldControlProps['issues'], path: string) =>
@@ -53,7 +59,7 @@ const asText = (value: unknown): string =>
   typeof value === 'string' ? value : value == null ? '' : String(value);
 
 export function FieldControl(props: FieldControlProps): React.ReactElement | null {
-  const { field, value, onChange, path } = props;
+  const { field, value, onChange, path, mediaTarget = DEFAULT_MEDIA } = props;
   const widget = field.widget ?? 'string';
 
   switch (widget) {
@@ -175,17 +181,30 @@ export function FieldControl(props: FieldControlProps): React.ReactElement | nul
     case 'i18n-string':
       return <LocalizedControl {...props} />;
 
-    // An image is a path plus optional metadata. Without `fields` it is just the path, which is
-    // what most settings need.
+    // An image is a path. The picker adds an upload that compresses the file and strips its
+    // metadata before it becomes one; a settings file usually just types the path.
     case 'image':
       return (
         <Wrapper {...props}>
-          <input
+          <ImagePicker
             id={idFor(path)}
-            className="input"
             value={asText(value)}
-            placeholder="/images/…"
-            onChange={(event) => onChange(event.target.value)}
+            target={mediaTarget}
+            onChange={(src, prepared) => {
+              // A photo wants its size and colour recorded too, which is what the upload knows.
+              if (prepared && field.fields?.length) {
+                const [image] = prepared.variants;
+                onChange({
+                  ...(typeof value === 'object' && value ? value : {}),
+                  src,
+                  width: image?.width,
+                  height: image?.height,
+                  color: prepared.color,
+                });
+                return;
+              }
+              onChange(src);
+            }}
           />
         </Wrapper>
       );
@@ -271,6 +290,7 @@ function ListControl(all: FieldControlProps) {
                     path={`${path}.${index}.${child.name}`}
                     value={(item as Record<string, unknown> | undefined)?.[child.name]}
                     issues={issues}
+                    mediaTarget={all.mediaTarget}
                     onChange={(next) => replace(index, { ...(item as object), [child.name]: next })}
                   />
                 ))}
@@ -281,6 +301,7 @@ function ListControl(all: FieldControlProps) {
                 path={`${path}.${index}`}
                 value={item}
                 issues={issues}
+                mediaTarget={all.mediaTarget}
                 onChange={(next) => replace(index, next)}
               />
             )}

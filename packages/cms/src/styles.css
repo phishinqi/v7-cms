@@ -705,3 +705,29 @@
   font-size: 0.72rem;
   letter-spacing: 0.02em;
 }
+
+/* Image field: a preview, the path, and an upload button. The file input is hidden behind the
+   button, since a native file control cannot be styled to match. */
+.v7-cms .image-picker {
+  display: grid;
+  gap: 0.5rem;
+}
+.v7-cms .image-preview {
+  max-width: 12rem;
+  max-height: 9rem;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.v7-cms .image-upload {
+  justify-self: start;
+  position: relative;
+  overflow: hidden;
+}
+.v7-cms .image-upload input[type='file'] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}

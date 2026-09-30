@@ -39,6 +39,12 @@ export function Editor({ collectionName }: { collectionName: string }) {
   const issues = useMemo(() => (entry ? store.validate(entry) : []), [entry, store]);
   const bodyField = collection?.fields.find((field) => field.name === collection.contentField);
   const preview = useApp().config.preview;
+  const media = useApp().config.media;
+  // A collection can keep its images together; otherwise the config's paths apply.
+  const mediaTarget = {
+    repoPath: collection?.media?.repoPath ?? media?.repoPath ?? 'public/images/uploads',
+    publicPath: collection?.media?.publicPath ?? media?.publicPath ?? '/images/uploads',
+  };
 
   if (!collection) {
     return <p className="notice">Unknown collection “{collectionName}”.</p>;
@@ -155,6 +161,7 @@ export function Editor({ collectionName }: { collectionName: string }) {
                     key={field.name}
                     field={field}
                     path={field.name}
+                    mediaTarget={mediaTarget}
                     value={entry.values[field.name]}
                     issues={issues}
                     onChange={(value) =>
