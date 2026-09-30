@@ -275,7 +275,11 @@ function GitHubOAuth({
             setBusy(true);
             setError(null);
             try {
-              const session = await beginOAuth({ authBase: config.backend.authBase! });
+              const { authBase, authEndpoint } = config.backend;
+              const session = await beginOAuth({
+                authBase: authBase!,
+                ...(authEndpoint ? { authEndpoint } : {}),
+              });
               tokenStore.write(session.token);
               onReady(await githubAdapter(config, session.token));
             } catch (problem) {

@@ -77,6 +77,7 @@ export const configSchema = z.object({
       .optional(),
     branch: z.string().min(1).optional(),
     authBase: z.string().optional(),
+    authEndpoint: z.string().optional(),
     local: z
       .object({
         // `memory` backs the tests, demos and previews; the others are real file access.

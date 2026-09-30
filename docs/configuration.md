@@ -17,21 +17,21 @@ hand the editor is what it uses.
 }
 ```
 
-| Key                 | Meaning                                                      |
-| ------------------- | ------------------------------------------------------------ |
-| `backend`           | Where content lives. See below.                              |
-| `media`             | Where uploads go.                                            |
-| `collections`       | What the editor edits. At least one.                         |
+| Key                 | Meaning                                                          |
+| ------------------- | ---------------------------------------------------------------- |
+| `backend`           | Where content lives. See below.                                  |
+| `media`             | Where uploads go.                                                |
+| `collections`       | What the editor edits. At least one.                             |
 | `locale`            | Language of the editor's own interface. Built in: `en`, `zh-CN`. |
-| `editorialWorkflow` | Offer draft and review status.                               |
-| `preview`           | Embed a development server, and how to build an entry's URL. |
-| `plugins`           | Registered in code, not here; see [extending](extending.md). |
+| `editorialWorkflow` | Offer draft and review status.                                   |
+| `preview`           | Embed a development server, and how to build an entry's URL.     |
+| `plugins`           | Registered in code, not here; see [extending](extending.md).     |
 
 ### `locale`
 
 The editor chrome speaks this language: the sidebar headings, the connect screen, the save and
 delete buttons, the notices and the reasons the source editor was chosen. It is independent of the
-language your *content* carries — an `i18n-string` field renders one input per locale present in
+language your _content_ carries — an `i18n-string` field renders one input per locale present in
 the value, whatever the editor itself is set to.
 
 ```json

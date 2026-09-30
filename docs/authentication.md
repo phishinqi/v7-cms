@@ -58,8 +58,19 @@ that already implements `/api/auth` and `/api/callback`, including the OAuth sta
 repository write-permission check. Deploy the theme to Cloudflare Pages and point `authBase` at it:
 
 ```json
-{ "backend": { "name": "github", "repo": "owner/repo", "authBase": "https://your-theme.example" } }
+{
+  "backend": {
+    "name": "github",
+    "repo": "owner/repo",
+    "authBase": "https://your-theme.example",
+    "authEndpoint": "api/auth"
+  }
+}
 ```
+
+`authEndpoint` matters here. The editor asks for `<authBase>/auth` by default, but the theme's
+relay is a Pages Function under `functions/api/`, so it is reachable at `/api/auth`. Without the
+key the popup loads a 404 and sign-in cannot start.
 
 **Or run the community relay.** [`sveltia-cms-auth`](https://github.com/sveltia/sveltia-cms-auth)
 speaks the same protocol and deploys to Cloudflare Workers in a few minutes.
@@ -87,7 +98,8 @@ wrangler pages secret put GITHUB_CLIENT_SECRET
     "name": "github",
     "repo": "owner/repo",
     "branch": "main",
-    "authBase": "https://your-relay.example"
+    "authBase": "https://your-relay.example",
+    "authEndpoint": "auth"
   }
 }
 ```
@@ -108,7 +120,8 @@ sign-in rather than discovering it on their first save.
 
 Documented so a relay can be written from scratch. The editor:
 
-1. Opens `<authBase>/auth?provider=github&site_id=<origin>` in a popup.
+1. Opens `<authBase>/<authEndpoint>?provider=github&site_id=<origin>` in a popup, where
+   `authEndpoint` defaults to `auth`.
 2. Listens for messages, and **ignores any whose origin is not the relay's** — otherwise any page
    could hand the editor a token.
 3. On `authorizing:github` focuses the popup, and on the success message below reads the token.

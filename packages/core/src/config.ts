@@ -16,6 +16,11 @@ export interface BackendConfig {
   branch?: string;
   /** Base of the OAuth relay, e.g. `https://example.com`. Omit to use a personal access token. */
   authBase?: string;
+  /**
+   * Path of the relay's endpoint on that base. Defaults to `auth`. A relay mounted under a prefix
+   * — `/api/auth`, say — needs this, and without it the sign-in popup is a 404.
+   */
+  authEndpoint?: string;
   /** Where the local backend reads and writes. */
   local?: {
     /** `memory` backs the tests, demos and previews; the others are real file access. */

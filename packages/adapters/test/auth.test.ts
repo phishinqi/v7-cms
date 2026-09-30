@@ -48,6 +48,24 @@ describe('oauth popup flow', () => {
     };
   }
 
+  it('honours a relay mounted under a prefix', async () => {
+    // A relay served by the host site's own functions lives at `/api/auth`, not `/auth`. The
+    // editor reads this from the config; without it the sign-in popup is a 404.
+    const win = fakeWindow();
+    void beginOAuth({ authBase: 'https://relay.example', authEndpoint: 'api/auth' });
+    const url = new URL(win.open.mock.calls[0]![0] as unknown as string);
+    expect(url.pathname).toBe('/api/auth');
+    expect(url.searchParams.get('provider')).toBe('github');
+  });
+
+  it('tolerates a trailing slash on the relay base', async () => {
+    const win = fakeWindow();
+    void beginOAuth({ authBase: 'https://relay.example/', authEndpoint: 'api/auth' });
+    const url = new URL(win.open.mock.calls[0]![0] as unknown as string);
+    // A doubled slash would still resolve, but it is not the URL the relay expects to match.
+    expect(url.pathname).toBe('/api/auth');
+  });
+
   it('opens the relay with the site id and resolves with the token', async () => {
     const win = fakeWindow();
     const promise = beginOAuth({ authBase: 'https://relay.example' });
