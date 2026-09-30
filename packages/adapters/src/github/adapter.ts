@@ -60,7 +60,11 @@ export class GitHubAdapter implements StorageAdapter {
     this.branch = options.branch ?? 'main';
     this.token = options.token;
     this.apiRoot = (options.apiRoot ?? 'https://api.github.com').replace(/\/$/, '');
-    this.request = options.fetch ?? globalThis.fetch;
+    // `fetch` must keep its receiver. Reading it off `globalThis` and calling it later as a bare
+    // function loses the binding, and the browser throws "Illegal invocation" — which is what
+    // happens the moment a real page (rather than a test with an injected stub) lists a directory.
+    const base = options.fetch ?? globalThis.fetch;
+    this.request = base === globalThis.fetch ? base.bind(globalThis) : base;
     this.author = options.author;
   }
 

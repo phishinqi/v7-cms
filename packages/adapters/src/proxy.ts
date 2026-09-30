@@ -41,7 +41,9 @@ export class ProxyAdapter implements StorageAdapter {
   constructor(options: ProxyAdapterOptions) {
     this.url = options.url.replace(/\/$/, '');
     this.token = options.token;
-    this.request = options.fetch ?? globalThis.fetch;
+    // Detached `fetch` loses its receiver and the browser rejects it as an illegal invocation.
+    const base = options.fetch ?? globalThis.fetch;
+    this.request = base === globalThis.fetch ? base.bind(globalThis) : base;
   }
 
   async init(): Promise<void> {

@@ -91,7 +91,9 @@ export async function verifyToken(
   token: string,
   options: { apiRoot?: string; fetch?: typeof globalThis.fetch } = {},
 ): Promise<AuthSession> {
-  const request = options.fetch ?? globalThis.fetch;
+  const base = options.fetch ?? globalThis.fetch;
+  // A detached `fetch` loses its receiver, which the browser rejects as an illegal invocation.
+  const request = base === globalThis.fetch ? base.bind(globalThis) : base;
   const apiRoot = options.apiRoot ?? 'https://api.github.com';
   const response = await request(`${apiRoot}/user`, {
     headers: {
