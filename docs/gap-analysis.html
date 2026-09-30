@@ -1,0 +1,615 @@
+<title>v7-cms 能力差距分析</title>
+<style>
+  /* Layout: single measured column, with capability rows as a hairline-ruled ledger. */
+  :root {
+    --ground: #fbfaf7;
+    --surface: #f3f0e9;
+    --ink: #221f1b;
+    --muted: #6d655a;
+    --rule: #ddd6c8;
+    --accent: #8f4327;
+    --have: #4a6b47;
+    --part: #8a6a1f;
+    --no: #8a4a42;
+    --display: 'Iowan Old Style', 'Palatino Linotype', 'Noto Serif SC', Georgia, serif;
+    --body:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+    --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --ground: #191715;
+      --surface: #232019;
+      --ink: #e9e3d7;
+      --muted: #a79d8d;
+      --rule: #3a352c;
+      --accent: #d9946f;
+      --have: #8fae8a;
+      --part: #ccae66;
+      --no: #cf8a7f;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme='dark'] {
+    --ground: #191715;
+    --surface: #232019;
+    --ink: #e9e3d7;
+    --muted: #a79d8d;
+    --rule: #3a352c;
+    --accent: #d9946f;
+    --have: #8fae8a;
+    --part: #ccae66;
+    --no: #cf8a7f;
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    line-height: 1.72;
+    font-size: 16px;
+    padding-inline: 20px;
+    padding-block: 0;
+  }
+  .wrap {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding-block: 3.5rem 5rem;
+    display: grid;
+    gap: 2.6rem;
+    min-width: 0;
+  }
+
+  header {
+    display: grid;
+    gap: 0.85rem;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0;
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(1.9rem, 5vw, 2.6rem);
+    line-height: 1.24;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .standfirst {
+    font-family: var(--display);
+    font-size: 1.1rem;
+    line-height: 1.78;
+    color: var(--muted);
+    margin: 0;
+    max-width: 38rem;
+  }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 1.34rem;
+    line-height: 1.4;
+    text-wrap: balance;
+    margin: 0;
+  }
+  section {
+    display: grid;
+    gap: 1.1rem;
+    min-width: 0;
+  }
+  p {
+    margin: 0;
+  }
+  .lede {
+    color: var(--muted);
+  }
+  a {
+    color: var(--accent);
+    text-underline-offset: 3px;
+  }
+  code {
+    font-family: var(--mono);
+    font-size: 0.87em;
+    background: var(--surface);
+    padding: 0.12em 0.38em;
+    border-radius: 3px;
+  }
+
+  /* The ledger: one row per capability, status encoded in a stripe and a word. */
+  .ledger {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: 1.1rem;
+    padding-block: 1rem;
+    border-bottom: 1px solid var(--rule);
+    min-width: 0;
+  }
+  .status {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    align-self: start;
+    padding: 0.24em 0.5em;
+    border-radius: 3px;
+    border: 1px solid currentColor;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .s-have {
+    color: var(--have);
+  }
+  .s-part {
+    color: var(--part);
+  }
+  .s-no {
+    color: var(--no);
+  }
+  .body {
+    display: grid;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+  .body h3 {
+    font-family: var(--body);
+    font-size: 0.98rem;
+    font-weight: 650;
+    margin: 0;
+    line-height: 1.5;
+  }
+  .body p {
+    font-size: 0.94rem;
+    color: var(--muted);
+  }
+  .body p strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .src {
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  .callout {
+    background: var(--surface);
+    border-left: 2px solid var(--accent);
+    padding: 1.1rem 1.25rem;
+    display: grid;
+    gap: 0.6rem;
+    font-size: 0.95rem;
+  }
+  .callout h2 {
+    font-size: 1.05rem;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .fact {
+    background: var(--ground);
+    padding: 0.85rem 1rem;
+    display: grid;
+    gap: 0.15rem;
+  }
+  .fact dt {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .fact dd {
+    margin: 0;
+    font-size: 1.25rem;
+    font-variant-numeric: tabular-nums;
+    font-family: var(--display);
+  }
+
+  ol.ranked {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 1.5rem;
+    counter-reset: rank;
+  }
+  ol.ranked > li {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.9rem;
+    min-width: 0;
+  }
+  ol.ranked > li::before {
+    counter-increment: rank;
+    content: counter(rank);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--accent);
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--accent);
+  }
+  ol.ranked h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 650;
+    line-height: 1.5;
+  }
+  ol.ranked p {
+    font-size: 0.94rem;
+    color: var(--muted);
+  }
+
+  ul.plain {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.5rem;
+    font-size: 0.94rem;
+    color: var(--muted);
+  }
+  ul.plain strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 1.2rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  @media (max-width: 34rem) {
+    .row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.55rem;
+    }
+    .status {
+      justify-self: start;
+    }
+    ol.ranked > li {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.3rem;
+    }
+    ol.ranked > li::before {
+      border-top: 0;
+      padding-top: 0;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">v7-cms · 2026-09-30</p>
+    <h1>能力差距分析</h1>
+    <p class="standfirst">
+      把四类主流 CMS 的能力面拆开，逐项对照 v7-cms 的现状，标出已经有的、值得做的、以及明确不做的。
+      判断依据是代码和测试，不是印象。
+    </p>
+  </header>
+
+  <section>
+    <dl class="facts">
+      <div class="fact">
+        <dt>源码</dt>
+        <dd>6,603 行</dd>
+      </div>
+      <div class="fact">
+        <dt>单元测试</dt>
+        <dd>270</dd>
+      </div>
+      <div class="fact">
+        <dt>浏览器测试</dt>
+        <dd>56</dd>
+      </div>
+      <div class="fact">
+        <dt>产物</dt>
+        <dd>2.3 MB</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section>
+    <h2>先说结论</h2>
+    <p>
+      v7-cms 是<strong>第 3 类</strong>——Git / Markdown 型 CMS，而且在这一类里它的定位是清楚的:
+      给静态站点一个<em>不糟蹋你文件</em>的编辑器。它已经解决了 Decap、Keystatic、Sveltia
+      都没解决的那个问题—— 嵌套对象字段（相册里每张照片带可选的相机参数子对象）。
+    </p>
+    <p class="lede">
+      下面这份清单里的绝大多数条目，不是"还没做"，而是"不该做"——做了就会变成第 1、2、4
+      类里更差的那个。 真正值得投入的只有三条，在第 3 节。
+    </p>
+  </section>
+
+  <section>
+    <h2>1 · 已有能力（对照清单里的 Git-based 一类）</h2>
+    <div class="ledger">
+      <div class="row">
+        <span class="status s-have">已有</span>
+        <div class="body">
+          <h3>保真序列化</h3>
+          <p>
+            打开文件再保存，字节完全一致；改一个字段，只改那一行。这是整个项目的立足点，也是测试最重的部分（黄金文件往返
+            + 单行差异断言）。
+          </p>
+          <p class="src">packages/core/src/serialize/</p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="status s-have">已有</span>
+        <div class="body">
+          <h3>嵌套对象 / 对象列表字段</h3>
+          <p>
+            相册里每张照片是一个对象，含可选的 <code>photo</code> /
+            <code>artwork</code> 子对象。<strong>这正是 Decap 做不到的那件事</strong>——它的
+            <code>object</code>/<code>list</code>/<code>richtext</code>
+            不能在自己的自定义字段里复用。
+          </p>
+          <p class="src">packages/core/src/fields-builtin.ts</p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="status s-have">已有</span>
+        <div class="body">
+          <h3>双轨正文编辑器</h3>
+          <p>
+            正文打开前先判定：随笔走富文本，MDX / JSX / HTML / 图表围栏 / 块级公式 /
+            缩进代码块走源码。<strong>判定偏向保守</strong>——误判成源码只是少个好看的编辑器，误判成富文本会把文件改坏。
+          </p>
+          <p class="src">packages/cms/src/frame/BodyField.tsx</p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="status s-have">已有</span>
+        <div class="body">
+          <h3>表单从文件推断</h3>
+          <p>
+            <code>inferSchema: true</code> 从文件当前内容推出表单，<code>fieldOverrides</code>
+            按路径修正。站点配置因此可编辑，而不必写一百行字段定义。
+          </p>
+          <p class="src">packages/cms/src/frame/infer-schema.ts</p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="status s-have">已有</span>
+        <div class="body">
+          <h3>三种后端 + 实时预览 + 编辑工作流 + 插件 + 界面翻译</h3>
+          <p>
+            GitHub / 本地文件夹 / 本地代理；渲染预览与真实站点 iframe；草稿—评审—发布（GitHub
+            上是分支加 PR）；自定义字段类型、渲染器、主题令牌；编辑器界面
+            <code>locale</code> 真正生效。
+          </p>
+          <p class="src">packages/adapters/ · preview/ · workflow/ · plugins.ts · i18n/</p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="status s-have">已有</span>
+        <div class="body">
+          <h3>上传去元数据</h3>
+          <p>
+            上传经 canvas 重新编码，EXIF、GPS
+            以及其余全部元数据在入口处丢掉。是有意为之：不该因为一次疏忽就把照片的拍摄地点发布出去。
+          </p>
+          <p class="src">packages/cms/src/upload/</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2 · 对照其他三类：不做的部分</h2>
+    <div class="ledger">
+      <div class="row">
+        <span class="status s-no">不做</span>
+        <div class="body">
+          <h3>插件市场与主题市场（WordPress / Drupal）</h3>
+          <p>
+            <strong>理由：</strong>插件生态是网络效应，不是功能。WordPress
+            的护城河是两万个插件和二十年社区，代码量反而次要。而一个能装任意第三方插件的
+            CMS，必须放弃"绝不改动未编辑内容"这个保证——插件要能改渲染、改存储、改表单。那正好是
+            v7-cms 唯一的核心资产。
+          </p>
+          <p>
+            <strong>替代：</strong>已经有的 <code>registerPlugin()</code>（字段类型 / 预览渲染器 /
+            主题令牌）。消费方注册东西，而不是插进别人的代码。这是对的规模。
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="status s-no">不做</span>
+        <div class="body">
+          <h3>复杂权限与角色（Drupal / Umbraco）</h3>
+          <p>
+            <strong>理由：</strong>权限模型属于后端。Git
+            已经有一套现成的、所有人都懂的权限系统——仓库写权限。<code>/api/auth</code> 现在就是按
+            GitHub 的
+            <code>permissions.push</code>
+            判定的。再叠一层自己的角色，等于要维护用户表、会话、审计日志，而 v7-cms
+            是静态产物，一个字节的服务端状态都没有。
+          </p>
+          <p>
+            <strong>能做的：</strong>GitHub
+            的团队权限、分支保护规则、CODEOWNERS——都用仓库自己的机制，不重复实现。
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="status s-no">不做</span>
+        <div class="body">
+          <h3>GraphQL / REST API、内容联邦（Strapi / Contentful / Sanity）</h3>
+          <p>
+            <strong>理由：</strong>这一类的前提是内容存在数据库里、由服务端按需投递。v7-cms
+            的内容是仓库里的文件，消费方是静态构建器。<strong
+              >"把内容变成 API"在这个架构里是反向的</strong
+            >——文件本身就是 API，<code>git clone</code> 就是最通用的接口。
+          </p>
+          <p>
+            <strong>真实的差距：</strong>Sanity 的 GROQ
+            之所以强，是因为它能对结构化内容做任意查询。静态站点不需要这个——需要查询的是构建期，而构建期有完整语言可用。
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="status s-no">不做</span>
+        <div class="body">
+          <h3>拖拽页面构建器（Storyblok）</h3>
+          <p>
+            <strong>理由：</strong
+            >可视化拖拽生成的是<em>布局</em>，不是<em>内容</em>。它要求页面结构可被 CMS
+            理解并可写回——对 Markdown / MDX
+            来说，这意味着把作者的源码拆成组件树再拼回去。这与"字节保真"直接冲突，也会让 MDX
+            里手写的 JSX 无法存活。
+          </p>
+          <p>
+            <strong>注意：</strong>清单里 TinaCMS
+            的"可视化内联编辑"是<em>另一件事</em>——它不是拖拽布局，而是在渲染页面上直接改已有字段。这个见第
+            3 节，是值得做的。
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="status s-no">不做</span>
+        <div class="body">
+          <h3>会员 / 付费订阅 / 邮件通讯（Ghost）</h3>
+          <p>
+            <strong>理由：</strong>这是<strong>商业模式</strong>，不是 CMS
+            功能。它需要支付网关、订阅状态机、邮件投递、退订合规（CAN-SPAM / GDPR）。Ghost
+            之所以做得好，是因为它是一家公司在运营这套服务，而不是因为它代码里有个字段。
+          </p>
+          <p>
+            <strong>能做的：</strong>静态站点接第三方（Buttondown、Stripe Payment
+            Links）比自建划算得多。
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="status s-no">不做</span>
+        <div class="body">
+          <h3>全球 CDN 分发、内容联邦、多地域（Contentful / Hygraph）</h3>
+          <p>
+            <strong>理由：</strong>静态站点的 CDN 由托管方提供（这个博客就是 Cloudflare
+            的全球网络）。CMS 不需要知道边缘节点在哪。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>3 · 值得做的三条</h2>
+    <p class="lede">
+      按"对当前用户的真实收益 ÷ 工程量"排序。前两条我已经做完并发布了，第三条是真正的下一步。
+    </p>
+    <ol class="ranked">
+      <li>
+        <div>
+          <h3>账号可见性与退出登录 —— 已完成</h3>
+          <p>
+            编辑器持有一个能写仓库的凭据，却既不显示当前身份，也没有退出口。<code
+              >tokenStore.clear()</code
+            >
+            存在但无人调用。现在侧边栏底部显示登录名、会话来源（GitHub 登录 /
+            访问令牌），以及需要二次确认的退出按钮。没有账号的后端（本地文件夹）不显示退出，避免给一个点了没反应的按钮。
+          </p>
+          <p class="src">v7-cms v0.0.0-alpha.5</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>界面的完整翻译 —— 已完成</h3>
+          <p>
+            <code>locale</code>
+            此前被接受、校验，然后从未被读取——唯一的引用是一句两个分支返回同一字符串的死三元表达式。<code
+              >zh-CN</code
+            >
+            的站点得到英文界面，而且没有任何测试失败。现在有 <code>en</code> /
+            <code>zh-CN</code> 两本词典，约 80 条文案。<code>Dictionary</code>
+            类型从英文键映射而来，所以漏译是编译错误而不是空白标签。
+          </p>
+          <p class="src">v7-cms v0.0.0-alpha.2</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>可视化内联编辑 —— 真正的下一步</h3>
+          <p>
+            这是清单里<strong>唯一</strong>与 v7-cms 方向一致的缺口。TinaCMS
+            的价值在于：作者在真实页面上点一段文字直接改，而不是在一个脱离上下文的表单里猜它会长什么样。
+          </p>
+          <p>
+            v7-cms 已经有一半基础：<code>preview.devServerURL</code> 会把真实站点嵌进 iframe。缺的是
+            iframe
+            与编辑器之间的双向桥——页面上标出可编辑区域，点击回传字段路径，编辑器滚动并聚焦到对应控件。
+          </p>
+          <p>
+            <strong>为什么它不与保真冲突：</strong
+            >它只改字段<em>值</em>，不改文件结构。正文仍然走双轨判定，MDX 仍然只读源码。这和
+            Storyblok 那种拖拽重排布局是两回事。
+          </p>
+          <p>
+            <strong>主要风险：</strong>被嵌页面需要暴露锚点信息（哪个 DOM
+            节点对应哪个字段路径），这要求主题侧配合。可行的做法是让预览注入一层脚本，按 frontmatter
+            键名给元素加标记，而不是要求主题改模板。
+          </p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="callout">
+    <h2>工程量参考</h2>
+    <p>
+      上面三条里，前两条合计约一天（含测试）。<strong>可视化内联编辑明显更大</strong>——需要预览注入层、字段路径映射、滚动定位、以及主题侧的可选配合，粗估是三到五倍于前两条之和。
+    </p>
+    <p>
+      它的收益也最大：那是"用起来像不像一个现代编辑器"的分界线。但前提是你确实要在浏览器里写文章；如果写作主要发生在本地
+      <code>pnpm dev:cms</code>，优先级可以往后放。
+    </p>
+  </section>
+
+  <section>
+    <h2>这份分析的依据</h2>
+    <ul class="plain">
+      <li>
+        <strong>已有能力</strong>来自源码与测试，不是文档：字段类型表在
+        <code>fields-builtin.ts</code>，双轨判定在 <code>BodyField.tsx</code>，保真测试是黄金文件。
+      </li>
+      <li>
+        <strong>"不做"的判断</strong>基于一个约束：v7-cms
+        的资产是"绝不改动未编辑的内容"。任何要求它理解并重写文件结构的功能，都在消耗这个资产。
+      </li>
+      <li><strong>没有列出的</strong>不等于不做。这份清单只对照你给的四类，不代表完整路线图。</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>
+      对照对象：WordPress / Drupal / Umbraco · Strapi / Contentful / Sanity / Storyblok / Directus /
+      Hygraph / Kontent.ai · Decap / Keystatic / TinaCMS · Ghost / Hashnode
+    </p>
+    <p>
+      v7-cms 现状：6,603 行源码，270 单元测试，56 浏览器测试，产物 2.3 MB。发布日期 2026-09-30。
+    </p>
+  </footer>
+</div>

@@ -83,6 +83,8 @@ Two details that a naive implementation gets wrong, and which this one handles:
 - [Workflow and deploying](docs/workflow-and-deploying.md) — drafts, review, extensions, and how to
   ship the editor
 - [中文说明](docs/README.zh-CN.md)
+- [Gap analysis](docs/gap-analysis.md) — what this does and does not do, measured against the
+  four kinds of CMS people usually compare it to
 
 ## Backends
 
