@@ -101,6 +101,13 @@ export function readData(entry: ParsedEntry): Record<string, unknown> {
  * style: quoting, flow vs block sequences, key order and comments all survive.
  */
 export function setValue(entry: ParsedEntry, path: string, value: unknown): void {
+  // A page can contain scalar or empty frontmatter. YAML's setIn only accepts a collection as
+  // its root, so promote that legacy shape before the editor writes a structured field.
+  if (!isMap(entry.document.contents)) {
+    entry.document.contents = entry.document.createNode(
+      {},
+    ) as unknown as typeof entry.document.contents;
+  }
   entry.document.setIn(path.split('.'), value);
 }
 

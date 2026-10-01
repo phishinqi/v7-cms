@@ -101,6 +101,12 @@ describe('editing one value', () => {
     expect(after.indexOf('featured: true')).toBeGreaterThan(after.indexOf("tags: ['随笔']"));
   });
 
+  it('can edit a field when the existing frontmatter is a scalar', () => {
+    const entry = parseEntry('---\nlegacy\n---\n\n关于页正文。\n');
+    setValue(entry, 'title', '关于');
+    expect(serializeEntry(entry)).toBe('---\ntitle: 关于\n---\n\n关于页正文。\n');
+  });
+
   it('removes a key rather than blanking it, so optional fields stay absent', () => {
     const raw = readFileSync(join(fixtures, 'albums/paper.md'), 'utf8');
     const entry = parseEntry(raw);
