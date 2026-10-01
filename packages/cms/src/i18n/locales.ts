@@ -10,6 +10,12 @@ export { en };
 export type { Dictionary, TranslationKey };
 
 export const zhCN: Dictionary = {
+  'date.choose': '选择日期',
+  'date.today': '今天',
+  'date.now': '现在',
+  'date.zone': '时区',
+  'date.local': '浏览器本地时间',
+
   'nav.collections': '内容',
   'nav.settings': '设置',
   'common.cancel': '取消',

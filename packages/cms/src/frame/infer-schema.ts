@@ -115,7 +115,11 @@ function inferWidget(
   if (typeof value === 'boolean') return { widget: 'boolean', required: false, default: value };
   if (typeof value === 'number') return { widget: 'number', required: false };
   if (typeof value === 'string' && looksLikeDate(value)) {
-    return { widget: 'datetime', required: false, format: 'YYYY-MM-DD' } as Partial<Field>;
+    return {
+      widget: 'datetime',
+      required: false,
+      format: value.includes('T') ? undefined : 'YYYY-MM-DD',
+    } as Partial<Field>;
   }
   return { widget: 'string', required: false };
 }

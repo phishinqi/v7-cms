@@ -13,6 +13,12 @@ export type Locale = 'en' | 'zh-CN';
 
 /** Every key the interface uses. `en` is the source of truth; other locales must match it. */
 export const en = {
+  'date.choose': 'Choose date',
+  'date.today': 'Today',
+  'date.now': 'Now',
+  'date.zone': 'Time zone',
+  'date.local': 'Browser local time',
+
   'nav.collections': 'Collections',
   'nav.settings': 'Settings',
   'common.cancel': 'Cancel',

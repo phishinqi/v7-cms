@@ -356,3 +356,10 @@ Uploads still go directly to GitHub; only image reads use the CDN. Private repos
 by this public URL. New uploads have unique names; replacing a file at the same URL can leave cached
 content until the CDN refreshes. jsDelivr availability varies by network; a custom image domain remains
 an alternative. Changing this prefix affects new uploads, not existing content URLs.
+
+### Date and time fields
+
+`widget: "datetime"` shows a calendar and time picker, with a **Now** shortcut.
+`format: "YYYY-MM-DD"` shows a date-only picker with **Today**. Existing timestamp offsets
+are preserved; new timestamps use the browser local time zone, shown under the field.
+Opening a document does not change its date. Optional fields can be cleared.

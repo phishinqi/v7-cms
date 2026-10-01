@@ -8,6 +8,7 @@
 import { withImageFields, type MediaTarget, type UploadedImage } from '../upload/media.js';
 import type { Field } from '@v7-cms/core';
 import { getFieldType } from '@v7-cms/core';
+import { DateTimePicker } from './DateTimePicker.js';
 import { ImagePicker } from './ImagePicker.js';
 import { useTranslate } from '../i18n/index.js';
 
@@ -135,13 +136,11 @@ export function FieldControl(props: FieldControlProps): React.ReactElement | nul
     case 'datetime':
       return (
         <Wrapper {...props}>
-          <input
+          <DateTimePicker
             id={idFor(path)}
-            className="input"
-            type={field.format === 'YYYY-MM-DD' ? 'date' : 'text'}
-            placeholder="2026-09-21T09:00:00+08:00"
+            dateOnly={field.format === 'YYYY-MM-DD'}
             value={asText(value)}
-            onChange={(event) => onChange(event.target.value)}
+            onChange={onChange}
           />
         </Wrapper>
       );

@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.2
+
+- Date and time fields now offer native calendar/time pickers with Today and Now shortcuts. Existing offsets are preserved; new timestamps use browser local time.
+- Inferred timestamp fields retain their time component instead of being displayed as date-only fields.
+
 ## v0.2.1
 
 - Uploads now fill declared photo EXIF fields and capture dates after a successful write, preserving manually entered values. Set `media.exif: false` to disable prefilling.
