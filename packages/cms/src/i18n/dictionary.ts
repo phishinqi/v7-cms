@@ -13,6 +13,9 @@ export type Locale = 'en' | 'zh-CN';
 
 /** Every key the interface uses. `en` is the source of truth; other locales must match it. */
 export const en = {
+  'author.search': 'Search or add an author…',
+  'author.choose': 'Choose an author',
+  'author.invalidRegistry': 'Invalid author registry.',
   'tag.search': 'Search or add a tag…',
   'tag.createNamed': 'Create “{name}”',
 

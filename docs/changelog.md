@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.7
+
+- Author lists now use the same searchable, removable chips as tags. Display author names while saving stable IDs, support multiple selections, and wrap on small screens.
+
 ## v0.2.6
 
 - Fix the tag picker crashing on string tag registries. Support both strings and named objects, skip invalid entries, and preserve existing registry data and entry format when adding tags.

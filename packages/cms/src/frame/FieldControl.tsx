@@ -198,14 +198,17 @@ export function FieldControl(props: FieldControlProps): React.ReactElement | nul
       );
 
     case 'list':
-      if (typeof field.tagFile === 'string')
+      if (typeof field.tagFile === 'string' || typeof field.authorFile === 'string')
         return (
           <Wrapper {...props}>
             <TagPicker
               id={idFor(path)}
               value={Array.isArray(value) ? value : []}
               onChange={onChange}
-              file={field.tagFile}
+              file={
+                typeof field.authorFile === 'string' ? field.authorFile : (field.tagFile as string)
+              }
+              kind={typeof field.authorFile === 'string' ? 'authors' : 'tags'}
             />
           </Wrapper>
         );

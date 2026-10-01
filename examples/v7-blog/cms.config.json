@@ -91,7 +91,8 @@
             "widget": "relation",
             "collection": "authors",
             "valueField": "id"
-          }
+          },
+          "authorFile": "data/authors.json"
         },
         {
           "name": "lang",
@@ -230,7 +231,8 @@
             "widget": "relation",
             "collection": "authors",
             "valueField": "id"
-          }
+          },
+          "authorFile": "data/authors.json"
         },
         {
           "name": "lang",
@@ -312,7 +314,8 @@
             "widget": "relation",
             "collection": "authors",
             "valueField": "id"
-          }
+          },
+          "authorFile": "data/authors.json"
         },
         {
           "name": "tags",

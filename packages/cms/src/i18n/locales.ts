@@ -10,6 +10,9 @@ export { en };
 export type { Dictionary, TranslationKey };
 
 export const zhCN: Dictionary = {
+  'author.search': '搜索或添加作者…',
+  'author.choose': '选择作者',
+  'author.invalidRegistry': '作者列表格式无效。',
   'tag.search': '搜索或添加标签…',
   'tag.createNamed': '新建「{name}」',
 

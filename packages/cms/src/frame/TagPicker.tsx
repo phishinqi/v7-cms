@@ -21,15 +21,19 @@ export function TagPicker({
   value,
   onChange,
   file,
+  kind = 'tags',
 }: {
   id: string;
   value: string[];
   onChange(value: string[]): void;
   file: string;
+  kind?: 'tags' | 'authors';
 }) {
   const { storage } = useApp();
   const t = useTranslate();
   const [items, setItems] = useState<string[]>([]);
+  const [labels, setLabels] = useState<Record<string, string>>({});
+  const label = (id: string) => labels[id] ?? id;
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -43,8 +47,30 @@ export function TagPicker({
         .readFile(file)
         .then((result) => {
           const data = JSON.parse(result.text);
-          if (!Array.isArray(data?.tags)) throw new Error(t('tag.invalidRegistry'));
-          if (active) setItems(tagNames(data.tags));
+          if (!Array.isArray(data?.[kind]))
+            throw new Error(
+              t(kind === 'authors' ? 'author.invalidRegistry' : 'tag.invalidRegistry'),
+            );
+          if (!active) return;
+          if (kind === 'authors') {
+            const entries = data.authors.filter(
+              (item: unknown): item is { id: string; name?: string } =>
+                !!item &&
+                typeof item === 'object' &&
+                'id' in item &&
+                typeof item.id === 'string' &&
+                !!item.id.trim(),
+            );
+            setItems([...new Set<string>(entries.map((item: { id: string }) => item.id))]);
+            setLabels(
+              Object.fromEntries(
+                entries.map((item: { id: string; name?: unknown }) => [
+                  item.id,
+                  typeof item.name === 'string' && item.name.trim() ? item.name : item.id,
+                ]),
+              ),
+            );
+          } else setItems(tagNames(data.tags));
         })
         .catch((e) => {
           if (active) setError(e.message);
@@ -52,7 +78,7 @@ export function TagPicker({
     return () => {
       active = false;
     };
-  }, [storage, file, t]);
+  }, [storage, file, kind, t]);
   async function create() {
     const tag = name.trim();
     if (!storage || !tag) return;
@@ -84,9 +110,11 @@ export function TagPicker({
   }
   const query = name.trim();
   const matches = [...new Set(items)].filter(
-    (tag) => !value.includes(tag) && tag.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
+    (tag) =>
+      !value.includes(tag) &&
+      `${label(tag)} ${tag}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
   );
-  const canCreate = !!query && !items.includes(query) && !value.includes(query);
+  const canCreate = kind === 'tags' && !!query && !items.includes(query) && !value.includes(query);
   const choices = [...matches, ...(canCreate ? [query] : [])];
   const selectedIndex = Math.min(active, Math.max(0, choices.length - 1));
   function choose(index: number) {
@@ -111,11 +139,11 @@ export function TagPicker({
       <div className="tag-picker-control">
         {value.map((tag) => (
           <span className="tag-chip" key={tag}>
-            <span>{tag}</span>
+            <span>{label(tag)}</span>
             <button
               type="button"
               disabled={busy}
-              aria-label={t('tag.remove', { name: tag })}
+              aria-label={t('tag.remove', { name: label(tag) })}
               onClick={() => onChange(value.filter((item) => item !== tag))}
             >
               ×
@@ -135,7 +163,7 @@ export function TagPicker({
           aria-activedescendant={
             open && choices.length ? `${id}-option-${selectedIndex}` : undefined
           }
-          placeholder={t('tag.search')}
+          placeholder={t(kind === 'authors' ? 'author.search' : 'tag.search')}
           autoComplete="off"
           onFocus={() => setOpen(true)}
           onChange={(event) => {
@@ -180,7 +208,7 @@ export function TagPicker({
           className="tag-picker-options"
           id={`${id}-options`}
           role="listbox"
-          aria-label={t('tag.choose')}
+          aria-label={t(kind === 'authors' ? 'author.choose' : 'tag.choose')}
         >
           {choices.map((tag, index) => (
             <li
@@ -201,7 +229,7 @@ export function TagPicker({
                   {t('tag.createNamed', { name: tag })}
                 </>
               ) : (
-                tag
+                label(tag)
               )}
             </li>
           ))}
