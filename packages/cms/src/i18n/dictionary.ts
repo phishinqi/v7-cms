@@ -86,6 +86,7 @@ export const en = {
   'field.optional': '(optional)',
   'field.reading': 'Reading',
   'field.body': 'Body',
+  'field.filename': 'File name',
 
   'notice.fieldsNeedAttention': 'field needs attention.',
   'notice.fieldsNeedAttentionPlural': 'fields need attention.',

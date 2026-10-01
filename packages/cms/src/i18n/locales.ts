@@ -81,6 +81,7 @@ export const zhCN: Dictionary = {
   'field.optional': '（可选）',
   'field.reading': '正在读取',
   'field.body': '正文',
+  'field.filename': '文件名',
 
   'notice.fieldsNeedAttention': '个字段需要处理。',
   'notice.fieldsNeedAttentionPlural': '个字段需要处理。',

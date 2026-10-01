@@ -232,6 +232,17 @@
   color: var(--muted);
   overflow-wrap: anywhere;
 }
+.v7-cms .new-file-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: min(100%, 20rem);
+}
+.v7-cms .new-file-name .input {
+  width: min(20rem, 55vw);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
 .v7-cms .editor-actions {
   display: flex;
   gap: 0.5rem;

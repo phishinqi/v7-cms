@@ -87,9 +87,19 @@ export function Editor({ collectionName }: { collectionName: string }) {
   };
 
   const create = () => {
-    const path = `${collection.folder}/${uniqueName(collection, entries)}.${collection.extension}`;
+    const path = `${collection.folder}/${uniqueName(collection, entries, entry?.isNew ? entry.path : undefined)}.${collection.extension}`;
     setEntry(store.blank(collectionName, path));
     setState({ kind: 'idle' });
+  };
+
+  const renameDraft = (name: string) => {
+    if (!entry?.isNew) return;
+    const filename = filenameWithExtension(name, collection.extension);
+    if (!filename) return;
+    setEntry({
+      ...entry,
+      path: `${collection.folder}/${filename}`,
+    });
   };
 
   const save = async () => {
@@ -149,7 +159,20 @@ export function Editor({ collectionName }: { collectionName: string }) {
         {entry && (
           <>
             <header className="editor-head">
-              <span className="editor-path">{entry.path}</span>
+              {entry.isNew ? (
+                <label className="editor-path new-file-name">
+                  <span>{t('field.filename')}</span>
+                  <input
+                    id="new-file-name-field"
+                    className="input"
+                    value={fileName(entry.path)}
+                    onChange={(event) => renameDraft(event.target.value)}
+                    aria-label={t('field.filename')}
+                  />
+                </label>
+              ) : (
+                <span className="editor-path">{entry.path}</span>
+              )}
               <div className="editor-actions">
                 {!entry.isNew && (
                   <button type="button" className="button danger" onClick={() => void remove()}>
@@ -236,14 +259,30 @@ export function Editor({ collectionName }: { collectionName: string }) {
 }
 
 /** A file name that is not taken yet, so “New” twice does not collide. */
-function uniqueName(collection: FieldsCollection, entries: EntrySummary[]): string {
+function uniqueName(
+  collection: FieldsCollection,
+  entries: EntrySummary[],
+  draftPath?: string,
+): string {
   const taken = new Set(entries.map((entry) => entry.path.split('/').pop()));
+  if (draftPath) taken.add(draftPath.split('/').pop()!);
   let index = 1;
   for (;;) {
     const candidate = `untitled${index === 1 ? '' : `-${index}`}.${collection.extension}`;
     if (!taken.has(candidate)) return `untitled${index === 1 ? '' : `-${index}`}`;
     index += 1;
   }
+}
+
+function fileName(path: string): string {
+  return path.split('/').pop() ?? path;
+}
+
+function filenameWithExtension(value: string, extension: string): string {
+  const name = value.trim().replace(/[\\/]+/g, '-');
+  if (!name) return '';
+  const withoutExtension = name.replace(/\.[^.]+$/, '');
+  return `${withoutExtension}.${extension}`;
 }
 
 /**

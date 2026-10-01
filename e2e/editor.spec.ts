@@ -109,6 +109,8 @@ test('a required field left blank blocks saving and points at the field', async 
 test('creates a new entry without writing blank optional keys', async ({ page }) => {
   await page.getByRole('button', { name: 'New', exact: true }).click();
   await expect(page.locator('#title-field')).toBeVisible();
+  await expect(page.locator('#new-file-name-field')).toHaveValue('untitled.md');
+  await page.locator('#new-file-name-field').fill('new-album.md');
   // The required fields have to be filled before saving is allowed.
   await page.locator('#title-field').fill('新相册');
   await page.locator('#slug-field').fill('new-album');
@@ -116,13 +118,22 @@ test('creates a new entry without writing blank optional keys', async ({ page })
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.locator('.notice')).toHaveText(/Saved/);
 
-  const created = (await files(page))['content/albums/untitled.md']!;
+  const created = (await files(page))['content/albums/new-album.md']!;
   expect(created).toContain('title: 新相册');
   expect(created).toContain('slug: new-album');
   // Nothing the user never filled in should appear, including empty collections.
   expect(created).not.toContain('cover:');
   expect(created).not.toContain('description:');
   expect(created).not.toContain('images:');
+});
+
+test('uses a different automatic name when an unsaved draft already uses untitled', async ({
+  page,
+}) => {
+  await page.getByRole('button', { name: 'New', exact: true }).click();
+  await expect(page.locator('#new-file-name-field')).toHaveValue('untitled.md');
+  await page.getByRole('button', { name: 'New', exact: true }).click();
+  await expect(page.locator('#new-file-name-field')).toHaveValue('untitled-2.md');
 });
 
 test('reports a conflict instead of overwriting a change made elsewhere', async ({ page }) => {
