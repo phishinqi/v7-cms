@@ -295,3 +295,42 @@ describe('the HTTP host', () => {
     expect(response.status).toBe(404);
   });
 });
+
+describe('format checking', () => {
+  const format = (instance: LocalProxy, body: unknown) =>
+    instance.handle({ method: 'POST', path: '/api/format', body });
+
+  it('reports a file Prettier would reformat', async () => {
+    // The blank line between the quote and the list is what Prettier wants, and what the About page
+    // was missing when it failed CI.
+    await mkdir(join(root, 'content/pages'), { recursive: true });
+    await writeFile(join(root, 'content/pages/about.zh.mdx'), '> quote\n- list item\n', 'utf8');
+    const response = await format(proxy(), { paths: ['content/pages/about.zh.mdx'] });
+    const issues = (response.body as { issues: Array<{ path: string; firstDiffLine: number }> })
+      .issues;
+    expect(issues.map((issue) => issue.path)).toEqual(['content/pages/about.zh.mdx']);
+    expect(issues[0]!.firstDiffLine).toBeGreaterThan(0);
+  });
+
+  it('says nothing about a file that already matches', async () => {
+    await writeFile(join(root, 'content/posts/one.md'), '---\ntitle: One\n---\n\nBody.\n', 'utf8');
+    const response = await format(proxy(), { paths: ['content/posts/one.md'] });
+    expect((response.body as { issues: unknown[] }).issues).toEqual([]);
+  });
+
+  it('never returns the reformatted text, only whether it differs', async () => {
+    const response = await format(proxy(), { paths: ['content/posts/one.md'] });
+    const serialised = JSON.stringify(response.body);
+    expect(serialised).not.toContain('title: One');
+  });
+
+  it('refuses to check a path outside the repository', async () => {
+    const response = await format(proxy(), { paths: ['../outside.md'] });
+    expect(response.status).toBe(403);
+  });
+
+  it('returns an empty result for no paths rather than walking the repository', async () => {
+    const response = await format(proxy(), { paths: [] });
+    expect(response.body).toEqual({ checked: 0, issues: [] });
+  });
+});

@@ -816,3 +816,26 @@
   opacity: 0;
   cursor: pointer;
 }
+
+/* Format notes: advisory, so they read as information rather than as a failure. The left rule keeps
+   them distinct from the field errors above without borrowing the danger colour, which is reserved
+   for values that actually block a save. */
+.v7-cms .format-notes {
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+  border-left: 2px solid var(--line);
+  background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.v7-cms .format-notes ul {
+  margin: 0;
+  padding-left: 1rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.v7-cms .format-notes li + li {
+  margin-top: 0.25rem;
+}
+.v7-cms .file-editor .source-editor {
+  min-height: 24rem;
+}

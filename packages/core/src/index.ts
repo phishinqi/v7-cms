@@ -3,4 +3,5 @@ export * from './config.js';
 export * from './config-load.js';
 export * from './fields-builtin.js';
 export * from './body-mode.js';
+export * from './format-check.js';
 export * from './serialize/index.js';

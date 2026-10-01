@@ -188,3 +188,60 @@ test('registers the taxonomy and friends JSON files as editable collections', as
   const saved = JSON.parse((await stored(page, TAGS))!) as { tags: Array<{ name: string }> };
   expect(saved.tags[0]!.name).toBe('设计与排版');
 });
+
+/**
+ * A file edited as one block of source.
+ *
+ * `source: true` is for files that are documents rather than data — an MDX page, whose content is
+ * the whole file. Parsing one into frontmatter would be wrong, and this is the regression that
+ * matters: the page opens, and saving writes back exactly what was typed and nothing else.
+ */
+test('a source collection opens the whole file in one editor', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '独立页面', exact: true }).click();
+  await expect(page.locator('.file-editor')).toBeVisible();
+  await expect(page.locator('.source-editor')).toBeVisible();
+  // No inferred form: the file is not data, so there are no fields to render.
+  await expect(page.locator('.field')).toHaveCount(0);
+});
+
+test('editing a source file writes back only what changed', async ({ page }) => {
+  const path = 'content/pages/about.zh.mdx';
+  await page.goto('/');
+  await page.getByRole('button', { name: '独立页面', exact: true }).click();
+  const before = (await stored(page, path))!;
+
+  const editor = page.locator('.source-editor .cm-content');
+  await editor.click();
+  await page.keyboard.press('Control+End');
+  await page.keyboard.type('\n新增一行。');
+  await page.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(page.locator('.notice.ok')).toHaveText(/已保存|Saved/);
+
+  const after = (await stored(page, path))!;
+  expect(after).toBe(`${before}\n新增一行。`);
+});
+
+test('a source file saves byte for byte when nothing is edited', async ({ page }) => {
+  const path = 'content/pages/about.zh.mdx';
+  await page.goto('/');
+  await page.getByRole('button', { name: '独立页面', exact: true }).click();
+  const before = (await stored(page, path))!;
+  // Save is offered only when something changed, so a no-op is a no-op.
+  await expect(page.getByRole('button', { name: '保存', exact: true })).toBeDisabled();
+  expect((await stored(page, path))!).toBe(before);
+});
+
+test('a body that opens with a rule is reported without blocking the save', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '独立页面', exact: true }).click();
+  const notes = page.locator('.format-notes');
+  await expect(notes).toBeVisible();
+  await expect(notes.locator('[data-code="body-looks-like-frontmatter"]')).toBeVisible();
+  // Advisory, not validation: the format note must not disable the button the way a field error does.
+  const editor = page.locator('.source-editor .cm-content');
+  await editor.click();
+  await page.keyboard.press('Control+End');
+  await page.keyboard.type('x');
+  await expect(page.getByRole('button', { name: '保存', exact: true })).toBeEnabled();
+});

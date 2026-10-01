@@ -62,6 +62,7 @@ const fileCollectionSchema = z.object({
         file: z.string().min(1),
         fields: z.array(fieldSchema).optional(),
         inferSchema: z.boolean().optional(),
+        source: z.boolean().optional(),
         fieldOverrides: z.record(z.string(), z.record(z.string(), z.unknown())).optional(),
       }),
     )

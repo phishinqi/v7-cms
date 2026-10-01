@@ -94,6 +94,7 @@
                     "file": { "type": "string", "minLength": 1 },
                     "fields": { "type": "array", "items": { "$ref": "#/$defs/__schema0" } },
                     "inferSchema": { "type": "boolean" },
+                    "source": { "type": "boolean" },
                     "fieldOverrides": {
                       "type": "object",
                       "propertyNames": { "type": "string" },

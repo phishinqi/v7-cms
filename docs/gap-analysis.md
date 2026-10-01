@@ -14,18 +14,20 @@ v7-cms 是**第 3 类**——Git / Markdown 型 CMS，而且在这一类里它�
 
 对照清单里的 Git-based 一类。
 
-| 能力                    | 说明                                                                                                                                                                    | 位置                                     |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| 保真序列化              | 打开文件再保存，字节完全一致；改一个字段，只改那一行。这是整个项目的立足点，也是测试最重的部分（黄金文件往返 + 单行差异断言）。                                         | `packages/core/src/serialize/`           |
-| 嵌套对象 / 对象列表字段 | 相册里每张照片是一个对象，含可选的 `photo` / `artwork` 子对象。**这正是 Decap 做不到的那件事**——它的 `object`/`list`/`richtext` 不能在自己的自定义字段里复用。          | `packages/core/src/fields-builtin.ts`    |
-| 双轨正文编辑器          | 正文打开前先判定：随笔走富文本，MDX / JSX / HTML / 图表围栏 / 块级公式 / 缩进代码块走源码。**判定偏向保守**——误判成源码只是少个好看的编辑器，误判成富文本会把文件改坏。 | `packages/cms/src/frame/BodyField.tsx`   |
-| 表单从文件推断          | `inferSchema: true` 从文件当前内容推出表单，`fieldOverrides` 按路径修正。站点配置因此可编辑，而不必写一百行字段定义。                                                   | `packages/cms/src/frame/infer-schema.ts` |
-| 三种后端                | GitHub（API）、本地文件夹（File System Access API）、本地代理（任意浏览器）。                                                                                           | `packages/adapters/`                     |
-| 实时预览                | 渲染后的 Markdown 预览，以及嵌真实站点的 iframe。                                                                                                                       | `packages/cms/src/preview/`              |
-| 编辑工作流              | 草稿 → 评审 → 发布。GitHub 上是一次分支加一个 PR，本地是一份状态文件，两者满足同一个接口。                                                                              | `packages/cms/src/workflow/`             |
-| 插件                    | 自定义字段类型、预览渲染器、主题令牌。                                                                                                                                  | `packages/cms/src/plugins.ts`            |
-| 界面翻译                | `locale` 真正生效，内置 `en` / `zh-CN`。                                                                                                                                | `packages/cms/src/i18n/`                 |
-| 上传去元数据            | 上传经 canvas 重新编码，EXIF、GPS 以及其余全部元数据在入口处丢掉。是有意为之：不该因为一次疏忽就把照片的拍摄地点发布出去。                                              | `packages/cms/src/upload/`               |
+| 能力                    | 说明                                                                                                                                                                                                              | 位置                                     |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| 保真序列化              | 打开文件再保存，字节完全一致；改一个字段，只改那一行。这是整个项目的立足点，也是测试最重的部分（黄金文件往返 + 单行差异断言）。                                                                                   | `packages/core/src/serialize/`           |
+| 嵌套对象 / 对象列表字段 | 相册里每张照片是一个对象，含可选的 `photo` / `artwork` 子对象。**这正是 Decap 做不到的那件事**——它的 `object`/`list`/`richtext` 不能在自己的自定义字段里复用。                                                    | `packages/core/src/fields-builtin.ts`    |
+| 双轨正文编辑器          | 正文打开前先判定：随笔走富文本，MDX / JSX / HTML / 图表围栏 / 块级公式 / 缩进代码块走源码。**判定偏向保守**——误判成源码只是少个好看的编辑器，误判成富文本会把文件改坏。                                           | `packages/cms/src/frame/BodyField.tsx`   |
+| 表单从文件推断          | `inferSchema: true` 从文件当前内容推出表单，`fieldOverrides` 按路径修正。站点配置因此可编辑，而不必写一百行字段定义。                                                                                             | `packages/cms/src/frame/infer-schema.ts` |
+| 三种后端                | GitHub（API）、本地文件夹（File System Access API）、本地代理（任意浏览器）。                                                                                                                                     | `packages/adapters/`                     |
+| 实时预览                | 渲染后的 Markdown 预览，以及嵌真实站点的 iframe。                                                                                                                                                                 | `packages/cms/src/preview/`              |
+| 编辑工作流              | 草稿 → 评审 → 发布。GitHub 上是一次分支加一个 PR，本地是一份状态文件，两者满足同一个接口。                                                                                                                        | `packages/cms/src/workflow/`             |
+| 插件                    | 自定义字段类型、预览渲染器、主题令牌。                                                                                                                                                                            | `packages/cms/src/plugins.ts`            |
+| 界面翻译                | `locale` 真正生效，内置 `en` / `zh-CN`。                                                                                                                                                                          | `packages/cms/src/i18n/`                 |
+| 上传去元数据            | 上传经 canvas 重新编码，EXIF、GPS 以及其余全部元数据在入口处丢掉。是有意为之：不该因为一次疏忽就把照片的拍摄地点发布出去。                                                                                        | `packages/cms/src/upload/`               |
+| 格式检测                | 保存前提示文件形状的问题（缺 frontmatter、frontmatter 不是键值、换行混用），纯逻辑、浏览器内跑。Prettier 本身通过本地代理问，只回「是否符合、第几行」，**绝不回改写后的全文**——回全文等于把 lint 变成自动格式化。 | `packages/core/src/format-check.ts`      |
+| 整文件源码编辑          | `source: true` 的文件集合：一个 MDX 页面的内容就是整个文件，没有 frontmatter 可解析成表单，所以整体当一个源码块编辑、按字节存回。这是「无 frontmatter 却配了 contentField」那类错误的正确建模。                   | `packages/cms/src/frame/FileEditor.tsx`  |
 
 ## 2 · 对照其他三类：不做的部分
 

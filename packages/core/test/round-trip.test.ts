@@ -104,7 +104,20 @@ describe('editing one value', () => {
   it('can edit a field when the existing frontmatter is a scalar', () => {
     const entry = parseEntry('---\nlegacy\n---\n\n关于页正文。\n');
     setValue(entry, 'title', '关于');
-    expect(serializeEntry(entry)).toBe('---\ntitle: 关于\n---\n\n关于页正文。\n');
+    // The scalar root becomes a mapping, because YAML has nowhere to put a key beside it — but its
+    // text is kept as a comment rather than dropped, so nothing the author wrote disappears.
+    expect(serializeEntry(entry)).toBe('---\n# legacy\ntitle: 关于\n---\n\n关于页正文。\n');
+  });
+
+  it('treats prose between two rules as body, not as frontmatter', () => {
+    // A Markdown file may open with a thematic break. Reading that as frontmatter would put the
+    // prose inside the YAML block and write it back out as keys.
+    const raw = '---\n\n标题\n\n---\n\n正文。\n';
+    const entry = parseEntry(raw);
+    expect(entry.hasFrontmatter).toBe(false);
+    expect(entry.bodyRaw).toBe(raw);
+    setValue(entry, 'title', 'x');
+    expect(serializeEntry(entry)).toBe(raw);
   });
 
   it('removes a key rather than blanking it, so optional fields stay absent', () => {

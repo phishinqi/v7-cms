@@ -9,6 +9,7 @@ import {
   NotFoundError,
   type DirEntry,
   type FileContents,
+  type FormatReport,
   type MediaRef,
   type MediaStore,
   type StorageAdapter,
@@ -62,6 +63,31 @@ export class ProxyAdapter implements StorageAdapter {
     const response = await this.call('/api/health');
     if (!response.ok) throw new Error(`The proxy at ${this.url} did not answer.`);
     return (await response.json()) as { repo: string };
+  }
+
+  /**
+   * Ask the proxy whether these files match the repository's Prettier config.
+   *
+   * The proxy answers "differs, and where" rather than handing back reformatted text, so this can
+   * only ever report — it can never rewrite a file the author did not ask to change.
+   */
+  async checkFormat(paths: string[]): Promise<FormatReport> {
+    const response = await this.call('/api/format', {
+      method: 'POST',
+      body: JSON.stringify({ paths }),
+    });
+    if (!response.ok) return { unavailable: true, findings: [] };
+    const payload = (await response.json()) as {
+      unavailable?: boolean;
+      issues?: Array<{ path: string; firstDiffLine: number }>;
+    };
+    return {
+      ...(payload.unavailable ? { unavailable: true } : {}),
+      findings: (payload.issues ?? []).map((issue) => ({
+        path: issue.path,
+        firstDiffLine: issue.firstDiffLine,
+      })),
+    };
   }
 
   private call(path: string, init: RequestInit = {}): Promise<Response> {

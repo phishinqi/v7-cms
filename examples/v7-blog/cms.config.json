@@ -723,6 +723,20 @@
           }
         }
       ]
+    },
+    {
+      "kind": "file",
+      "name": "pages",
+      "label": "独立页面",
+      "format": "yaml",
+      "files": [
+        {
+          "name": "about",
+          "label": "关于",
+          "file": "content/pages/about.zh.mdx",
+          "source": true
+        }
+      ]
     }
   ]
 }

@@ -145,6 +145,15 @@ flowchart LR
   A[写作] --> B[校验]
 \`\`\`
 `,
+  // A page with no frontmatter: the whole file is the document, which is what `source: true`
+  // exists for. It also opens with `---`, the shape that used to be misread as frontmatter.
+  'content/pages/about.zh.mdx': `---
+这是 **V7 主题的示例关于页**，不是一份真实人物履历。
+
+## 一个可以慢慢写的地方
+
+把这里换成你的介绍。
+`,
   'content/posts/a-smaller-web.md': `---
 title: 'A smaller web, with room to read'
 description: 'An English sample.'

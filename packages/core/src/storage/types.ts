@@ -88,6 +88,19 @@ export interface AccountInfo {
   repo?: RepoRef;
 }
 
+/** One file Prettier would rewrite, and where it first disagrees with the file on disk. */
+export interface FormatFinding {
+  path: string;
+  /** 1-based line number of the first difference. */
+  firstDiffLine: number;
+}
+
+export interface FormatReport {
+  /** Set when the backend cannot run Prettier, so the editor can stay quiet about it. */
+  unavailable?: boolean;
+  findings: FormatFinding[];
+}
+
 export interface StorageAdapter {
   readonly kind: 'github' | 'fs-access' | 'proxy' | 'memory';
   init(): Promise<void>;
@@ -96,6 +109,14 @@ export interface StorageAdapter {
    * ready; a failure here must not stop the editor from opening.
    */
   account?(): Promise<AccountInfo | undefined>;
+  /**
+   * Whether these files match the repository's Prettier config.
+   *
+   * Optional, and absent from most backends: a config is a file that can import plugins, so only a
+   * process with a filesystem can evaluate it. GitHub and browser-folder backends leave this off,
+   * and the editor shows no formatting advice rather than inventing it.
+   */
+  checkFormat?(paths: string[]): Promise<FormatReport>;
   listDir(path: string): Promise<DirEntry[]>;
   readFile(path: string): Promise<FileContents>;
   readBinary(path: string): Promise<Uint8Array>;

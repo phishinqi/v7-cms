@@ -22,6 +22,13 @@ export interface ParsedEntry {
   hasFrontmatter: boolean;
   /** Flow collections written as `{ a: 1 }`, which the writer would otherwise emit as `{a: 1}`. */
   paddedFlows: FlowPadding[];
+  /**
+   * Text of a scalar frontmatter root, kept so it survives the promotion to a mapping. Undefined
+   * for the ordinary case, where the frontmatter already is a mapping.
+   */
+  orphanRoot?: string | undefined;
+  /** Set once `orphanRoot` has been written out, so repeated saves do not stack the comment. */
+  orphanRootRestored?: boolean;
 }
 
 /**
@@ -40,9 +47,34 @@ interface FlowPadding {
 // group is optional rather than `[\s\S]*?` between two newlines.
 const FRONTMATTER = /^---[ \t]*\r?\n(?:([\s\S]*?)\r?\n)?---[ \t]*(\r?\n|$)/;
 
+/**
+ * Whether a `---`-fenced block at the top of a file is really frontmatter.
+ *
+ * Two dashes on line 1 are also how a Markdown document opens with a thematic break, and prose that
+ * later contains another `---` would then be swallowed as YAML: everything between the two lines
+ * becomes frontmatter, the rest becomes the body, and saving writes the prose out as keys. So the
+ * block only counts when it parses as YAML at all, and what it parses to is one of the shapes a
+ * frontmatter block actually has — a mapping, nothing, or a single bare scalar (`---\nlegacy\n---`,
+ * a shape real pages have).
+ *
+ * The scalar case is limited to one line on purpose. Prose between two rules also parses as a
+ * scalar, so anything multi-line, or blank at either end, is body text with a thematic break in it
+ * rather than frontmatter. Getting this wrong is asymmetric: reading real frontmatter as body
+ * leaves the file untouched, while reading prose as frontmatter rewrites it.
+ */
+function isFrontmatter(yamlText: string): boolean {
+  const document = parseDocument(yamlText);
+  if (document.errors.length > 0 || document.warnings.length > 0) return false;
+  const contents = document.contents;
+  // Blank and comment-only blocks parse to null, which is a legitimate empty frontmatter.
+  if (contents === null || isMap(contents)) return true;
+  // A lone scalar only, with no surrounding blank line: `legacy`, not a paragraph of prose.
+  return isScalar(contents) && yamlText.trim() === yamlText && !yamlText.trim().includes('\n');
+}
+
 export function parseEntry(raw: string): ParsedEntry {
   const match = FRONTMATTER.exec(raw);
-  if (!match) {
+  if (!match || !isFrontmatter(match[1] ?? '')) {
     return {
       raw,
       frontmatterRaw: '',
@@ -50,6 +82,7 @@ export function parseEntry(raw: string): ParsedEntry {
       document: parseDocument(''),
       hasFrontmatter: false,
       paddedFlows: [],
+      orphanRoot: undefined,
     };
   }
   const frontmatterRaw = match[0];
@@ -63,7 +96,20 @@ export function parseEntry(raw: string): ParsedEntry {
     hasFrontmatter: true,
     // Node ranges are offsets into the YAML text that was parsed, not into the whole file.
     paddedFlows: collectPadding(document, yamlText),
+    orphanRoot: rootScalarText(document),
   };
+}
+
+/**
+ * The text of a scalar frontmatter root, kept so promoting the document to a mapping does not
+ * destroy it. `---\nlegacy\n---` is a shape real pages have, and YAML's `setIn` needs a collection
+ * at the root — so the first field written would otherwise replace that text with an empty map.
+ */
+function rootScalarText(document: Document.Parsed): string | undefined {
+  const contents = document.contents;
+  if (contents === null || isMap(contents)) return undefined;
+  const text = stringify(contents, { lineWidth: 0 });
+  return typeof text === 'string' ? text.replace(/\n+$/, '') : undefined;
 }
 
 function collectPadding(document: Document.Parsed, yamlText: string): FlowPadding[] {
@@ -102,7 +148,9 @@ export function readData(entry: ParsedEntry): Record<string, unknown> {
  */
 export function setValue(entry: ParsedEntry, path: string, value: unknown): void {
   // A page can contain scalar or empty frontmatter. YAML's setIn only accepts a collection as
-  // its root, so promote that legacy shape before the editor writes a structured field.
+  // its root, so promote that legacy shape before the editor writes a structured field. The old
+  // root is not thrown away: `orphanRoot` keeps its text and `serializeEntry` writes it back as a
+  // comment, so a page reading `---\nlegacy\n---` loses nothing when a field is added.
   if (!isMap(entry.document.contents)) {
     entry.document.contents = entry.document.createNode(
       {},
@@ -157,7 +205,27 @@ export function serializeEntry(entry: ParsedEntry, body?: string): string {
     .toString({ lineWidth: 0, flowCollectionPadding: false })
     .replace(/\n+$/, '\n');
   yamlText = restoreFlowPadding(entry, yamlText);
+  yamlText = restoreOrphanRoot(entry, yamlText);
   return `---\n${yamlText}---\n${body ?? entry.bodyRaw}`;
+}
+
+/**
+ * Put back a scalar root that `setValue` had to displace.
+ *
+ * The text is re-emitted as a comment on the line that replaced it, because the frontmatter is now
+ * a mapping and YAML has no way to express "a mapping and also a scalar". Keeping it as a comment
+ * means the author can still see what was there and move it into a key, which is strictly better
+ * than the alternative the promotion used to have — dropping it silently.
+ */
+function restoreOrphanRoot(entry: ParsedEntry, yamlText: string): string {
+  const orphan = entry.orphanRoot;
+  if (orphan === undefined || entry.orphanRootRestored) return yamlText;
+  entry.orphanRootRestored = true;
+  const commented = orphan
+    .split('\n')
+    .map((line) => `# ${line}`.trimEnd())
+    .join('\n');
+  return `${commented}\n${yamlText}`;
 }
 
 /**

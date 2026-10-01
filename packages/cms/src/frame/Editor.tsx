@@ -6,12 +6,14 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FieldsCollection } from '@v7-cms/core';
+import { checkEntryFormat, checkEntryFormatForBody } from '@v7-cms/core';
 import { ConflictError } from '@v7-cms/core/storage';
 import { useApp, useStore } from '../app.js';
 import { useTranslate } from '../i18n/index.js';
 import type { EntrySummary, LoadedEntry } from '../entry-store.js';
 import { BodyField } from './BodyField.js';
 import { FieldControl } from './FieldControl.js';
+import { FormatNotes } from './FormatNotes.js';
 import { Preview } from '../preview/Preview.js';
 import type { InContextPick } from '../preview/bridge.js';
 
@@ -43,6 +45,25 @@ export function Editor({ collectionName }: { collectionName: string }) {
 
   const issues = useMemo(() => (entry ? store.validate(entry) : []), [entry, store]);
   const bodyField = collection?.fields.find((field) => field.name === collection.contentField);
+  /**
+   * Notes about the file's own shape, which field validation cannot see: a document with no
+   * frontmatter, a scalar root, line endings that will not round-trip. They are advisory — the Save
+   * button still only obeys `issues` — because every one of them describes a file the author may
+   * have opened deliberately.
+   */
+  const formatNotes = useMemo(
+    () =>
+      entry
+        ? [
+            ...checkEntryFormat(entry.parsed, {
+              extension: collection?.extension,
+              expectsBody: Boolean(collection?.contentField),
+            }),
+            ...checkEntryFormatForBody(entry.body),
+          ]
+        : [],
+    [entry, collection?.extension, collection?.contentField],
+  );
   const preview = useApp().config.preview;
   const media = useApp().config.media;
   // A collection can keep its images together; otherwise the config's paths apply.
@@ -198,6 +219,7 @@ export function Editor({ collectionName }: { collectionName: string }) {
                   : t('notice.fieldsNeedAttentionPlural')}
               </p>
             )}
+            <FormatNotes issues={formatNotes} path={entry.path} />
             {state.kind === 'saved' && <p className="notice ok">{t('action.saved')}</p>}
             {state.kind === 'error' && (
               <p className="notice error" role="alert">

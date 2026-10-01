@@ -94,6 +94,21 @@ export const en = {
   'notice.unchanged': 'No changes to save.',
   'notice.nothingEditable': 'This file has nothing editable in it.',
 
+  'format.title': 'Format',
+  'format.missingFrontmatter':
+    'This file has no frontmatter, so the whole document is treated as the body and the fields above cannot be filled in. Add a `---` block, or model it as a file collection with `source: true`.',
+  'format.scalarFrontmatter':
+    'The frontmatter is not a set of keys. Saving turns it into one and keeps the old text as a comment.',
+  'format.bodyLooksLikeFrontmatter':
+    'The body starts with `---`, which some tools read as the start of a frontmatter block.',
+  'format.mixedLineEndings':
+    'This file mixes CRLF and LF line endings, so saving changes lines you did not edit.',
+  'format.noTrailingNewline': 'The file does not end with a newline.',
+  'format.notFormatted': 'Prettier would reformat this file. Run `pnpm format` before committing.',
+  'format.unavailable':
+    'Prettier is not available from this backend, so formatting was not checked.',
+  'format.check': 'Check formatting',
+
   'body.sourceOnly': 'Editing as source.',
   'body.richWarning': 'Rich text will reformat this file.',
   'body.reason.mdx': 'This file is MDX, which carries imports and components.',

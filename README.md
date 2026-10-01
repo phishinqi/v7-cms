@@ -76,6 +76,18 @@ Two details that a naive implementation gets wrong, and which this one handles:
 - **Quoting.** `'2026-09-12'` and `2026-09-12` are different values to some consumers, so a scalar's
   original quote style is available to any field that needs to preserve it.
 
+A third case decides what counts as frontmatter at all. A Markdown file may open with `---` as a
+thematic break, and reading that as frontmatter would swallow the prose as YAML and write it back
+out as keys — so the fence only counts when what is between the lines is a mapping, nothing, or a
+single bare scalar.
+
+## Format checks
+
+The editor says what it noticed about a file's shape, above the fields, and never blocks Save over
+it. The shape checks are pure and always run; Prettier itself is asked for through the local proxy,
+which answers "differs, and at which line" without ever handing back reformatted text. See
+[Configuration](docs/configuration.md#format-checks).
+
 ## Documentation
 
 - [Getting started](docs/getting-started.md) — write a config, serve the editor, open a repository

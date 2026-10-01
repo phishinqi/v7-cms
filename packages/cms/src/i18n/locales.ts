@@ -89,6 +89,18 @@ export const zhCN: Dictionary = {
   'notice.unchanged': '没有需要保存的改动。',
   'notice.nothingEditable': '这个文件里没有可编辑的内容。',
 
+  'format.title': '格式',
+  'format.missingFrontmatter':
+    '这个文件没有 frontmatter，所以整篇文档会被当成正文，上面的字段也没法填。加一个 `---` 块，或者把它改成带 `source: true` 的 file 集合。',
+  'format.scalarFrontmatter':
+    'frontmatter 不是一组键值。保存时会把它变成键值，并把原来的文字保留为注释。',
+  'format.bodyLooksLikeFrontmatter': '正文以 `---` 开头，有些工具会把它当成 frontmatter 的开始。',
+  'format.mixedLineEndings': '这个文件混用了 CRLF 和 LF 换行，保存会改动你没有编辑的行。',
+  'format.noTrailingNewline': '文件末尾没有换行。',
+  'format.notFormatted': 'Prettier 会重新排版这个文件。提交前先跑 `pnpm format`。',
+  'format.unavailable': '这个后端用不了 Prettier，所以没有检查格式。',
+  'format.check': '检查格式',
+
   'body.sourceOnly': '正以源码模式编辑。',
   'body.richWarning': '富文本会重新排版这个文件。',
   'body.reason.mdx': '这是 MDX 文件，包含 import 和组件。',

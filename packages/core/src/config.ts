@@ -108,6 +108,15 @@ export interface FileEntry {
   fields?: Field[];
   /** Derive the field list from the file's current contents instead of declaring it. */
   inferSchema?: boolean;
+  /**
+   * Edit the file as one block of source text rather than as a form of fields.
+   *
+   * Files that are not data need this: an MDX page is a document, and its content is the whole
+   * file, so a form cannot describe it and parsing it into keys would be wrong. The editor shows a
+   * source editor and writes the text back unchanged, which is the same guarantee a body field
+   * makes. `inferSchema` and `fields` are ignored when this is set.
+   */
+  source?: boolean;
   /** Override inferred fields by path, with `*` matching one segment. */
   fieldOverrides?: Record<string, Partial<Field>>;
 }

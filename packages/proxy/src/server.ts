@@ -64,6 +64,8 @@ export class LocalProxy {
           return await this.content(request);
         case '/api/media':
           return await this.media(request);
+        case '/api/format':
+          return await this.format(request);
         default:
           return json({ error: 'Not found' }, 404);
       }
@@ -75,9 +77,45 @@ export class LocalProxy {
   }
 
   /**
-   * One call carries one storage operation. The shape mirrors the GitHub adapter's capabilities
-   * so the editor cannot tell the two apart.
+   * Whether files match the repository's own Prettier config.
+   *
+   * Prettier runs here and not in the browser for two reasons: it is a large dependency to ship to
+   * every author, and a config is a file — `prettier.config.mjs` can import plugins — so only a Node
+   * process can read it. This is the one place in the proxy that reads a config rather than content.
+   *
+   * It answers "does this file match" and nothing else. Returning the reformatted text would turn a
+   * lint into an auto-formatter, and silently rewriting a file the author did not ask to change is
+   * the exact behaviour this CMS exists not to have.
    */
+  private async format(request: ProxyRequest): Promise<ProxyResponse> {
+    const body = (request.body ?? {}) as Record<string, unknown>;
+    const paths = Array.isArray(body['paths']) ? body['paths'].map(String) : [];
+    if (paths.length === 0) return json({ checked: 0, issues: [] });
+
+    // Optional on purpose: a repository without Prettier should not fail to open its editor.
+    const prettier = await import('prettier').catch(() => null);
+    if (!prettier) return json({ unavailable: true, issues: [] });
+
+    const issues: Array<{ path: string; formatted: false; firstDiffLine: number }> = [];
+    for (const path of paths.slice(0, 50)) {
+      const full = await this.resolve(path);
+      const text = await readFile(full, 'utf8').catch(() => undefined);
+      if (text === undefined) continue;
+      const options = (await prettier.resolveConfig(full)) ?? {};
+      let formatted: string;
+      try {
+        formatted = await prettier.format(text, { ...options, filepath: full });
+      } catch {
+        // A file Prettier cannot parse is not a formatting failure; leave it to the language tooling.
+        continue;
+      }
+      if (formatted !== text) {
+        issues.push({ path, formatted: false, firstDiffLine: firstDifference(text, formatted) });
+      }
+    }
+    return json({ checked: paths.length, issues });
+  }
+
   private async content(request: ProxyRequest): Promise<ProxyResponse> {
     const body = (request.body ?? {}) as Record<string, unknown>;
     switch (body['action']) {
@@ -202,6 +240,22 @@ export class LocalProxy {
 }
 
 const basename = (path: string) => path.split(sep).filter(Boolean).pop() ?? path;
+
+/**
+ * 1-based line number of the first line that differs, or 1 when the difference is only at the end.
+ *
+ * A line number is enough for the author to go and look, and it is the only part of the comparison
+ * worth sending back — the full diff would be the reformatted file by another name.
+ */
+function firstDifference(left: string, right: string): number {
+  const a = left.split('\n');
+  const b = right.split('\n');
+  const limit = Math.max(a.length, b.length);
+  for (let index = 0; index < limit; index += 1) {
+    if (a[index] !== b[index]) return index + 1;
+  }
+  return 1;
+}
 
 /** The header the CMS sends, kept in one place so both sides agree. */
 export const TOKEN_HEADER = 'x-v7-cms-token';

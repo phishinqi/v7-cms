@@ -14,7 +14,11 @@
     "start": "node dist/cli.mjs",
     "build": "node build.mjs"
   },
+  "dependencies": {
+    "prettier": "^3.9.9"
+  },
   "devDependencies": {
+    "@types/node": "24.19.0",
     "esbuild": "0.28.2"
   },
   "files": [

@@ -204,6 +204,36 @@ matching one segment:
 }
 ```
 
+#### `source`: for files that are documents, not data
+
+A `file` collection assumes its file is structured data — JSON it can parse into a form. Some files
+are not. An MDX page's content _is_ the whole file: it has no frontmatter, so there are no keys to
+form, and parsing it would either fail or invent a shape the author never wrote. Mark those files
+with `source: true` and the editor shows one source editor over the entire document, saved byte for
+byte:
+
+```json
+{
+  "kind": "file",
+  "name": "pages",
+  "label": "Pages",
+  "format": "yaml",
+  "files": [
+    { "name": "about", "label": "About", "file": "content/pages/about.zh.mdx", "source": true }
+  ]
+}
+```
+
+| Key           | Meaning                                                                            |
+| ------------- | ---------------------------------------------------------------------------------- |
+| `source`      | Edit the whole file as text. Ignores `fields`, `inferSchema` and `fieldOverrides`. |
+| `inferSchema` | Derive the form from the file's contents.                                          |
+| `fields`      | Declare the form instead of inferring it.                                          |
+
+A body-only Markdown file belongs here rather than in a `fields` collection with a `contentField`.
+Under a `fields` collection a file with no frontmatter has no values, so the editor shows one body
+box and none of the declared fields — and the entry list shows a file name where a title should be.
+
 ## Fields
 
 Every field has `name`, `widget` and `label`, and optionally `required`, `hint` and `default`.
@@ -252,3 +282,36 @@ The message is what the author sees, so it should say what to do.
 With both set, the preview panel offers the real site in an iframe as well as the Markdown view.
 `pathTemplate` takes `{{slug}}` and `{{collection}}`; if a placeholder cannot be filled, the site
 option is hidden rather than pointing at a broken URL.
+
+## Format checks
+
+The editor reports two kinds of formatting problem, in the panel above the fields. Neither of them
+blocks Save: validation blocks Save because a bad value would be written wrong, while a format note
+describes something already true about the file, and refusing to save a file the author opened
+deliberately would be worse.
+
+**Shape checks** always run, in the browser, with no dependency. They catch the things that break a
+file rather than the things that merely look wrong:
+
+| Check                         | Fires when                                                                                                                                                    |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `missing-frontmatter`         | The collection declares `contentField` but the file has no frontmatter, so the whole document would become the body and no declared field could be filled in. |
+| `scalar-frontmatter`          | The frontmatter is not a mapping. Saving promotes it, keeping the old text as a comment.                                                                      |
+| `body-looks-like-frontmatter` | The body opens with `---`. Safe, but one bad edit from being misread.                                                                                         |
+| `mixed-line-endings`          | The file mixes CRLF and LF, so saving changes lines you did not edit.                                                                                         |
+| `no-trailing-newline`         | Prettier and most tooling want a file to end with one.                                                                                                        |
+
+**Prettier itself** is asked for through the backend, because a config is a file that can import
+plugins, so only a process with a filesystem can evaluate it. The local proxy exposes it:
+
+```text
+POST /api/format   { "paths": ["content/posts/one.md"] }
+  →  { "checked": 1, "issues": [{ "path": "…", "formatted": false, "firstDiffLine": 12 }] }
+```
+
+It answers "differs, and where" and never returns reformatted text. Handing back the formatted file
+would turn a lint into an auto-formatter, and silently rewriting a file the author did not ask to
+change is the behaviour this CMS exists not to have. Run `pnpm format` yourself to apply it.
+
+Backends that cannot answer — GitHub, a browser folder — leave `checkFormat` off entirely and the
+editor shows no Prettier advice rather than guessing.

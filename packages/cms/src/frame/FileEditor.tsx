@@ -12,10 +12,12 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import type { Field, FileCollection, FileEntry } from '@v7-cms/core';
-import { runFieldValidation } from '@v7-cms/core';
+import { checkEntryFormatForSource, runFieldValidation } from '@v7-cms/core';
 import { useApp } from '../app.js';
 import { useTranslate } from '../i18n/index.js';
 import { FieldControl } from './FieldControl.js';
+import { FormatNotes } from './FormatNotes.js';
+import { SourceEditor } from './SourceEditor.js';
 import { inferFields, normalizeInferredValues } from './infer-schema.js';
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'conflict' | 'error';
@@ -26,10 +28,17 @@ export function FileEditor({ collection }: { collection: FileCollection }) {
   const [entry, setEntry] = useState<FileEntry | undefined>(collection.files[0]);
   const [values, setValues] = useState<Record<string, unknown>>({});
   const [original, setOriginal] = useState<Record<string, unknown>>({});
+  /** Whole-file text, used instead of `values` when the entry is edited as source. */
+  const [text, setText] = useState('');
+  /** The text as loaded, so "did the author change anything" is a plain comparison. */
+  const [originalText, setOriginalText] = useState('');
   const [sha, setSha] = useState<string | undefined>();
   const [state, setState] = useState<SaveState>('idle');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
+
+  /** A file that is a document rather than data: an MDX page, a stylesheet, a script. */
+  const asSource = entry?.source === true;
 
   useEffect(() => {
     if (!entry || !storage) return;
@@ -37,12 +46,18 @@ export function FileEditor({ collection }: { collection: FileCollection }) {
     void storage
       .readFile(entry.file)
       .then((file) => {
+        setSha(file.sha);
+        setState('idle');
+        if (entry.source) {
+          // Nothing is parsed: the text is the content, and it goes back out as it came in.
+          setText(file.text);
+          setOriginalText(file.text);
+          return;
+        }
         const parsed = JSON.parse(file.text || '{}') as Record<string, unknown>;
         const normalized = normalizeInferredValues(parsed);
         setValues(normalized);
         setOriginal(normalized);
-        setSha(file.sha);
-        setState('idle');
       })
       .catch((error: Error) => {
         setMessage(error.message);
@@ -76,21 +91,27 @@ export function FileEditor({ collection }: { collection: FileCollection }) {
   }, [fields, values]);
 
   const dirty = useMemo(
-    () => JSON.stringify(values) !== JSON.stringify(original),
-    [values, original],
+    () => (asSource ? text !== originalText : JSON.stringify(values) !== JSON.stringify(original)),
+    [asSource, text, originalText, values, original],
+  );
+
+  const formatNotes = useMemo(
+    () => (asSource ? checkEntryFormatForSource(text, entry?.file) : []),
+    [asSource, text, entry?.file],
   );
 
   const save = async () => {
     if (!entry || !storage) return;
     setState('saving');
     try {
-      // Two-space indent and a trailing newline, which is what the file already uses.
-      const text = `${JSON.stringify(values, null, 2)}\n`;
-      const result = await storage.writeFile(entry.file, text, {
+      // A source file is written back byte for byte; only a parsed one is re-serialised.
+      const body = asSource ? text : `${JSON.stringify(values, null, 2)}\n`;
+      const result = await storage.writeFile(entry.file, body, {
         message: `Update ${entry.label}`,
         ...(sha === undefined ? {} : { sha }),
       });
-      setOriginal(values);
+      if (asSource) setOriginalText(text);
+      else setOriginal(values);
       if (result.sha !== undefined) setSha(result.sha);
       setState('saved');
     } catch (error) {
@@ -159,20 +180,31 @@ export function FileEditor({ collection }: { collection: FileCollection }) {
         </p>
       )}
 
-      <div className="fields">
-        {fields.map((field) => (
-          <FieldControl
-            key={field.name}
-            field={field}
-            path={field.name}
-            value={values[field.name]}
-            issues={issues}
-            onChange={(value) => setValues((current) => ({ ...current, [field.name]: value }))}
-          />
-        ))}
-      </div>
+      <FormatNotes issues={formatNotes} path={entry?.file} />
 
-      {fields.length === 0 && <p className="notice">{t('notice.nothingEditable')}</p>}
+      {asSource ? (
+        // A document, not data: one source editor over the whole file, saved byte for byte.
+        <div className="fields">
+          <SourceEditor value={text} onChange={setText} id="file-source" />
+        </div>
+      ) : (
+        <>
+          <div className="fields">
+            {fields.map((field) => (
+              <FieldControl
+                key={field.name}
+                field={field}
+                path={field.name}
+                value={values[field.name]}
+                issues={issues}
+                onChange={(value) => setValues((current) => ({ ...current, [field.name]: value }))}
+              />
+            ))}
+          </div>
+
+          {fields.length === 0 && <p className="notice">{t('notice.nothingEditable')}</p>}
+        </>
+      )}
     </div>
   );
 }
