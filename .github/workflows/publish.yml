@@ -60,16 +60,16 @@ jobs:
           done
 
       - name: Publish @v7-cms/core
-        run: npm publish packed/v7-cms-core-*.tgz --provenance --access public --tag alpha
+        run: npm publish ./packed/v7-cms-core-*.tgz --provenance --access public --tag alpha
         if: env.DRY_RUN != 'true'
       - name: Publish @v7-cms/proxy
-        run: npm publish packed/v7-cms-proxy-*.tgz --provenance --access public --tag alpha
+        run: npm publish ./packed/v7-cms-proxy-*.tgz --provenance --access public --tag alpha
         if: env.DRY_RUN != 'true'
       - name: Publish @v7-cms/adapters
-        run: npm publish packed/v7-cms-adapters-*.tgz --provenance --access public --tag alpha
+        run: npm publish ./packed/v7-cms-adapters-*.tgz --provenance --access public --tag alpha
         if: env.DRY_RUN != 'true'
       - name: Publish @v7-cms/cms
-        run: npm publish packed/v7-cms-cms-*.tgz --provenance --access public --tag alpha
+        run: npm publish ./packed/v7-cms-cms-*.tgz --provenance --access public --tag alpha
         if: env.DRY_RUN != 'true'
 
       # A dry run still builds and packs, so the tarballs can be inspected from the run's
