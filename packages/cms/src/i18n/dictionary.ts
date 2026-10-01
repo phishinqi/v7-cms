@@ -13,6 +13,15 @@ export type Locale = 'en' | 'zh-CN';
 
 /** Every key the interface uses. `en` is the source of truth; other locales must match it. */
 export const en = {
+  'category.new': 'New category',
+  'category.name': 'Category name',
+  'category.id': 'URL ID (optional)',
+  'category.hint':
+    'Saved immediately; cancelling the article keeps the category. Leave ID blank to generate one.',
+  'category.create': 'Create and select',
+  'category.invalidId': 'Use lowercase letters, digits and hyphens for the ID.',
+  'category.duplicate': 'This category ID already exists.',
+
   'date.choose': 'Choose date',
   'date.today': 'Today',
   'date.now': 'Now',

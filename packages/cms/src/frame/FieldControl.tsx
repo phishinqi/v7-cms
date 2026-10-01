@@ -8,6 +8,7 @@
 import { withImageFields, type MediaTarget, type UploadedImage } from '../upload/media.js';
 import type { Field } from '@v7-cms/core';
 import { getFieldType } from '@v7-cms/core';
+import { CategoryPicker } from './CategoryPicker.js';
 import { DateTimePicker } from './DateTimePicker.js';
 import { ImagePicker } from './ImagePicker.js';
 import { useTranslate } from '../i18n/index.js';
@@ -146,6 +147,17 @@ export function FieldControl(props: FieldControlProps): React.ReactElement | nul
       );
 
     case 'relation':
+      if (typeof field.categoryFile === 'string')
+        return (
+          <Wrapper {...props}>
+            <CategoryPicker
+              id={idFor(path)}
+              value={asText(value)}
+              onChange={onChange}
+              file={field.categoryFile}
+            />
+          </Wrapper>
+        );
       return (
         <Wrapper {...props}>
           <input

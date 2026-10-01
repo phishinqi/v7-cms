@@ -17,7 +17,7 @@ makes the editor unsafe to open.
 > what the file can survive. It talks to GitHub, to a local folder, or to a local proxy. Previews,
 > the review workflow, plugins and theming are in. What it needs now is use.
 
-Current release: **v0.2.2** — calendar/time pickers with Today and Now shortcuts.
+Current release: **v0.2.3** — create categories directly while writing articles.
 
 ## Why another one
 

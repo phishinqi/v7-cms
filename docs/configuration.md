@@ -363,3 +363,11 @@ an alternative. Changing this prefix affects new uploads, not existing content U
 `format: "YYYY-MM-DD"` shows a date-only picker with **Today**. Existing timestamp offsets
 are preserved; new timestamps use the browser local time zone, shown under the field.
 Opening a document does not change its date. Optional fields can be cleared.
+
+### Create categories while writing
+
+A `relation` field with `categoryFile: "data/categories.json"` reads the current category registry
+and offers **New category** beside its dropdown. The registry uses `{ categories: [{ id, title: { "zh-CN": "", en: "" }, description: { "zh-CN": "", en: "" } }] }`.
+Enter a name and optionally an ID; omitted IDs are generated. The registry is saved with conflict
+checking before the new category is selected. Existing fields and categories are retained.
+Cancelling the article does not remove an already created category.

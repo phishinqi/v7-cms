@@ -10,6 +10,14 @@ export { en };
 export type { Dictionary, TranslationKey };
 
 export const zhCN: Dictionary = {
+  'category.new': '新建分类',
+  'category.name': '分类名称',
+  'category.id': '网址 ID（可选）',
+  'category.hint': '创建后立即保存，取消文章不会删除分类。ID 留空可自动生成。',
+  'category.create': '创建并选中',
+  'category.invalidId': 'ID 仅支持小写英文、数字和连字符。',
+  'category.duplicate': '该分类 ID 已存在。',
+
   'date.choose': '选择日期',
   'date.today': '今天',
   'date.now': '现在',

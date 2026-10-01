@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.3
+
+- Create and select categories directly while editing an article, using a live category registry.
+- Save categories before article references, with duplicate detection and conflict checking.
+
 ## v0.2.2
 
 - Date and time fields now offer native calendar/time pickers with Today and Now shortcuts. Existing offsets are preserved; new timestamps use browser local time.
