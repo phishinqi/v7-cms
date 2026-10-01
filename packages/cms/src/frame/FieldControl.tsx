@@ -8,6 +8,7 @@
 import { withImageFields, type MediaTarget, type UploadedImage } from '../upload/media.js';
 import type { Field } from '@v7-cms/core';
 import { getFieldType } from '@v7-cms/core';
+import { TagPicker } from './TagPicker.js';
 import { CategoryPicker } from './CategoryPicker.js';
 import { DateTimePicker } from './DateTimePicker.js';
 import { ImagePicker } from './ImagePicker.js';
@@ -197,6 +198,17 @@ export function FieldControl(props: FieldControlProps): React.ReactElement | nul
       );
 
     case 'list':
+      if (typeof field.tagFile === 'string')
+        return (
+          <Wrapper {...props}>
+            <TagPicker
+              id={idFor(path)}
+              value={Array.isArray(value) ? value : []}
+              onChange={onChange}
+              file={field.tagFile}
+            />
+          </Wrapper>
+        );
       return <ListControl {...props} />;
 
     // A localized string is one input per locale. The locales come from the config when it names

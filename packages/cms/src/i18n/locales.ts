@@ -10,6 +10,14 @@ export { en };
 export type { Dictionary, TranslationKey };
 
 export const zhCN: Dictionary = {
+  'tag.choose': '选择已有标签',
+  'tag.new': '新标签',
+  'tag.create': '创建并添加',
+  'tag.remove': '移除 {name}',
+  'tag.hint': '可添加多个标签，也可直接新建；新标签会立即保存。',
+  'tag.invalidName': '标签最多 40 个字符，不能包含网址分隔符。',
+  'tag.invalidRegistry': '标签列表格式无效。',
+
   'category.new': '新建分类',
   'category.name': '分类名称',
   'category.id': '网址 ID（可选）',

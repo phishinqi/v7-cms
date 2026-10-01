@@ -78,7 +78,8 @@
           "field": {
             "name": "tag",
             "widget": "string"
-          }
+          },
+          "tagFile": "data/tags.json"
         },
         {
           "name": "authors",
@@ -216,7 +217,8 @@
           "field": {
             "name": "tag",
             "widget": "string"
-          }
+          },
+          "tagFile": "data/tags.json"
         },
         {
           "name": "authors",

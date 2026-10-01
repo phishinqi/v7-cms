@@ -13,6 +13,14 @@ export type Locale = 'en' | 'zh-CN';
 
 /** Every key the interface uses. `en` is the source of truth; other locales must match it. */
 export const en = {
+  'tag.choose': 'Choose a tag',
+  'tag.new': 'New tag',
+  'tag.create': 'Create and add',
+  'tag.remove': 'Remove {name}',
+  'tag.hint': 'Select multiple tags or create one here. New tags are saved immediately.',
+  'tag.invalidName': 'Tags must be at most 40 characters and cannot contain URL separators.',
+  'tag.invalidRegistry': 'Invalid tag registry.',
+
   'category.new': 'New category',
   'category.name': 'Category name',
   'category.id': 'URL ID (optional)',

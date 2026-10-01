@@ -51,6 +51,10 @@ jobs:
       # pnpm rewrites workspace:* dependencies to the release version while packing. Publish the
       # resulting tarballs with npm itself because npm's Trusted Publishing implementation is the
       # component that exchanges GitHub's OIDC token with the npm registry.
+      - name: Select npm release channel
+        run: |
+          node -e "const v = require('./packages/cms/package.json').version; require('node:fs').appendFileSync(process.env.GITHUB_ENV, 'NPM_DIST_TAG=' + (v.includes('-') ? 'alpha' : 'latest') + '\n');"
+
       - name: Pack release tarballs
         run: |
           rm -rf packed
@@ -60,16 +64,16 @@ jobs:
           done
 
       - name: Publish @v7-cms/core
-        run: npm publish ./packed/v7-cms-core-*.tgz --provenance --access public --tag alpha
+        run: npm publish ./packed/v7-cms-core-*.tgz --provenance --access public --tag "$NPM_DIST_TAG"
         if: env.DRY_RUN != 'true'
       - name: Publish @v7-cms/proxy
-        run: npm publish ./packed/v7-cms-proxy-*.tgz --provenance --access public --tag alpha
+        run: npm publish ./packed/v7-cms-proxy-*.tgz --provenance --access public --tag "$NPM_DIST_TAG"
         if: env.DRY_RUN != 'true'
       - name: Publish @v7-cms/adapters
-        run: npm publish ./packed/v7-cms-adapters-*.tgz --provenance --access public --tag alpha
+        run: npm publish ./packed/v7-cms-adapters-*.tgz --provenance --access public --tag "$NPM_DIST_TAG"
         if: env.DRY_RUN != 'true'
       - name: Publish @v7-cms/cms
-        run: npm publish ./packed/v7-cms-cms-*.tgz --provenance --access public --tag alpha
+        run: npm publish ./packed/v7-cms-cms-*.tgz --provenance --access public --tag "$NPM_DIST_TAG"
         if: env.DRY_RUN != 'true'
 
       # A dry run still builds and packs, so the tarballs can be inspected from the run's

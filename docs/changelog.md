@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.2.4
+
+- Stable npm versions now publish under `latest`; prerelease versions use `alpha`.
+
+- Select multiple existing tags or create tags directly while writing.
+- Preserve existing tags, deduplicate selections, validate tag names and check conflicts before registry writes.
+
 ## v0.2.3
 
 - Create and select categories directly while editing an article, using a live category registry.
