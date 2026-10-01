@@ -8,6 +8,7 @@
 import { test, expect, type Page } from '@playwright/test';
 
 const SETTINGS = 'site.config.json';
+const AUTHORS = 'data/authors.json';
 
 const openSettings = async (page: Page) => {
   await page.goto('/');
@@ -23,6 +24,12 @@ const stored = (page: Page, path = SETTINGS) =>
       ).__cms.storage.snapshot()[key],
     path,
   );
+
+const openAuthors = async (page: Page) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '作者', exact: true }).click();
+  await expect(page.locator('.file-editor')).toBeVisible();
+};
 
 test('the settings collection opens a form rather than a blank page', async ({ page }) => {
   await openSettings(page);
@@ -57,9 +64,26 @@ test('infers the widget each value needs', async ({ page }) => {
 
 test('a list of objects renders its item shape, including a localized label', async ({ page }) => {
   await openSettings(page);
-  await expect(page.locator('.list-summary')).toHaveCount(2);
+  await expect(page.locator('[data-field="nav"] .list-summary')).toHaveCount(2);
   await expect(page.locator('#nav-0-href-field')).toHaveValue('/posts/');
   await expect(page.locator('#nav-0-label-zh-CN-field')).toHaveValue('文章');
+});
+
+test('repairs legacy social links when the settings file is saved', async ({ page }) => {
+  await openSettings(page);
+  await expect(page.locator('#socialLinks-0-label-field')).toHaveValue('RSS');
+  await page.locator('#title-field').fill('V7 repaired');
+  await page.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(page.locator('.notice.ok')).toHaveText(/已保存|Saved/);
+
+  const saved = JSON.parse((await stored(page))!) as {
+    socialLinks: Array<{ label: string; href: string }>;
+  };
+  expect(saved.socialLinks).toEqual([
+    { label: 'RSS', href: 'https://blog.soyonagasaki.com/rss.xml' },
+    { label: 'Ryokoukiryu', href: 'https://x.com/Ryokoukiryu' },
+    { label: 'astraruri', href: 'https://x.com/astraruri' },
+  ]);
 });
 
 test('editing a value saves it and leaves the other keys alone', async ({ page }) => {
@@ -121,4 +145,17 @@ test('adding a navigation entry writes it to the file', async ({ page }) => {
   const saved = JSON.parse((await stored(page))!) as { nav: Array<Record<string, unknown>> };
   expect(saved.nav).toHaveLength(3);
   expect(saved.nav[2]).toEqual({ href: '/tags/', label: { 'zh-CN': '标签' } });
+});
+
+test('edits authors from the dedicated author collection', async ({ page }) => {
+  await openAuthors(page);
+  await expect(page.locator('#authors-0-name-field')).toHaveValue('V7');
+  await page.locator('#authors-0-name-field').fill('V7 CMS');
+  await page.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(page.locator('.notice.ok')).toHaveText(/已保存|Saved/);
+
+  const saved = JSON.parse((await stored(page, AUTHORS))!) as {
+    authors: Array<{ name: string }>;
+  };
+  expect(saved.authors[0]!.name).toBe('V7 CMS');
 });

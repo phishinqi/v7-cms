@@ -70,6 +70,17 @@ function inferWidget(
   }
 
   if (Array.isArray(value)) {
+    if (name === 'socialLinks' && isLegacySocialLinks(value)) {
+      return {
+        widget: 'list',
+        required: false,
+        fields: [
+          { name: 'label', label: 'Label', widget: 'string', required: false },
+          { name: 'href', label: 'URL', widget: 'string', required: false },
+        ],
+        labelSingular: 'Social link',
+      } as Partial<Field>;
+    }
     if (isObjectArray(value)) {
       const [first] = value;
       return {
@@ -107,6 +118,12 @@ function inferWidget(
     return { widget: 'datetime', required: false, format: 'YYYY-MM-DD' } as Partial<Field>;
   }
   return { widget: 'string', required: false };
+}
+
+function isLegacySocialLinks(value: unknown[]): boolean {
+  return (
+    value.length > 0 && value.every((item) => typeof item === 'string' && parseSocialLink(item))
+  );
 }
 
 /** `2026-09-28` or a full timestamp with a zone. Anything else stays a string. */
@@ -154,4 +171,49 @@ export function inferFields(
   overrides: Record<string, Partial<Field>> = {},
 ): Field[] {
   return Object.entries(contents).map(([name, value]) => inferField(name, value, name, overrides));
+}
+
+/**
+ * Upgrade the legacy string form of the site's social links before the settings form is built.
+ * Older commits stored Markdown links such as `[name](https://example.com)`; the site schema
+ * expects `{ label, href }` objects, so keeping the conversion here lets an author repair the
+ * file from the editor and prevents the next save from preserving the invalid shape.
+ */
+export function normalizeInferredValues(
+  contents: Record<string, unknown>,
+): Record<string, unknown> {
+  const links = contents.socialLinks;
+  if (!Array.isArray(links) || !links.every((item) => typeof item === 'string')) return contents;
+
+  const normalized = links.map((item) => parseSocialLink(item));
+  if (!normalized.every((item): item is { label: string; href: string } => item !== undefined)) {
+    return contents;
+  }
+  return { ...contents, socialLinks: normalized };
+}
+
+function parseSocialLink(value: string): { label: string; href: string } | undefined {
+  const markdown = /^\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:[^\s)]+)\)$/.exec(value.trim());
+  const href = markdown?.[2] ?? value.trim();
+  if (!/^(?:https?:\/\/|mailto:)/.test(href)) return undefined;
+  const label =
+    markdown?.[1] && !/^(?:https?:\/\/|mailto:)/.test(markdown[1])
+      ? markdown[1]
+      : socialLabel(href);
+  return { label, href };
+}
+
+function socialLabel(href: string): string {
+  try {
+    const url = new URL(href);
+    const segment = url.pathname.split('/').filter(Boolean).pop();
+    if (segment) {
+      const decoded = decodeURIComponent(segment).replace(/\.[a-z0-9]+$/i, '');
+      if (/^rss$/i.test(decoded)) return 'RSS';
+      return decoded;
+    }
+    return url.hostname.replace(/^www\./, '');
+  } catch {
+    return href;
+  }
 }

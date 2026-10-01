@@ -589,6 +589,25 @@
     },
     {
       "kind": "file",
+      "name": "authors",
+      "label": "作者",
+      "format": "json",
+      "files": [
+        {
+          "name": "authors",
+          "label": "作者列表",
+          "file": "data/authors.json",
+          "inferSchema": true,
+          "fieldOverrides": {
+            "authors.*.bio": {
+              "widget": "i18n-string"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "file",
       "name": "settings",
       "label": "站点设置",
       "format": "json",

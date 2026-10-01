@@ -49,12 +49,16 @@
   ],
   "socialLinks": [
     {
-      "label": "GitHub",
-      "href": "https://github.com"
+      "label": "RSS",
+      "href": "https://blog.soyonagasaki.com/rss.xml"
     },
     {
-      "label": "Email",
-      "href": "mailto:hello@example.com"
+      "label": "Ryokoukiryu",
+      "href": "https://x.com/Ryokoukiryu"
+    },
+    {
+      "label": "astraruri",
+      "href": "https://x.com/astraruri"
     }
   ],
   "home": {

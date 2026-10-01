@@ -1,0 +1,29 @@
+{
+  "authors": [
+    {
+      "id": "v7",
+      "name": "V7",
+      "bio": {
+        "zh-CN": "主题示例作者，分享技术与日常。",
+        "en": "Demonstration author. Notes on technology and everyday life."
+      },
+      "avatar": "",
+      "links": [
+        {
+          "label": "GitHub",
+          "href": "https://github.com/phishinqi/astro-theme-v7"
+        }
+      ]
+    },
+    {
+      "id": "guest",
+      "name": "Guest",
+      "bio": {
+        "zh-CN": "演示共同署名的客座作者。",
+        "en": "A guest author demonstrating shared bylines."
+      },
+      "avatar": "",
+      "links": []
+    }
+  ]
+}

@@ -9,6 +9,22 @@ import config from '../../../examples/v7-blog/cms.config.json';
 import { richRoundTrip } from '@v7-cms/cms';
 
 const files: Record<string, string> = {
+  'data/authors.json':
+    JSON.stringify(
+      {
+        authors: [
+          {
+            id: 'v7',
+            name: 'V7',
+            bio: { 'zh-CN': '主题示例作者，分享技术与日常。', en: 'Demonstration author.' },
+            avatar: '',
+            links: [{ label: 'GitHub', href: 'https://github.com/phishinqi/astro-theme-v7' }],
+          },
+        ],
+      },
+      null,
+      2,
+    ) + '\n',
   'content/albums/paper.md': `---
 title: 纸面练习
 slug: paper
@@ -124,6 +140,11 @@ files['site.config.json'] =
       siteURL: 'https://example.com',
       postsPerPage: 10,
       startedAt: '2026-09-28',
+      socialLinks: [
+        '[https://blog.soyonagasaki.com/rss.xml](https://blog.soyonagasaki.com/rss.xml)',
+        '[https://x.com/Ryokoukiryu](https://x.com/Ryokoukiryu)',
+        '[https://x.com/astraruri](https://x.com/astraruri)',
+      ],
       description: { 'zh-CN': '写代码，也写生活。', en: 'On code, and everything around it.' },
       features: { moments: true, albums: true, stats: true },
       nav: [

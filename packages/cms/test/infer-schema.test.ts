@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { inferFields } from '../src/frame/infer-schema.js';
+import { inferFields, normalizeInferredValues } from '../src/frame/infer-schema.js';
 import type { Field } from '@v7-cms/core';
 
 /** A copy of the theme's settings file, so this test does not reach into another repository. */
@@ -57,6 +57,18 @@ describe('inferring a settings form', () => {
       const social = byName(fields, 'socialLinks');
       expect(social.widget).toBe('list');
       expect(social.fields!.map((field) => field.name)).toEqual(['label', 'href']);
+    });
+
+    it('recognises legacy Markdown social links as link objects', () => {
+      const legacy = inferFields({
+        socialLinks: [
+          '[https://blog.soyonagasaki.com/rss.xml](https://blog.soyonagasaki.com/rss.xml)',
+        ],
+      });
+      expect(byName(legacy, 'socialLinks').fields!.map((field) => field.name)).toEqual([
+        'label',
+        'href',
+      ]);
     });
 
     it('infers an empty list without failing', () => {
@@ -132,5 +144,24 @@ describe('inferring a settings form', () => {
     for (const field of fields) expect(field.required).toBe(false);
     const nav = byName(fields, 'nav');
     for (const child of nav.fields!) expect(child.required).toBe(false);
+  });
+
+  it('upgrades legacy Markdown social links without touching other settings', () => {
+    const normalized = normalizeInferredValues({
+      title: 'V7',
+      socialLinks: [
+        '[https://blog.soyonagasaki.com/rss.xml](https://blog.soyonagasaki.com/rss.xml)',
+        '[https://x.com/Ryokoukiryu](https://x.com/Ryokoukiryu)',
+        'https://x.com/astraruri',
+      ],
+    });
+    expect(normalized).toEqual({
+      title: 'V7',
+      socialLinks: [
+        { label: 'RSS', href: 'https://blog.soyonagasaki.com/rss.xml' },
+        { label: 'Ryokoukiryu', href: 'https://x.com/Ryokoukiryu' },
+        { label: 'astraruri', href: 'https://x.com/astraruri' },
+      ],
+    });
   });
 });

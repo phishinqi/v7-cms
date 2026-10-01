@@ -16,7 +16,7 @@ import { runFieldValidation } from '@v7-cms/core';
 import { useApp } from '../app.js';
 import { useTranslate } from '../i18n/index.js';
 import { FieldControl } from './FieldControl.js';
-import { inferFields } from './infer-schema.js';
+import { inferFields, normalizeInferredValues } from './infer-schema.js';
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'conflict' | 'error';
 
@@ -38,8 +38,9 @@ export function FileEditor({ collection }: { collection: FileCollection }) {
       .readFile(entry.file)
       .then((file) => {
         const parsed = JSON.parse(file.text || '{}') as Record<string, unknown>;
-        setValues(parsed);
-        setOriginal(parsed);
+        const normalized = normalizeInferredValues(parsed);
+        setValues(normalized);
+        setOriginal(normalized);
         setSha(file.sha);
         setState('idle');
       })
