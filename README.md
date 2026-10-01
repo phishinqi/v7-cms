@@ -17,7 +17,7 @@ makes the editor unsafe to open.
 > what the file can survive. It talks to GitHub, to a local folder, or to a local proxy. Previews,
 > the review workflow, plugins and theming are in. What it needs now is use.
 
-Current release: **v0.2.5** — compact tag chips with search and inline creation.
+Current release: **v0.2.6** — tag picker compatibility with string and object registries.
 
 ## Why another one
 

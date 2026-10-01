@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.6
+
+- Fix the tag picker crashing on string tag registries. Support both strings and named objects, skip invalid entries, and preserve existing registry data and entry format when adding tags.
+
 ## v0.2.5
 
 - Display selected tags as removable chips in one compact input, with automatic wrapping on small screens.

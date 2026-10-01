@@ -2,6 +2,20 @@ import { useEffect, useState, useRef } from 'react';
 import { useApp } from '../app.js';
 import { useTranslate } from '../i18n/index.js';
 
+function tagName(item: unknown): string | undefined {
+  const name =
+    typeof item === 'string'
+      ? item
+      : item && typeof item === 'object' && 'name' in item
+        ? item.name
+        : undefined;
+  return typeof name === 'string' && name.trim() ? name.trim() : undefined;
+}
+
+function tagNames(items: unknown[]): string[] {
+  return [...new Set(items.map(tagName).filter((name): name is string => name !== undefined))];
+}
+
 export function TagPicker({
   id,
   value,
@@ -29,8 +43,8 @@ export function TagPicker({
         .readFile(file)
         .then((result) => {
           const data = JSON.parse(result.text);
-          if (!Array.isArray(data.tags)) throw new Error(t('tag.invalidRegistry'));
-          if (active) setItems(data.tags.map((tag: { name: string }) => tag.name));
+          if (!Array.isArray(data?.tags)) throw new Error(t('tag.invalidRegistry'));
+          if (active) setItems(tagNames(data.tags));
         })
         .catch((e) => {
           if (active) setError(e.message);
@@ -49,15 +63,16 @@ export function TagPicker({
         throw new Error(t('tag.invalidName'));
       const current = await storage.readFile(file);
       const data = JSON.parse(current.text);
-      if (!Array.isArray(data.tags)) throw new Error(t('tag.invalidRegistry'));
-      if (!data.tags.some((item: { name: string }) => item.name === tag)) {
-        data.tags.push({ name: tag });
+      if (!Array.isArray(data?.tags)) throw new Error(t('tag.invalidRegistry'));
+      if (!tagNames(data.tags).includes(tag)) {
+        const firstValid = data.tags.find((item: unknown) => tagName(item) !== undefined);
+        data.tags.push(typeof firstValid === 'string' ? tag : { name: tag });
         await storage.writeFile(file, JSON.stringify(data, null, 2) + '\n', {
           message: `Create tag ${tag}`,
           ...(current.sha ? { sha: current.sha } : {}),
         });
       }
-      setItems(data.tags.map((item: { name: string }) => item.name));
+      setItems(tagNames(data.tags));
       onChange([...new Set([...value, tag])]);
       setName('');
       setOpen(false);

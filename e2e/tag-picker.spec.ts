@@ -51,3 +51,46 @@ test('compact tags fit mobile and dismiss suggestions on Escape', async ({ page 
   const box = await page.locator('.tag-picker').boundingBox();
   expect(box!.x + box!.width).toBeLessThanOrEqual(390);
 });
+
+for (const tags of [
+  ['随笔', '游记'],
+  [null, {}, { name: 42 }, '', '随笔', { name: '游记', color: 'red' }],
+]) {
+  test(`reads and preserves tag registry ${JSON.stringify(tags)}`, async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto('/?locale=en');
+    await page.evaluate(async (tags) => {
+      const storage = (
+        window as unknown as {
+          __cms: {
+            storage: {
+              writeFile(path: string, text: string, options: { message: string }): Promise<unknown>;
+            };
+          };
+        }
+      ).__cms.storage;
+      await storage.writeFile('data/tags.json', JSON.stringify({ tags, note: 'preserve' }), {
+        message: 'fixture',
+      });
+    }, tags);
+    await page.getByRole('button', { name: '文章 · Markdown', exact: true }).click();
+    await page.locator('.entry-link').first().click();
+    const input = page.locator('#tags-field');
+    await input.fill('游记');
+    await page.getByRole('option', { name: '游记', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Remove 游记', exact: true })).toBeVisible();
+    await input.fill('新标签');
+    await input.press('Enter');
+    await expect(page.getByRole('button', { name: 'Remove 新标签', exact: true })).toBeVisible();
+    const registry = await page.evaluate(() =>
+      JSON.parse(
+        (
+          window as unknown as { __cms: { storage: { snapshot(): Record<string, string> } } }
+        ).__cms.storage.snapshot()['data/tags.json']!,
+      ),
+    );
+    expect(registry).toEqual({ tags: [...tags, '新标签'], note: 'preserve' });
+    expect(errors).toEqual([]);
+  });
+}
