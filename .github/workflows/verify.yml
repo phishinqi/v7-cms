@@ -27,5 +27,7 @@ jobs:
         run: pnpm install --frozen-lockfile
       - run: pnpm format:check
       - run: pnpm lint
-      - run: pnpm -r --if-present check
+      # Workspace package exports point at built declaration files. Build core first so dependent
+      # packages can resolve @v7-cms/core/storage during their checks on a fresh runner.
+      - run: pnpm check
       - run: pnpm test
