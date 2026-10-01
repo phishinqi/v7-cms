@@ -589,6 +589,75 @@
     },
     {
       "kind": "file",
+      "name": "categories",
+      "label": "分类",
+      "format": "json",
+      "files": [
+        {
+          "name": "categories",
+          "label": "分类列表",
+          "file": "data/categories.json",
+          "inferSchema": true,
+          "fieldOverrides": {
+            "categories.*.title": {
+              "widget": "i18n-string"
+            },
+            "categories.*.description": {
+              "widget": "i18n-string"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "file",
+      "name": "friends",
+      "label": "友链",
+      "format": "json",
+      "files": [
+        {
+          "name": "friends",
+          "label": "友链列表",
+          "file": "data/friends.json",
+          "inferSchema": true
+        }
+      ]
+    },
+    {
+      "kind": "file",
+      "name": "photo-tags",
+      "label": "相册标签",
+      "format": "json",
+      "files": [
+        {
+          "name": "tags",
+          "label": "相册标签列表",
+          "file": "data/photo-tags.json",
+          "inferSchema": true,
+          "fieldOverrides": {
+            "tags.*.label": {
+              "widget": "i18n-string"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "file",
+      "name": "tags",
+      "label": "标签",
+      "format": "json",
+      "files": [
+        {
+          "name": "tags",
+          "label": "标签列表",
+          "file": "data/tags.json",
+          "inferSchema": true
+        }
+      ]
+    },
+    {
+      "kind": "file",
       "name": "authors",
       "label": "作者",
       "format": "json",

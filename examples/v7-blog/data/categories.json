@@ -1,0 +1,20 @@
+{
+  "categories": [
+    {
+      "id": "technology",
+      "title": { "zh-CN": "技术", "en": "Technology" },
+      "description": {
+        "zh-CN": "关于代码、工具，以及把想法变成现实的过程。",
+        "en": "Code, tools, and the process of bringing ideas to life."
+      }
+    },
+    {
+      "id": "journal",
+      "title": { "zh-CN": "随笔", "en": "Journal" },
+      "description": {
+        "zh-CN": "记录阅读、观察与日常，不急着得出结论。",
+        "en": "Reading, observations, and ordinary days. No rush to conclusions."
+      }
+    }
+  ]
+}

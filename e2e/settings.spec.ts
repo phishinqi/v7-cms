@@ -9,6 +9,7 @@ import { test, expect, type Page } from '@playwright/test';
 
 const SETTINGS = 'site.config.json';
 const AUTHORS = 'data/authors.json';
+const TAGS = 'data/tags.json';
 
 const openSettings = async (page: Page) => {
   await page.goto('/');
@@ -28,6 +29,12 @@ const stored = (page: Page, path = SETTINGS) =>
 const openAuthors = async (page: Page) => {
   await page.goto('/');
   await page.getByRole('button', { name: '作者', exact: true }).click();
+  await expect(page.locator('.file-editor')).toBeVisible();
+};
+
+const openCollection = async (page: Page, label: string) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: label, exact: true }).click();
   await expect(page.locator('.file-editor')).toBeVisible();
 };
 
@@ -158,4 +165,26 @@ test('edits authors from the dedicated author collection', async ({ page }) => {
     authors: Array<{ name: string }>;
   };
   expect(saved.authors[0]!.name).toBe('V7 CMS');
+});
+
+test('registers the taxonomy and friends JSON files as editable collections', async ({ page }) => {
+  await openCollection(page, '分类');
+  await expect(page.locator('#categories-0-id-field')).toHaveValue('technology');
+  await expect(page.locator('#categories-0-title-zh-CN-field')).toHaveValue('技术');
+
+  await openCollection(page, '友链');
+  await expect(page.locator('#friends-0-name-field')).toHaveValue('Astro');
+
+  await openCollection(page, '相册标签');
+  await expect(page.locator('#tags-0-label-en-field')).toHaveValue('Street');
+
+  await openCollection(page, '标签');
+  await expect(page.locator('#tags-0-name-field')).toHaveValue('设计');
+
+  // The collections are real file editors, so a value change is persisted through the same path.
+  await page.locator('#tags-0-name-field').fill('设计与排版');
+  await page.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(page.locator('.notice.ok')).toHaveText(/已保存|Saved/);
+  const saved = JSON.parse((await stored(page, TAGS))!) as { tags: Array<{ name: string }> };
+  expect(saved.tags[0]!.name).toBe('设计与排版');
 });

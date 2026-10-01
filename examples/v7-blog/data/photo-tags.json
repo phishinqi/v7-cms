@@ -1,0 +1,9 @@
+{
+  "tags": [
+    { "id": "street", "label": { "zh-CN": "街景", "en": "Street" } },
+    { "id": "light", "label": { "zh-CN": "光影", "en": "Light" } },
+    { "id": "architecture", "label": { "zh-CN": "建筑", "en": "Architecture" } },
+    { "id": "night", "label": { "zh-CN": "夜色", "en": "Night" } },
+    { "id": "pattern", "label": { "zh-CN": "纹样", "en": "Pattern" } }
+  ]
+}

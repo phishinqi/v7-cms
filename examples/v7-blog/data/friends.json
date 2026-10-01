@@ -1,0 +1,18 @@
+{
+  "friends": [
+    {
+      "name": "Astro",
+      "url": "https://astro.build",
+      "description": "The web framework for content-driven websites.",
+      "avatar": "",
+      "group": "工具 / Tools"
+    },
+    {
+      "name": "Decap CMS",
+      "url": "https://decapcms.org",
+      "description": "Git-based content management.",
+      "avatar": "",
+      "group": "工具 / Tools"
+    }
+  ]
+}

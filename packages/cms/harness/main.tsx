@@ -25,6 +25,35 @@ const files: Record<string, string> = {
       null,
       2,
     ) + '\n',
+  'data/categories.json':
+    JSON.stringify(
+      {
+        categories: [
+          {
+            id: 'technology',
+            title: { 'zh-CN': '技术', en: 'Technology' },
+            description: { 'zh-CN': '关于代码。', en: 'About code.' },
+          },
+        ],
+      },
+      null,
+      2,
+    ) + '\n',
+  'data/friends.json':
+    JSON.stringify(
+      {
+        friends: [{ name: 'Astro', url: 'https://astro.build', description: 'The web framework.' }],
+      },
+      null,
+      2,
+    ) + '\n',
+  'data/photo-tags.json':
+    JSON.stringify(
+      { tags: [{ id: 'street', label: { 'zh-CN': '街景', en: 'Street' } }] },
+      null,
+      2,
+    ) + '\n',
+  'data/tags.json': JSON.stringify({ tags: [{ name: '设计' }] }, null, 2) + '\n',
   'content/albums/paper.md': `---
 title: 纸面练习
 slug: paper

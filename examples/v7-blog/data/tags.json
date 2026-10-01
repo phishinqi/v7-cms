@@ -1,0 +1,17 @@
+{
+  "tags": [
+    { "name": "设计" },
+    { "name": "Web" },
+    { "name": "Astro" },
+    { "name": "TypeScript" },
+    { "name": "排版" },
+    { "name": "观察" },
+    { "name": "随笔" },
+    { "name": "CSS" },
+    { "name": "数学" },
+    { "name": "Mermaid" },
+    { "name": "阅读" },
+    { "name": "写作" },
+    { "name": "MDX" }
+  ]
+}
