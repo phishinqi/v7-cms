@@ -28,7 +28,9 @@ jobs:
       - name: Install pinned pnpm
         run: npm install --global pnpm@12.5.1
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @v7-cms/cms build
+      # Build the editor and every workspace package it imports so a fresh runner has their
+      # declaration files available during Vite's type resolution.
+      - run: pnpm --filter @v7-cms/cms... build
 
       - name: Work out the version
         id: version
