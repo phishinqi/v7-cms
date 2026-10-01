@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useApp } from '../app.js';
 import { useTranslate } from '../i18n/index.js';
 
@@ -19,6 +19,9 @@ export function TagPicker({
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
     let active = true;
     if (storage)
@@ -57,18 +60,43 @@ export function TagPicker({
       setItems(data.tags.map((item: { name: string }) => item.name));
       onChange([...new Set([...value, tag])]);
       setName('');
+      setOpen(false);
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setBusy(false);
     }
   }
+  const query = name.trim();
+  const matches = [...new Set(items)].filter(
+    (tag) => !value.includes(tag) && tag.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
+  );
+  const canCreate = !!query && !items.includes(query) && !value.includes(query);
+  const choices = [...matches, ...(canCreate ? [query] : [])];
+  const selectedIndex = Math.min(active, Math.max(0, choices.length - 1));
+  function choose(index: number) {
+    const tag = choices[index];
+    if (!tag || busy) return;
+    if (canCreate && index === matches.length) {
+      void create();
+      return;
+    }
+    onChange([...new Set([...value, tag])]);
+    setName('');
+    setOpen(false);
+    input.current?.focus();
+  }
   return (
-    <div>
-      <ul>
+    <div
+      className="tag-picker"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false);
+      }}
+    >
+      <div className="tag-picker-control">
         {value.map((tag) => (
-          <li key={tag}>
-            {tag}{' '}
+          <span className="tag-chip" key={tag}>
+            <span>{tag}</span>
             <button
               type="button"
               disabled={busy}
@@ -77,46 +105,98 @@ export function TagPicker({
             >
               ×
             </button>
-          </li>
+          </span>
         ))}
-      </ul>
-      <select
-        id={id}
-        className="input"
-        value=""
-        disabled={busy}
-        onChange={(event) => {
-          if (event.target.value) onChange([...new Set([...value, event.target.value])]);
-        }}
-      >
-        <option value="">{t('tag.choose')}</option>
-        {items
-          .filter((tag) => !value.includes(tag))
-          .map((tag) => (
-            <option key={tag} value={tag}>
-              {tag}
-            </option>
-          ))}
-      </select>
-      <label>
-        {t('tag.new')}
         <input
-          className="input"
+          ref={input}
+          id={id}
+          className="tag-picker-input"
           value={name}
           disabled={busy}
-          onChange={(e) => setName(e.target.value)}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={open && choices.length > 0}
+          aria-controls={`${id}-options`}
+          aria-activedescendant={
+            open && choices.length ? `${id}-option-${selectedIndex}` : undefined
+          }
+          placeholder={t('tag.search')}
+          autoComplete="off"
+          onFocus={() => setOpen(true)}
+          onChange={(event) => {
+            setName(event.target.value);
+            setActive(0);
+            setOpen(true);
+            setError('');
+          }}
+          onKeyDown={(event) => {
+            if (event.nativeEvent.isComposing) return;
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              setOpen(false);
+            }
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+              event.preventDefault();
+              setOpen(true);
+              setActive(
+                Math.max(
+                  0,
+                  Math.min(
+                    choices.length - 1,
+                    open ? selectedIndex + (event.key === 'ArrowDown' ? 1 : -1) : 0,
+                  ),
+                ),
+              );
+            }
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              if (open) choose(selectedIndex);
+            }
+          }}
         />
-      </label>
-      <button
-        type="button"
-        className="button"
-        disabled={busy || !name.trim()}
-        onClick={() => void create()}
-      >
-        {t('tag.create')}
-      </button>
-      <p className="field-hint">{t('tag.hint')}</p>
-      {error && <p role="alert">{error}</p>}
+        {busy && (
+          <span className="tag-picker-pending" role="status">
+            {t('action.working')}
+          </span>
+        )}
+      </div>
+      {open && choices.length > 0 && (
+        <ul
+          className="tag-picker-options"
+          id={`${id}-options`}
+          role="listbox"
+          aria-label={t('tag.choose')}
+        >
+          {choices.map((tag, index) => (
+            <li
+              key={tag}
+              id={`${id}-option-${index}`}
+              role="option"
+              aria-selected={index === selectedIndex}
+              className="tag-picker-option"
+              onMouseDown={(event) => event.preventDefault()}
+              onMouseEnter={() => setActive(index)}
+              onClick={() => choose(index)}
+            >
+              {canCreate && index === matches.length ? (
+                <>
+                  <span className="tag-picker-plus" aria-hidden="true">
+                    +
+                  </span>
+                  {t('tag.createNamed', { name: tag })}
+                </>
+              ) : (
+                tag
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {error && (
+        <p className="field-hint tag-picker-error" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

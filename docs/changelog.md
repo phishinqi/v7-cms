@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.5
+
+- Display selected tags as removable chips in one compact input, with automatic wrapping on small screens.
+- Search existing tags or create a new tag from the same field, with keyboard and IME support.
+
 ## v0.2.4
 
 - Stable npm versions now publish under `latest`; prerelease versions use `alpha`.

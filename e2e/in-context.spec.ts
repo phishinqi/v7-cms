@@ -26,7 +26,7 @@ test('opens on the site preview when in-context editing is configured', async ({
   // The tab is selected because editing in place is the point; Markdown preview would not help.
   await expect(page.getByRole('tab', { name: '站点' })).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('.preview')).toHaveAttribute('data-in-context', 'true');
-  await expect(page.locator('.field-hint')).toContainText('点击页面上的文字');
+  await expect(page.locator('.preview .field-hint')).toContainText('点击页面上的文字');
 });
 
 test('the marked nodes are outlined, and unmarked ones are left alone', async ({ page }) => {

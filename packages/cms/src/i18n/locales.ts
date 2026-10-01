@@ -10,6 +10,9 @@ export { en };
 export type { Dictionary, TranslationKey };
 
 export const zhCN: Dictionary = {
+  'tag.search': '搜索或添加标签…',
+  'tag.createNamed': '新建「{name}」',
+
   'tag.choose': '选择已有标签',
   'tag.new': '新标签',
   'tag.create': '创建并添加',

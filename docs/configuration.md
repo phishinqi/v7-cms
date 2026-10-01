@@ -374,4 +374,4 @@ Cancelling the article does not remove an already created category.
 
 ### Tags while writing
 
-A string `list` field with `tagFile: "data/tags.json"` offers a live tag dropdown, multiple selected tags, removal and inline creation. The registry stores `{ "tags": [{ "name": "Example" }] }`. New tags are saved with revision checks before being selected; duplicates reuse the existing name. Removing a tag from an article does not delete it from the registry. Existing article tags remain visible even if absent from the registry.
+A string `list` field with `tagFile: "data/tags.json"` shows all selected tags as removable chips in one wrapping input. Type to search existing tags or create a new one; use the arrow keys and Enter to choose, or Escape to close suggestions. The registry stores `{ "tags": [{ "name": "Example" }] }`. New tags are saved with revision checks before being selected; duplicates reuse the existing name. Removing a tag from an article does not delete it from the registry. Existing article tags remain visible even if absent from the registry.
