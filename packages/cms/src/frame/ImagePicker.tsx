@@ -9,19 +9,28 @@
  * plain path field, while an album photo wants the full pipeline.
  */
 import { useState } from 'react';
+import { tokenStore } from '@v7-cms/adapters';
+import { useApp } from '../app.js';
+import {
+  mediaPaths,
+  uploadPreparedImage,
+  type MediaTarget,
+  type UploadedImage,
+} from '../upload/media.js';
 import { prepareImage, uploadName, type PreparedImage } from '../upload/image-pipeline.js';
 import { useTranslate } from '../i18n/index.js';
 
 export interface ImagePickerProps {
   id: string;
   value: string;
-  onChange(src: string, prepared?: PreparedImage & { id: string; name: string }): void;
+  onChange(src: string, prepared?: PreparedImage & UploadedImage): void;
   /** Where files are written, and the URL prefix they are served from. */
-  target: { repoPath: string; publicPath: string };
+  target: MediaTarget;
 }
 
 export function ImagePicker({ id, value, onChange, target }: ImagePickerProps) {
   const t = useTranslate();
+  const { config, storage } = useApp();
   const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -29,15 +38,33 @@ export function ImagePicker({ id, value, onChange, target }: ImagePickerProps) {
     setBusy(true);
     setStatus(t('image.compressing'));
     try {
-      const prepared = await prepareImage(file, { longEdge: 2400 });
+      if (!storage) throw new Error('Connect a storage backend before uploading.');
+      const media = mediaPaths(
+        { ...config.media, ...target },
+        target.slug ?? '',
+        target.collection ?? '',
+      );
+      const prepared = await prepareImage(
+        file,
+        media.provider === 'r2'
+          ? { widths: [480, 960, 1600, 2400] }
+          : { longEdge: media.maxEdge ?? 2400 },
+      );
       const [image] = prepared.variants;
       if (!image) throw new Error(t('image.noOutput'));
       const name = `${uploadName(file.name)}.webp`;
-      setStatus('');
-      onChange(`${target.publicPath.replace(/\/$/, '')}/${name}`, {
-        ...prepared,
-        id: name.replace(/\.webp$/, ''),
+      const token = tokenStore.read() ?? tokenStore.read('local');
+      const uploaded = await uploadPreparedImage(
+        prepared,
         name,
+        media,
+        storage,
+        token ? { token } : {},
+      );
+      setStatus('');
+      onChange(uploaded.src, {
+        ...prepared,
+        ...uploaded,
       });
     } catch (error) {
       setStatus((error as Error).message);

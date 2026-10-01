@@ -68,8 +68,10 @@ export function Editor({ collectionName }: { collectionName: string }) {
   const media = useApp().config.media;
   // A collection can keep its images together; otherwise the config's paths apply.
   const mediaTarget = {
-    repoPath: collection?.media?.repoPath ?? media?.repoPath ?? 'public/images/uploads',
-    publicPath: collection?.media?.publicPath ?? media?.publicPath ?? '/images/uploads',
+    ...media,
+    ...collection?.media,
+    slug: String(entry?.values[collection?.identifierField ?? 'slug'] ?? entry?.id ?? ''),
+    collection: collectionName,
   };
 
   if (!collection) {

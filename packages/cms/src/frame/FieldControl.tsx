@@ -5,23 +5,24 @@
  * show validation. Nested content (objects, lists) recurses through `FieldControl`, so an album's
  * list of photo objects renders the same way a top-level object does.
  */
+import { withImageFields, type MediaTarget, type UploadedImage } from '../upload/media.js';
 import type { Field } from '@v7-cms/core';
 import { getFieldType } from '@v7-cms/core';
 import { ImagePicker } from './ImagePicker.js';
 import { useTranslate } from '../i18n/index.js';
 
 // A sensible default, so an image field works before a collection configures where media goes.
-const DEFAULT_MEDIA = { repoPath: 'public/images/uploads', publicPath: '/images/uploads' };
+const DEFAULT_MEDIA: MediaTarget = {};
 
 export interface FieldControlProps {
   field: Field;
   value: unknown;
   issues: Array<{ path: string; message: string }>;
-  onChange(value: unknown): void;
+  onChange(value: unknown, image?: UploadedImage): void;
   /** Dotted path of this field, used to match issues and to build child paths. */
   path: string;
   /** Where an uploaded image goes, and the URL it is served from. */
-  mediaTarget?: { repoPath: string; publicPath: string };
+  mediaTarget?: MediaTarget;
 }
 
 const issuesAt = (issues: FieldControlProps['issues'], path: string) =>
@@ -168,7 +169,16 @@ export function FieldControl(props: FieldControlProps): React.ReactElement | nul
                 path={`${path}.${child.name}`}
                 value={(value as Record<string, unknown> | undefined)?.[child.name]}
                 issues={props.issues}
-                onChange={(next) => onChange({ ...(value as object), [child.name]: next })}
+                mediaTarget={mediaTarget}
+                onChange={(next, image) =>
+                  onChange(
+                    withImageFields(
+                      { ...(value as object), [child.name]: next },
+                      field.fields ?? [],
+                      child.name === 'src' ? image : undefined,
+                    ),
+                  )
+                }
               />
             ))}
           </div>
@@ -195,7 +205,7 @@ export function FieldControl(props: FieldControlProps): React.ReactElement | nul
             onChange={(src, prepared) => {
               // A photo wants its size and colour recorded too, which is what the upload knows.
               if (prepared && field.fields?.length) {
-                const [image] = prepared.variants;
+                const image = prepared;
                 onChange({
                   ...(typeof value === 'object' && value ? value : {}),
                   src,
@@ -205,7 +215,7 @@ export function FieldControl(props: FieldControlProps): React.ReactElement | nul
                 });
                 return;
               }
-              onChange(src);
+              onChange(src, prepared);
             }}
           />
         </Wrapper>
@@ -302,7 +312,16 @@ function ListControl(all: FieldControlProps) {
                     value={(item as Record<string, unknown> | undefined)?.[child.name]}
                     issues={issues}
                     mediaTarget={all.mediaTarget}
-                    onChange={(next) => replace(index, { ...(item as object), [child.name]: next })}
+                    onChange={(next, image) =>
+                      replace(
+                        index,
+                        withImageFields(
+                          { ...(item as object), [child.name]: next },
+                          field.fields ?? [],
+                          child.name === 'src' ? image : undefined,
+                        ),
+                      )
+                    }
                   />
                 ))}
               </div>

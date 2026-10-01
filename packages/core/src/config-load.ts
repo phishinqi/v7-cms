@@ -33,6 +33,30 @@ const fieldSchema: z.ZodType<Field> = z.lazy(() =>
     .loose(),
 ) as z.ZodType<Field>;
 
+const mediaSchema = z.object({
+  provider: z.enum(['repo', 'github', 'r2', 's3']),
+  repo: z
+    .string()
+    .regex(/^[\w.-]+\/[\w.-]+$/, 'Use the owner/repo form.')
+    .optional(),
+  branch: z.string().min(1).optional(),
+  endpoint: z
+    .string()
+    .regex(/^(\/(?!\/)|https:\/\/)/, 'Use a same-origin path or HTTPS URL.')
+    .optional(),
+  repoPath: z.string().optional(),
+  publicPath: z.string().optional(),
+  maxEdge: z.number().int().positive().optional(),
+  exif: z.boolean().optional(),
+  s3: z
+    .object({
+      endpoint: z.string(),
+      bucket: z.string(),
+      publicBase: z.string(),
+    })
+    .optional(),
+});
+
 const fieldsCollectionSchema = z.object({
   kind: z.literal('fields'),
   name: z.string().min(1),
@@ -44,7 +68,7 @@ const fieldsCollectionSchema = z.object({
   identifierField: z.string().optional(),
   contentField: z.string().optional(),
   nested: z.boolean().optional(),
-  media: z.record(z.string(), z.unknown()).optional(),
+  media: mediaSchema.partial().optional(),
   create: z.boolean().optional(),
   fields: z.array(fieldSchema).min(1),
 });
@@ -89,22 +113,7 @@ export const configSchema = z.object({
       })
       .optional(),
   }),
-  media: z
-    .object({
-      provider: z.enum(['repo', 's3']),
-      repoPath: z.string().optional(),
-      publicPath: z.string().optional(),
-      maxEdge: z.number().int().positive().optional(),
-      exif: z.boolean().optional(),
-      s3: z
-        .object({
-          endpoint: z.string(),
-          bucket: z.string(),
-          publicBase: z.string(),
-        })
-        .optional(),
-    })
-    .optional(),
+  media: mediaSchema.optional(),
   collections: z.array(z.union([fieldsCollectionSchema, fileCollectionSchema])).min(1),
   locale: z.string().optional(),
   editorialWorkflow: z.boolean().optional(),
@@ -164,6 +173,40 @@ export function loadConfig(input: unknown): {
       path: 'backend.local',
       message: 'The local backend needs a local mode.',
     });
+  }
+  for (const [path, media] of [
+    ['media', config.media],
+    ...config.collections
+      .filter((c) => c.kind === 'fields')
+      .map((c) => [`collections.${c.name}.media`, { ...config.media, ...c.media }] as const),
+  ] as const) {
+    if (!media) continue;
+    if (media.provider === 'github') {
+      if (!media.repo || !/^[\w.-]+\/[\w.-]+$/.test(media.repo))
+        issues.push({
+          path: `${path}.repo`,
+          message: 'The github media provider needs owner/repo.',
+        });
+      if (!media.publicPath?.startsWith('https://'))
+        issues.push({
+          path: `${path}.publicPath`,
+          message: 'Independent media needs a public HTTPS URL prefix.',
+        });
+    }
+    if (
+      media.provider === 'r2' &&
+      (!media.endpoint || !/^(\/(?!\/)|https:\/\/)/.test(media.endpoint))
+    )
+      issues.push({
+        path: `${path}.endpoint`,
+        message: 'The r2 provider needs a same-origin path or HTTPS media API URL.',
+      });
+    if (media.provider === 's3')
+      issues.push({
+        path: `${path}.provider`,
+        message:
+          'Direct S3 uploads are not supported. Use r2 with an authenticated media API endpoint.',
+      });
   }
   if (config.media?.provider === 's3' && !config.media.s3) {
     issues.push({

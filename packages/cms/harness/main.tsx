@@ -229,10 +229,29 @@ const requested = new URLSearchParams(location.search).get('locale');
 
 // The example config targets GitHub. The harness runs against memory instead, which is what makes
 // the editor drivable without a token — the backend block is the only thing that changes.
+const mediaMode = new URLSearchParams(location.search).get('media');
+const mediaOverride =
+  mediaMode === 'r2'
+    ? { provider: 'r2', endpoint: '/api/media' }
+    : mediaMode === 'github'
+      ? {
+          provider: 'github',
+          repo: 'owner/media',
+          branch: 'assets',
+          repoPath: 'images',
+          publicPath: 'https://img.example/images',
+        }
+      : undefined;
 mount({
   container: '#cms',
   config: {
     ...(config as object),
+    ...(mediaOverride
+      ? {
+          media: mediaOverride,
+          collections: config.collections.map((c) => ({ ...c, media: undefined })),
+        }
+      : {}),
     ...(requested ? { locale: requested } : {}),
     ...(Object.keys(inContext).length
       ? { preview: { devServerURL: location.origin, ...inContext } }

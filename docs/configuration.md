@@ -73,6 +73,34 @@ prefill photographic fields — it is never written to the file.
 Because uploads are re-encoded through a canvas, every byte of metadata is dropped on the way in.
 That is deliberate: a photograph's location should not be published because someone forgot.
 
+### Upload destinations
+
+`provider: "repo"` writes image bytes through the connected content backend to `repoPath` and returns a URL under `publicPath`. A collection may override these settings; `{{slug}}` and `{{collection}}` are expanded before writing. Omitting overrides uses one fixed folder for all uploads.
+
+For a separate GitHub repository:
+
+```json
+{
+  "provider": "github",
+  "repo": "owner/media",
+  "branch": "main",
+  "repoPath": "images",
+  "publicPath": "https://img.example.com/images"
+}
+```
+
+The current GitHub token must have write access to the media repository. That repository needs public image hosting matching `publicPath`; upload success does not imply a static hosting deployment has completed.
+
+For R2 through an authenticated media API:
+
+```json
+{ "provider": "r2", "endpoint": "/api/media" }
+```
+
+The CMS sends a multipart POST with the GitHub Bearer token, JSON `metadata` (`name`, `color`, `sizes`), and `file-<width>` WebP parts. Each size contains `width`, `height`, and `field`. The response must include an HTTPS `src`, positive integer `width` and `height`, and optionally `srcset`. The theme's Pages Function implements this contract. Remote endpoints must implement CORS and accept the editor origin; only configure a trusted endpoint because it receives the token. Direct S3 endpoints and browser-side storage secrets are not supported; the older `s3` placeholder now reports a configuration error.
+
+The image control updates the field only after storage succeeds. Nested `src` fields update declared sibling dimensions, colour and responsive URLs. Uploading is immediate, before saving the entry; cancelling an edit or removing a reference does not delete the uploaded asset. Local file backends need no token for `repo`; remote modes require GitHub authentication. R2 bucket setup and the theme's build variables are documented in the theme repository's `docs/media-storage.md`.
+
 ## The account panel
 
 A backend may report who it is acting as by implementing `account()`. When it does, the sidebar

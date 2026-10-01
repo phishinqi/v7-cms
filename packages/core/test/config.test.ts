@@ -187,3 +187,35 @@ describe('the published JSON schema', () => {
     expect(loadConfig(example).issues).toEqual([]);
   });
 });
+
+describe('media configuration', () => {
+  it('requires a repository and public URL for independent media', () => {
+    const { issues } = loadConfig({ ...minimal, media: { provider: 'github' } });
+    expect(issues.map((i) => i.path)).toContain('media.repo');
+    expect(issues.map((i) => i.path)).toContain('media.publicPath');
+    expect(
+      loadConfig({
+        ...minimal,
+        media: {
+          provider: 'github',
+          repo: 'owner/media',
+          publicPath: 'https://img.example/images',
+        },
+      }).issues,
+    ).toEqual([]);
+  });
+  it('validates R2 endpoint and effective collection overrides', () => {
+    expect(
+      loadConfig({ ...minimal, media: { provider: 'r2', endpoint: '/api/media' } }).issues,
+    ).toEqual([]);
+    expect(
+      loadConfig({ ...minimal, media: { provider: 'r2', endpoint: 'javascript:bad' } }).issues
+        .length,
+    ).toBeGreaterThan(0);
+    const { issues } = loadConfig({
+      ...minimal,
+      collections: [{ ...minimal.collections[0], media: { provider: 'github' } }],
+    });
+    expect(issues.map((i) => i.path)).toContain('collections.posts.media.repo');
+  });
+});

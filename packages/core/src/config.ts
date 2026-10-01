@@ -31,10 +31,15 @@ export interface BackendConfig {
   };
 }
 
-export type MediaProvider = 'repo' | 's3';
+export type MediaProvider = 'repo' | 'github' | 'r2' | 's3';
 
 export interface MediaConfig {
   provider: MediaProvider;
+  /** Independent GitHub media repository, used by the github provider. */
+  repo?: string;
+  branch?: string;
+  /** Authenticated media API URL (not an S3 storage endpoint). */
+  endpoint?: string;
   /** Path inside the repository, supports `{{slug}}` and `{{collection}}`. */
   repoPath?: string;
   /** Public URL prefix for the same files, e.g. `/images/albums/{{slug}}`. */
