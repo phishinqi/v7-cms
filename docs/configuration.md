@@ -68,7 +68,11 @@ is derived from the English keys, so a missing translation is a compile error.
 `repoPath` is where files are written, relative to the repository; `publicPath` is what the site
 serves them from. Both take `{{slug}}` and `{{collection}}`, so each album can keep its images
 together. `maxEdge` bounds the long edge on upload. `exif: true` reads EXIF from an upload to
-prefill photographic fields — it is never written to the file.
+prefill photographic fields — it is never written to the file. Prefilling defaults to enabled;
+set `exif: false` to disable it. Successful uploads fill empty declared `date`, camera, lens,
+focalLength, aperture, shutter, iso and software fields, including fields inside `photo`.
+Existing nonempty values are preserved. Files without EXIF cannot provide these values.
+GPS is never copied. Existing compressed images need the original file uploaded again.
 
 Because uploads are re-encoded through a canvas, every byte of metadata is dropped on the way in.
 That is deliberate: a photograph's location should not be published because someone forgot.
@@ -343,3 +347,12 @@ change is the behaviour this CMS exists not to have. Run `pnpm format` yourself 
 
 Backends that cannot answer — GitHub, a browser folder — leave `checkFormat` off entirely and the
 editor shows no Prettier advice rather than guessing.
+
+### GitHub image CDN
+
+For a public media repository, set `publicPath` to
+`https://cdn.jsdelivr.net/gh/owner/media@main/images` (replace repository, branch and directory).
+Uploads still go directly to GitHub; only image reads use the CDN. Private repositories are not supported
+by this public URL. New uploads have unique names; replacing a file at the same URL can leave cached
+content until the CDN refreshes. jsDelivr availability varies by network; a custom image domain remains
+an alternative. Changing this prefix affects new uploads, not existing content URLs.

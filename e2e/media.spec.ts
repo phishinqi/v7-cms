@@ -1,3 +1,4 @@
+import { tiff, withExif } from '../packages/cms/test/exif-fixture.js';
 import { test, expect, type Page } from '@playwright/test';
 
 async function openAlbum(page: Page, mode = '') {
@@ -98,4 +99,41 @@ test('independent repository receives the upload on its own branch', async ({ pa
     /https:\/\/img.example\/images\/test-.*\.webp/,
   );
   expect(uploaded).toBe(true);
+});
+
+test('upload prefills EXIF into nested photo fields and persists it', async ({ page }) => {
+  await openAlbum(page);
+  const jpeg = await page.evaluate(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 8;
+    canvas.height = 6;
+    return canvas.toDataURL('image/jpeg').split(',')[1]!;
+  });
+  const file = withExif(
+    Buffer.from(jpeg, 'base64'),
+    tiff(
+      [[0x0110, 2, 'Camera X']],
+      [
+        [0x8827, 3, 400],
+        [0x9003, 2, '2026:10:01 12:00:00'],
+      ],
+    ),
+  );
+  await page.locator('#images-0-photo-camera-field').fill('');
+  await page.locator('#images-0-photo-iso-field').fill('');
+  await page.locator('#images-0-date-field').fill('');
+  await page
+    .locator('[data-field="src"]')
+    .first()
+    .locator('input[type=file]')
+    .setInputFiles({
+      name: 'exif.jpg',
+      mimeType: 'image/jpeg',
+      buffer: Buffer.from(file),
+    });
+  await expect(page.locator('#images-0-photo-camera-field')).toHaveValue('Camera X');
+  await expect(page.locator('#images-0-photo-iso-field')).toHaveValue('400');
+  await expect(page.locator('#images-0-date-field')).toHaveValue('2026-10-01');
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByText('Saved.', { exact: true })).toBeVisible();
 });

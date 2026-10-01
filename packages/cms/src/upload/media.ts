@@ -2,10 +2,12 @@ import type { MediaConfig } from '@v7-cms/core';
 import type { StorageAdapter } from '@v7-cms/core/storage';
 import { GitHubAdapter } from '@v7-cms/adapters';
 import type { PreparedImage } from './image-pipeline.js';
+import type { ExifFields } from './exif.js';
 
 export type MediaTarget = Partial<MediaConfig> & { slug?: string; collection?: string };
 
 export interface UploadedImage {
+  exif?: ExifFields;
   src: string;
   width: number;
   height: number;
@@ -144,7 +146,7 @@ export async function uploadPreparedImage(
 /** Keep dimensions and responsive URLs beside a nested src field when the schema exposes them. */
 export function withImageFields(
   value: Record<string, unknown>,
-  fields: { name: string }[],
+  fields: { name: string; fields?: { name: string }[] }[],
   image?: UploadedImage,
 ): Record<string, unknown> {
   if (!image) return value;
@@ -156,5 +158,21 @@ export function withImageFields(
     }
   }
   if (fields.some((f) => f.name === 'id') && !next.id) next.id = image.id;
+  const empty = (value: unknown) => value === undefined || value === null || value === '';
+  for (const [key, value] of Object.entries(image.exif ?? {})) {
+    if (fields.some((f) => f.name === key) && empty(next[key])) next[key] = value;
+  }
+  const photoFields = fields.find((f) => f.name === 'photo')?.fields;
+  if (photoFields && image.exif && next.kind !== 'artwork') {
+    const photo = { ...(typeof next.photo === 'object' && next.photo ? next.photo : {}) } as Record<
+      string,
+      unknown
+    >;
+    for (const field of photoFields) {
+      const value = image.exif[field.name as keyof ExifFields];
+      if (value !== undefined && empty(photo[field.name])) photo[field.name] = value;
+    }
+    if (Object.keys(photo).length) next.photo = photo;
+  }
   return next;
 }

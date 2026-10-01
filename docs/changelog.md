@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.1
+
+- Uploads now fill declared photo EXIF fields and capture dates after a successful write, preserving manually entered values. Set `media.exif: false` to disable prefilling.
+- JPEG, PNG and WebP metadata is read before compression; output files still omit EXIF and GPS.
+- Documented jsDelivr public URLs for independent GitHub image repositories.
+
 ## v0.2.0
 
 - Image uploads now persist WebP bytes to the connected content repository, an R2 media API, or a separate GitHub media repository.

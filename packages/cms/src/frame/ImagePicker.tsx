@@ -65,6 +65,7 @@ export function ImagePicker({ id, value, onChange, target }: ImagePickerProps) {
       onChange(uploaded.src, {
         ...prepared,
         ...uploaded,
+        exif: media.exif === false ? {} : prepared.exif,
       });
     } catch (error) {
       setStatus((error as Error).message);

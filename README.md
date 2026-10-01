@@ -17,6 +17,8 @@ makes the editor unsafe to open.
 > what the file can survive. It talks to GitHub, to a local folder, or to a local proxy. Previews,
 > the review workflow, plugins and theming are in. What it needs now is use.
 
+Current release: **v0.2.1** — automatic EXIF photo fields and GitHub image CDN configuration.
+
 ## Why another one
 
 Decap CMS is no longer actively maintained, and its editor cannot reuse its own `object`, `list`

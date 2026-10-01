@@ -206,13 +206,19 @@ export function FieldControl(props: FieldControlProps): React.ReactElement | nul
               // A photo wants its size and colour recorded too, which is what the upload knows.
               if (prepared && field.fields?.length) {
                 const image = prepared;
-                onChange({
-                  ...(typeof value === 'object' && value ? value : {}),
-                  src,
-                  width: image?.width,
-                  height: image?.height,
-                  color: prepared.color,
-                });
+                onChange(
+                  withImageFields(
+                    {
+                      ...(typeof value === 'object' && value ? value : {}),
+                      src,
+                      width: image?.width,
+                      height: image?.height,
+                      color: prepared.color,
+                    },
+                    field.fields,
+                    image,
+                  ),
+                );
                 return;
               }
               onChange(src, prepared);

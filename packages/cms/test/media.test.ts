@@ -121,3 +121,24 @@ describe('media destinations', () => {
     ).toEqual({ id: 'stable', caption: 'Keep', width: 480, height: 320 });
   });
 });
+
+it('prefills declared EXIF fields without overwriting authored metadata', () => {
+  const fields = [
+    { name: 'date' },
+    { name: 'photo', fields: [{ name: 'camera' }, { name: 'iso' }] },
+  ];
+  const image = {
+    id: 'a',
+    name: 'a.webp',
+    src: '/a.webp',
+    width: 8,
+    height: 6,
+    exif: { camera: 'Camera X', iso: 400, lens: 'Ignored', date: '2026-10-01' },
+  };
+  expect(withImageFields({ photo: { camera: 'Manual' }, date: '' }, fields, image)).toEqual({
+    date: '2026-10-01',
+    photo: { camera: 'Manual', iso: 400 },
+  });
+  expect(withImageFields({ kind: 'artwork' }, fields, image).photo).toBeUndefined();
+  expect(withImageFields({ photo: {} }, fields, { ...image, exif: {} })).toEqual({ photo: {} });
+});
