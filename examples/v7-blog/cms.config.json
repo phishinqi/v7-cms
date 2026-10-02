@@ -122,22 +122,26 @@
             {
               "name": "src",
               "widget": "image",
-              "label": "图片"
+              "label": "图片",
+              "required": true
             },
             {
               "name": "alt",
               "widget": "string",
-              "label": "替代文本"
+              "label": "替代文本",
+              "required": true
             },
             {
               "name": "width",
               "widget": "number",
-              "label": "宽度"
+              "label": "宽度",
+              "required": true
             },
             {
               "name": "height",
               "widget": "number",
-              "label": "高度"
+              "label": "高度",
+              "required": true
             },
             {
               "name": "focal",
