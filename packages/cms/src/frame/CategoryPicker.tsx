@@ -3,6 +3,16 @@ import { useApp } from '../app.js';
 import { useTranslate } from '../i18n/index.js';
 
 type Category = { id: string; title: Record<string, string> };
+
+function categoryId(value: string): string {
+  return (
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || `category-${crypto.randomUUID().slice(0, 8)}`
+  );
+}
 export function CategoryPicker({
   id,
   value,
@@ -30,6 +40,30 @@ export function CategoryPicker({
         .then((result) => {
           const data = JSON.parse(result.text);
           if (!Array.isArray(data.categories)) throw new Error('Invalid category registry');
+          const current = value.trim();
+          const existing = data.categories.find((item: Category) => item.id === current);
+          if (current && !existing) {
+            let key = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(current) ? current : categoryId(current);
+            let suffix = 2;
+            while (data.categories.some((item: Category) => item.id === key)) {
+              key = `${categoryId(current)}-${suffix++}`;
+            }
+            data.categories.push({
+              id: key,
+              title: { 'zh-CN': current, en: current },
+              description: { 'zh-CN': '', en: '' },
+            });
+            return storage
+              .writeFile(file, JSON.stringify(data, null, 2) + '\n', {
+                message: `Register category ${key}`,
+                ...(result.sha ? { sha: result.sha } : {}),
+              })
+              .then(() => {
+                if (!active) return;
+                setItems(data.categories);
+                if (key !== value) onChange(key);
+              });
+          }
           if (active) setItems(data.categories);
         })
         .catch((e) => {
@@ -38,7 +72,7 @@ export function CategoryPicker({
     return () => {
       active = false;
     };
-  }, [storage, file]);
+  }, [storage, file, value]);
   async function create() {
     if (!storage || !name.trim()) return;
     setBusy(true);

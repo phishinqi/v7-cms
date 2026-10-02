@@ -17,7 +17,7 @@ makes the editor unsafe to open.
 > what the file can survive. It talks to GitHub, to a local folder, or to a local proxy. Previews,
 > the review workflow, plugins and theming are in. What it needs now is use.
 
-Current release: **v0.2.9** — removes the image upload byte-size limit.
+Current release: **v0.3.0** — automatically registers missing tags and categories while editing.
 
 ## Why another one
 

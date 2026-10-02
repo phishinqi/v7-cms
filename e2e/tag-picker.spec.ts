@@ -98,7 +98,7 @@ for (const tags of [
         ).__cms.storage.snapshot()['data/tags.json']!,
       ),
     );
-    expect(registry).toEqual({ tags: [...tags, '新标签'], note: 'preserve' });
+    expect(registry).toEqual({ tags: [...tags, '设计', 'Web', '新标签'], note: 'preserve' });
     expect(errors).toEqual([]);
   });
 }

@@ -70,7 +70,25 @@ export function TagPicker({
                 ]),
               ),
             );
-          } else setItems(tagNames(data.tags));
+          } else {
+            const registered = tagNames(data.tags);
+            const missing = tagNames(value).filter((tag) => !registered.includes(tag));
+            if (missing.length > 0) {
+              const firstValid = data.tags.find((item: unknown) => tagName(item) !== undefined);
+              data.tags.push(
+                ...missing.map((tag) => (typeof firstValid === 'string' ? tag : { name: tag })),
+              );
+              return storage
+                .writeFile(file, JSON.stringify(data, null, 2) + '\n', {
+                  message: `Register ${missing.join(', ')}`,
+                  ...(result.sha ? { sha: result.sha } : {}),
+                })
+                .then(() => {
+                  if (active) setItems(tagNames(data.tags));
+                });
+            }
+            setItems(registered);
+          }
         })
         .catch((e) => {
           if (active) setError(e.message);
@@ -78,7 +96,7 @@ export function TagPicker({
     return () => {
       active = false;
     };
-  }, [storage, file, kind, t]);
+  }, [storage, file, kind, t, value.join('\u0000')]);
   async function create() {
     const tag = name.trim();
     if (!storage || !tag) return;

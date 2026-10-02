@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.0
+
+- Automatically register tags and categories already present in content but missing from their registries while opening an entry.
+- Preserve the existing tag registry format and unrelated registry fields when repairing missing tags.
+
 ## v0.2.8
 
 - Insert article illustrations at the start, end, or after a heading or paragraph. Set alternative text, captions, dimensions, and alignment, including left or right text wrap; edit or move illustrations later.
