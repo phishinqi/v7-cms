@@ -11,6 +11,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import MarkdownIt from 'markdown-it';
+import DOMPurify from 'dompurify';
 import { renderPreview } from './renderers.js';
 import { bridgeScript, parseBridgeMessage, type InContextPick } from './bridge.js';
 import { useTranslate } from '../i18n/index.js';
@@ -35,7 +36,7 @@ export interface PreviewProps {
   revealNonce?: number;
 }
 
-const md = new MarkdownIt({ html: false, linkify: true, typographer: false });
+const md = new MarkdownIt({ html: true, linkify: true, typographer: false });
 
 type Mode = 'rendered' | 'site';
 
@@ -68,7 +69,18 @@ export function Preview({
     let superseded = false;
 
     // Synchronous, so the text appears immediately rather than after a diagram finishes.
-    element.innerHTML = md.render(body);
+    element.innerHTML = DOMPurify.sanitize(md.render(body), { FORBID_ATTR: ['style'] });
+    for (const figure of element.querySelectorAll<HTMLElement>('figure[data-v7-figure="1"]')) {
+      const width = Number(figure.dataset.v7Width);
+      const height = Number(figure.dataset.v7Height);
+      if (Number.isInteger(width) && width >= 80 && width <= 1600) {
+        figure.style.width = `${width}px`;
+      }
+      if (Number.isInteger(height) && height >= 80 && height <= 1600) {
+        const image = figure.querySelector('img');
+        if (image) image.style.height = `${height}px`;
+      }
+    }
 
     // Rendering a diagram is async, so a fast typist can outrun it. A superseded run bails out
     // before it writes anything, leaving the newer run's output in place.

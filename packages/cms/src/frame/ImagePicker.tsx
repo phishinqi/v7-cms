@@ -17,7 +17,12 @@ import {
   type MediaTarget,
   type UploadedImage,
 } from '../upload/media.js';
-import { prepareImage, uploadName, type PreparedImage } from '../upload/image-pipeline.js';
+import {
+  IMAGE_ACCEPT,
+  prepareImage,
+  uploadName,
+  type PreparedImage,
+} from '../upload/image-pipeline.js';
 import { useTranslate } from '../i18n/index.js';
 
 export interface ImagePickerProps {
@@ -88,7 +93,7 @@ export function ImagePicker({ id, value, onChange, target }: ImagePickerProps) {
         {busy ? t('action.working') : t('action.upload')}
         <input
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept={IMAGE_ACCEPT}
           disabled={busy}
           onChange={(event) => {
             const file = event.target.files?.[0];

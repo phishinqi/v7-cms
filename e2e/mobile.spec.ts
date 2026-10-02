@@ -30,6 +30,16 @@ test('nothing overflows sideways', async ({ page }) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
+test('the illustration controls fit a phone viewport', async ({ page }) => {
+  await openEntry(page);
+  await page.getByRole('button', { name: 'Insert illustration' }).click();
+  await expect(page.getByLabel('Article position')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  const composer = (await page.locator('.figure-composer').boundingBox())!;
+  expect(composer.width).toBeLessThanOrEqual(PHONE.width);
+  await expect(page.locator('.figure-composer-actions .primary')).toBeVisible();
+});
+
 test('the save action stays reachable while scrolled down the form', async ({ page }) => {
   await openEntry(page);
   const save = page.getByRole('button', { name: 'Save', exact: true });

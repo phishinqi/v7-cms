@@ -1,6 +1,6 @@
 {
   "name": "@v7-cms/cms",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "type": "module",
   "exports": {
     ".": "./dist/v7-cms.js",
@@ -27,19 +27,19 @@
     "@tiptap/pm": "3.31.3",
     "@tiptap/starter-kit": "3.31.3",
     "@types/markdown-it": "14.1.2",
-    "@v7-cms/core": "workspace:*",
-    "codemirror": "6.0.2",
-    "markdown-it": "14.1.0",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "wouter": "^3.7.1",
-    "zustand": "^5.0.8",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@v7-cms/adapters": "workspace:*",
+    "@v7-cms/core": "workspace:*",
     "@vitejs/plugin-react": "^5.1.0",
+    "codemirror": "6.0.2",
     "jsdom": "27.0.0",
-    "vite": "^7.1.7"
+    "markdown-it": "14.1.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "vite": "^7.1.7",
+    "wouter": "^3.7.1",
+    "zustand": "^5.0.8"
   },
   "description": "A Git-based CMS editor: config-driven, byte-faithful, and framework-agnostic.",
   "license": "MIT",
@@ -69,5 +69,10 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.16",
+    "heic2any": "0.0.4",
+    "lucide-react": "^1.49.0"
   }
 }

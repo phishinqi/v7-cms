@@ -27,6 +27,7 @@ export default defineConfig({
     // imported here.
     rollupOptions: {
       external: [],
+      output: { inlineDynamicImports: true },
     },
     sourcemap: true,
   },

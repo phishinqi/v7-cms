@@ -10,6 +10,8 @@ import { useState } from 'react';
 import { classifyBody, type BodyModeResult } from '@v7-cms/core';
 import { RichEditor } from './RichEditor.js';
 import { SourceEditor } from './SourceEditor.js';
+import { FigureTools } from './FigureTools.js';
+import type { MediaTarget } from '../upload/media.js';
 import { useTranslate, type Translate } from '../i18n/index.js';
 
 export interface BodyFieldProps {
@@ -23,6 +25,7 @@ export interface BodyFieldProps {
   structuredFences?: string[];
   /** Called before a rich edit replaces the body, so the caller can keep a rollback copy. */
   onOverrideSource?(previous: string): void;
+  mediaTarget?: MediaTarget;
 }
 
 export function BodyField({
@@ -32,6 +35,7 @@ export function BodyField({
   forceSource,
   structuredFences,
   onOverrideSource,
+  mediaTarget = {},
 }: BodyFieldProps) {
   const t = useTranslate();
   const verdict: BodyModeResult = classifyBody(value, { extension, forceSource, structuredFences });
@@ -69,6 +73,14 @@ export function BodyField({
         <RichEditor id="entry-body" value={value} onChange={onChange} />
       ) : (
         <SourceEditor id="entry-body" value={value} onChange={onChange} />
+      )}
+      {(extension === 'md' || extension === 'mdx') && (
+        <FigureTools
+          value={value}
+          onChange={onChange}
+          extension={extension}
+          mediaTarget={mediaTarget}
+        />
       )}
     </div>
   );

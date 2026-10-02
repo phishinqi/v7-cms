@@ -254,9 +254,11 @@ export function Editor({ collectionName }: { collectionName: string }) {
 
             {collection.contentField && (
               <BodyField
+                key={entry.path}
                 value={entry.body}
                 extension={collection.extension}
                 forceSource={bodyField?.widget === 'source'}
+                mediaTarget={mediaTarget}
                 onChange={(body) => setEntry({ ...entry, body })}
               />
             )}

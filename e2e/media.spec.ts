@@ -1,5 +1,6 @@
 import { tiff, withExif } from '../packages/cms/test/exif-fixture.js';
 import { test, expect, type Page } from '@playwright/test';
+import { resolve } from 'node:path';
 
 async function openAlbum(page: Page, mode = '') {
   await page.goto(`/?locale=en${mode ? `&media=${mode}` : ''}`);
@@ -49,6 +50,32 @@ test('a real browser encodes and writes an image into the content backend before
       ).__cms.storage.snapshot()['content/albums/city-corners.md'],
   );
   expect(saved).toContain(url);
+});
+
+test('a HEIC photo is decoded in the browser and uploaded as WebP', async ({ page }) => {
+  await openAlbum(page);
+  // Small sample from the MIT-licensed heic2any demo.
+  await page
+    .locator('[data-field="src"]')
+    .first()
+    .locator('input[type=file]')
+    .setInputFiles(resolve('e2e/fixtures/photo.heic'));
+  const src = page.locator('#images-0-src-field');
+  await expect(src).toHaveValue(/\/images\/albums\/city-corners\/photo-.*\.webp/);
+  const bytes = await page.evaluate(
+    async (url) => {
+      const storage = (
+        window as unknown as {
+          __cms: { storage: { readBinary(path: string): Promise<Uint8Array> } };
+        }
+      ).__cms.storage;
+      return Array.from(await storage.readBinary(`public${url}`));
+    },
+    await src.inputValue(),
+  );
+  expect(Buffer.from(bytes).subarray(8, 12).toString()).toBe('WEBP');
+  expect(Number(await page.locator('#images-0-width-field').inputValue())).toBeGreaterThan(0);
+  expect(Number(await page.locator('#images-0-height-field').inputValue())).toBeGreaterThan(0);
 });
 
 test('R2 failure preserves the image, then success uses the server URL', async ({ page }) => {

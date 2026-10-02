@@ -10,7 +10,17 @@
  */
 import { readExif, type ExifFields } from './exif.js';
 
-export const RASTER_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+export const RASTER_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/avif',
+  'image/gif',
+  'image/bmp',
+  'image/heic',
+  'image/heif',
+];
+export const IMAGE_ACCEPT = `${RASTER_TYPES.join(',')},.heic,.heif`;
 const MAX_BYTES = 20 * 1024 * 1024;
 const MAX_PIXELS = 40_000_000;
 
@@ -93,15 +103,25 @@ export interface PrepareOptions {
  * produces pixels and nothing else.
  */
 export async function prepareImage(file: File, options: PrepareOptions): Promise<PreparedImage> {
-  if (!RASTER_TYPES.includes(file.type)) {
-    throw new Error('Only JPEG, PNG and WebP are supported. Convert the file first.');
+  const heic =
+    ['image/heic', 'image/heif'].includes(file.type) ||
+    (!file.type && /\.(heic|heif)$/i.test(file.name));
+  if (!RASTER_TYPES.includes(file.type) && !heic) {
+    throw new Error('Supported formats: JPEG, PNG, WebP, AVIF, GIF, BMP, HEIC and HEIF.');
   }
   if (file.size > MAX_BYTES) throw new Error('Images must be 20 MB or smaller.');
 
-  const exif = readExif(await file.arrayBuffer());
+  const exif = heic ? {} : readExif(await file.arrayBuffer());
+  const source = heic
+    ? await (async () => {
+        const { default: heic2any } = await import('heic2any');
+        const result = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 });
+        return Array.isArray(result) ? result[0]! : result;
+      })()
+    : file;
   // `from-image` applies the EXIF orientation before the metadata is discarded, so a portrait
   // photograph does not end up sideways.
-  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  const bitmap = await createImageBitmap(source, { imageOrientation: 'from-image' });
   try {
     if (bitmap.width * bitmap.height > MAX_PIXELS) {
       throw new Error('Images must be 40 megapixels or smaller.');

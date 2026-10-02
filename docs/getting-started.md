@@ -169,6 +169,16 @@ The bias is deliberate: when in doubt, source. A false positive costs you a nice
 negative silently corrupts your file. You can still force rich text, but that is an explicit act
 with a warning.
 
+### Article illustrations
+
+In a Markdown or MDX article, choose **Insert illustration** below the body editor. Upload an
+image or enter its URL, then provide alternative text and an optional caption. Choose the start or
+end of the article, or a position after a heading or paragraph; placement does not depend on the
+text cursor. Set the displayed width, an optional cropped height, and left, centre, right, or
+wrapped alignment. The editor writes a `<figure>` into the article body. Use **Edit an illustration**
+to change its details, move it, or remove it later. Articles with figures open in source mode so the
+figure markup is preserved.
+
 ## What is never touched
 
 Opening a file and saving it produces the identical bytes: same quoting, same flow style, same key

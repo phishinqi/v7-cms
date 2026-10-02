@@ -272,6 +272,9 @@
   background: var(--accent);
   color: #fff;
 }
+.v7-cms .button.primary:hover:not(:disabled) {
+  color: #fff;
+}
 .v7-cms .button.danger:hover:not(:disabled) {
   border-color: var(--danger);
   color: var(--danger);
@@ -527,6 +530,107 @@
   color: var(--accent);
 }
 
+.v7-cms .figure-tools {
+  margin-top: 0.75rem;
+}
+.v7-cms .figure-tools-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.v7-cms .figure-tools-head .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.v7-cms .figure-existing {
+  width: min(100%, 18rem);
+}
+.v7-cms .figure-composer {
+  margin-top: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.v7-cms .figure-composer-head,
+.v7-cms .figure-composer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.v7-cms .figure-composer-head {
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.v7-cms .figure-composer-head h3 {
+  margin: 0;
+  font-family: var(--ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.v7-cms .figure-composer-head .icon-button {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.v7-cms .figure-composer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.v7-cms .figure-image-field {
+  grid-column: 1 / -1;
+}
+.v7-cms .figure-align {
+  display: inline-flex;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.v7-cms .figure-align-option {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.2rem;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--muted);
+  cursor: pointer;
+}
+.v7-cms .figure-align-option:last-child {
+  border-right: 0;
+}
+.v7-cms .figure-align-option[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--paper);
+}
+.v7-cms .figure-composer > .field {
+  margin-top: 0.75rem;
+}
+.v7-cms .figure-composer-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.v7-cms .figure-composer-actions .danger {
+  margin-right: auto;
+}
+@media (max-width: 550px) {
+  .v7-cms .figure-composer-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* The connect screen: shown when a GitHub backend is configured but no token has been given. */
 .v7-cms .connect {
   max-width: 34rem;
@@ -621,6 +725,40 @@
 .v7-cms .preview-body img {
   max-width: 100%;
   height: auto;
+}
+.v7-cms .preview-body figure[data-v7-figure] {
+  max-width: 100%;
+  margin: 1.2rem 0;
+}
+.v7-cms .preview-body figure[data-v7-align='center'] {
+  margin-inline: auto;
+}
+.v7-cms .preview-body figure[data-v7-align='right'] {
+  margin-left: auto;
+}
+.v7-cms .preview-body figure[data-v7-align='wrap-left'] {
+  float: left;
+  margin: 0.3rem 1rem 0.8rem 0;
+}
+.v7-cms .preview-body figure[data-v7-align='wrap-right'] {
+  float: right;
+  margin: 0.3rem 0 0.8rem 1rem;
+}
+.v7-cms .preview-body figure[data-v7-figure] img {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+}
+.v7-cms .preview-body figure[data-v7-figure] figcaption {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-align: center;
+}
+.v7-cms .preview-body::after {
+  display: block;
+  clear: both;
+  content: '';
 }
 .v7-cms .preview-body a {
   color: var(--accent);

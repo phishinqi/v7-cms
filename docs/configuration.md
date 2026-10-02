@@ -76,6 +76,10 @@ GPS is never copied. Existing compressed images need the original file uploaded 
 
 Because uploads are re-encoded through a canvas, every byte of metadata is dropped on the way in.
 That is deliberate: a photograph's location should not be published because someone forgot.
+The picker accepts JPEG, PNG, WebP, AVIF, GIF, BMP, HEIC and HEIF files up to 20 MB and
+40 megapixels. HEIC/HEIF files are decoded in the browser before WebP encoding. EXIF prefilling
+is available for JPEG, PNG and WebP; HEIC/HEIF camera fields are not extracted. Animated images
+use their first frame.
 
 ### Upload destinations
 

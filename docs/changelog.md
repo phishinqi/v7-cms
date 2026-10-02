@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.8
+
+- Insert article illustrations at the start, end, or after a heading or paragraph. Set alternative text, captions, dimensions, and alignment, including left or right text wrap; edit or move illustrations later.
+- Preview article figures safely in the CMS and preserve their markup when saving Markdown or MDX.
+- Upload HEIC, HEIF, AVIF, GIF, and BMP images alongside JPEG, PNG, and WebP. The saved image remains WebP without original metadata.
+
 ## v0.2.7
 
 - Author lists now use the same searchable, removable chips as tags. Display author names while saving stable IDs, support multiple selections, and wrap on small screens.
