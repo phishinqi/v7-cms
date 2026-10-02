@@ -21,7 +21,6 @@ export const RASTER_TYPES = [
   'image/heif',
 ];
 export const IMAGE_ACCEPT = `${RASTER_TYPES.join(',')},.heic,.heif`;
-const MAX_BYTES = 20 * 1024 * 1024;
 const MAX_PIXELS = 40_000_000;
 
 export interface ImageVariant {
@@ -109,8 +108,6 @@ export async function prepareImage(file: File, options: PrepareOptions): Promise
   if (!RASTER_TYPES.includes(file.type) && !heic) {
     throw new Error('Supported formats: JPEG, PNG, WebP, AVIF, GIF, BMP, HEIC and HEIF.');
   }
-  if (file.size > MAX_BYTES) throw new Error('Images must be 20 MB or smaller.');
-
   const exif = heic ? {} : readExif(await file.arrayBuffer());
   const source = heic
     ? await (async () => {
