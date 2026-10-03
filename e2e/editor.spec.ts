@@ -47,7 +47,10 @@ test('opens an entry and renders every field, including nested list items', asyn
   await expect(page.locator('#images-0-location-field')).toHaveValue('示例城市 · 河畔街');
   await expect(page.locator('#images-0-alt-field')).toHaveValue('米色楼面上整齐排列的深色窗格');
   // Nested lists inside list items render too.
-  await expect(page.locator('#images-0-tags-0-field')).toHaveValue('architecture');
+  // Registry-backed tags use the same compact chip picker as article tags.
+  await expect(
+    page.locator('[data-field-path="images.0.tags"] .tag-chip > span').first(),
+  ).toHaveText('architecture');
   await expect(page.locator('.list-item').first()).toBeVisible();
 });
 

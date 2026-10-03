@@ -40,7 +40,12 @@ function Wrapper({
   const t = useTranslate();
   const messages = issuesAt(issues, path);
   return (
-    <div className="field" data-field={field.name} data-invalid={messages.length > 0}>
+    <div
+      className="field"
+      data-field={field.name}
+      data-field-path={path}
+      data-invalid={messages.length > 0}
+    >
       <label className="field-label" htmlFor={idFor(path)}>
         {field.label ?? field.name}
         {field.required !== true && <span className="field-optional"> {t('field.optional')}</span>}
