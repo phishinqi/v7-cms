@@ -328,10 +328,9 @@
           "required": false,
           "field": {
             "name": "tag",
-            "widget": "relation",
-            "collection": "photoTags",
-            "valueField": "id"
-          }
+            "widget": "string"
+          },
+          "tagFile": "data/photo-tags.json"
         },
         {
           "name": "cover",
@@ -413,10 +412,9 @@
               "required": false,
               "field": {
                 "name": "tag",
-                "widget": "relation",
-                "collection": "photoTags",
-                "valueField": "id"
-              }
+                "widget": "string"
+              },
+              "tagFile": "data/photo-tags.json"
             },
             {
               "name": "author",
