@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.0
+
+- Add manual table insertion to Markdown body fields, with GFM and source-only HTML output.
+- Add rich-text table editing for rows, columns, headers and table removal.
+
 ## v0.3.1
 
 - Keep Markdown tables in the source editor so the rich editor cannot flatten them.
