@@ -39,7 +39,7 @@ describe('dictionaries', () => {
       (key) => locales['zh-CN'][key as TranslationKey] !== locales.en[key as TranslationKey],
     );
     // A brand, a product name and a file format are the same word in every language.
-    const allowedSame = new Set(['nav.brand', 'preview.rendered']);
+    const allowedSame = new Set(['nav.brand', 'preview.rendered', 'table.gfm']);
     const untranslated = keysOf(locales.en).filter((key) => !differing.includes(key));
     for (const key of untranslated) {
       expect(allowedSame.has(key), `${key} was not translated into zh-CN`).toBe(true);
