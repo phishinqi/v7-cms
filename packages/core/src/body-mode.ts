@@ -44,6 +44,7 @@ export interface BodyModeResult {
     | 'jsx'
     | 'structured-fence'
     | 'html'
+    | 'table'
     | 'math'
     | 'indented-code'
     | 'configured';
@@ -68,7 +69,8 @@ export function classifyBody(body: string, options: BodyModeOptions = {}): BodyM
   const lines = body.split('\n');
   let inFence = false;
 
-  for (const line of lines) {
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index]!;
     const fence = /^\s{0,3}(?:`{3,}|~{3,})\s*([^\s`]*)/.exec(line);
     if (fence) {
       if (!inFence) {
@@ -92,6 +94,12 @@ export function classifyBody(body: string, options: BodyModeOptions = {}): BodyM
     if (/^\s*<\/?[A-Z][A-Za-z0-9.]*[\s/>]/.test(line)) return { mode: 'source', reason: 'jsx' };
     if (/^\s*<(div|span|figure|details|summary|iframe|video|audio|table)\b/i.test(line)) {
       return { mode: 'source', reason: 'html' };
+    }
+
+    // The rich editor has no table nodes, so it would flatten GFM tables into paragraphs.
+    const next = lines[index + 1] ?? '';
+    if (isGfmTableHeader(line) && isGfmTableDelimiter(next)) {
+      return { mode: 'source', reason: 'table' };
     }
 
     // Display math. Inline `$…$` is common in prose and round-trips acceptably, but a `$$` block
@@ -133,6 +141,16 @@ export function classifyBody(body: string, options: BodyModeOptions = {}): BodyM
 
   if (hasIndentedCodeBlock(body)) return { mode: 'source', reason: 'indented-code' };
   return { mode: 'rich' };
+}
+
+function isGfmTableHeader(line: string): boolean {
+  const cells = line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|');
+  return cells.length >= 2 && cells.every((cell) => cell.trim().length > 0);
+}
+
+function isGfmTableDelimiter(line: string): boolean {
+  const cells = line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|');
+  return cells.length >= 2 && cells.every((cell) => /^\s*:?-{3,}:?\s*$/.test(cell));
 }
 
 /** Convenience for the UI: whether a body may be opened in the rich editor. */
