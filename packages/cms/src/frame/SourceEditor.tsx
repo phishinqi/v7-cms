@@ -5,13 +5,17 @@
  * CodeMirror owns the document, so the value is pushed into it only when it changes from the
  * outside; otherwise every keystroke would reset the cursor.
  */
-import { useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { EditorState } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLine } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
 import { bracketMatching, indentOnInput } from '@codemirror/language';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
+
+export interface SourceEditorHandle {
+  insertText(text: string): void;
+}
 
 export interface SourceEditorProps {
   value: string;
@@ -22,9 +26,28 @@ export interface SourceEditorProps {
   readOnly?: boolean;
 }
 
-export function SourceEditor({ value, onChange, id, readOnly = false }: SourceEditorProps) {
+export const SourceEditor = forwardRef<SourceEditorHandle, SourceEditorProps>(function SourceEditor(
+  { value, onChange, id, readOnly = false },
+  ref,
+) {
   const host = useRef<HTMLDivElement | null>(null);
   const view = useRef<EditorView | null>(null);
+  useImperativeHandle(
+    ref,
+    () => ({
+      insertText(text) {
+        const instance = view.current;
+        if (!instance || readOnly) return;
+        const { from, to } = instance.state.selection.main;
+        instance.dispatch({
+          changes: { from, to, insert: text },
+          selection: { anchor: from + text.length },
+        });
+        instance.focus();
+      },
+    }),
+    [readOnly],
+  );
   // Kept in a ref so the CodeMirror update listener never needs re-creating.
   const notify = useRef(onChange);
   notify.current = onChange;
@@ -74,4 +97,4 @@ export function SourceEditor({ value, onChange, id, readOnly = false }: SourceEd
   return (
     <div className="source-editor" id={id} ref={host} data-read-only={readOnly || undefined} />
   );
-}
+});
