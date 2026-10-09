@@ -96,12 +96,6 @@ export function classifyBody(body: string, options: BodyModeOptions = {}): BodyM
       return { mode: 'source', reason: 'html' };
     }
 
-    // The rich editor has no table nodes, so it would flatten GFM tables into paragraphs.
-    const next = lines[index + 1] ?? '';
-    if (isGfmTableHeader(line) && isGfmTableDelimiter(next)) {
-      return { mode: 'source', reason: 'table' };
-    }
-
     // Display math. Inline `$…$` is common in prose and round-trips acceptably, but a `$$` block
     // is a block-level construct and is treated as structured.
     if (/^\s*\$\$/.test(line)) return { mode: 'source', reason: 'math' };
@@ -141,16 +135,6 @@ export function classifyBody(body: string, options: BodyModeOptions = {}): BodyM
 
   if (hasIndentedCodeBlock(body)) return { mode: 'source', reason: 'indented-code' };
   return { mode: 'rich' };
-}
-
-function isGfmTableHeader(line: string): boolean {
-  const cells = line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|');
-  return cells.length >= 2 && cells.every((cell) => cell.trim().length > 0);
-}
-
-function isGfmTableDelimiter(line: string): boolean {
-  const cells = line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|');
-  return cells.length >= 2 && cells.every((cell) => /^\s*:?-{3,}:?\s*$/.test(cell));
 }
 
 /** Convenience for the UI: whether a body may be opened in the rich editor. */

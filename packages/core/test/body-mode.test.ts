@@ -14,7 +14,7 @@ describe('body mode', () => {
       ['posts/small-components.mdx', 'mdx'],
       ['posts/image-and-space.mdx', 'mdx'],
       ['posts/math-and-diagrams.md', 'structured-fence'],
-      ['posts/long-lines.md', 'table'],
+      ['posts/long-lines.md', 'rich'],
       ['posts/reading-notes.md', 'rich'],
       ['posts/start-here.md', 'rich'],
     ];
@@ -46,7 +46,6 @@ describe('body mode', () => {
       ['a self-closing JSX component', '<Gallery images={images} />\n', 'jsx'],
       ['a namespaced component', '<Foo.Bar />\n', 'jsx'],
       ['an HTML block element', '<details>\n<summary>x</summary>\n</details>\n', 'html'],
-      ['a GFM table', '| A | B |\n| --- | --- |\n| 1 | 2 |\n', 'table'],
       ['display math', '$$\nL(w,b) = \\frac{1}{n}\n$$\n', 'math'],
       ['a mermaid fence', '```mermaid\nflowchart LR\n  A --> B\n```\n', 'structured-fence'],
       ['an abc fence', '```abc\nX:1\nK:D\n```\n', 'structured-fence'],

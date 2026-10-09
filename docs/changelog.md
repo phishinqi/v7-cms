@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.1
+
+- Open GFM tables directly in the visual rich-text editor so authors can edit cell content in place.
+- Keep HTML tables, MDX, and structured content in the source editor.
+
 ## v0.4.0
 
 - Add manual table insertion to Markdown body fields, with GFM and source-only HTML output.
