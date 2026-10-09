@@ -25,7 +25,7 @@ export {
   type Workflow,
   type EntryStatus,
 } from './workflow/index.js';
-export { SourceEditor } from './frame/SourceEditor.js';
+export { SourceEditor, type SourceEditorHandle } from './frame/SourceEditor.js';
 export {
   createTranslate,
   resolveLocale,
@@ -35,7 +35,15 @@ export {
   type Translate,
   type TranslationKey,
 } from './i18n/index.js';
-export { RichEditor, richRoundTrip } from './frame/RichEditor.js';
+export { RichEditor, richRoundTrip, type RichEditorHandle } from './frame/RichEditor.js';
+export {
+  normalizeTableConfig,
+  tableHtml,
+  tableMarkdown,
+  tableText,
+  type TableConfig,
+  type TableFormat,
+} from './frame/table-utils.js';
 // Exported so a theme can serve the in-context bridge from its own pages, which is what makes it
 // work when the editor and the site are on different origins.
 export { bridgeScript, parseBridgeMessage, type InContextPick } from './preview/bridge.js';
