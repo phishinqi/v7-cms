@@ -135,6 +135,7 @@ export const zhCN: Dictionary = {
   'body.reason.imports': '正文里包含 import 或 export。',
   'body.reason.jsx': '正文里包含组件。',
   'body.reason.html': '正文里包含 HTML。',
+  'body.reason.table': '正文里包含 Markdown 表格。',
   'body.reason.structuredFence': '正文里包含图表或其他结构化代码块。',
   'body.reason.math': '正文里包含块级公式。',
   'body.reason.indentedCode': '正文里包含缩进式代码块。',

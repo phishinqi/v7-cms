@@ -144,6 +144,7 @@ export const en = {
   'body.reason.imports': 'This body contains an import or export.',
   'body.reason.jsx': 'This body contains a component.',
   'body.reason.html': 'This body contains HTML.',
+  'body.reason.table': 'This body contains a Markdown table.',
   'body.reason.structuredFence': 'This body contains a diagram or other structured block.',
   'body.reason.math': 'This body contains display math.',
   'body.reason.indentedCode': 'This body contains an indented code block.',

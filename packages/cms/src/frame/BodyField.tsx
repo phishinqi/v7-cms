@@ -97,6 +97,8 @@ function explain(reason: BodyResult['reason'], t: Translate): string {
       return t('body.reason.jsx');
     case 'html':
       return t('body.reason.html');
+    case 'table':
+      return t('body.reason.table');
     case 'structured-fence':
       return t('body.reason.structuredFence');
     case 'math':
