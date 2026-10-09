@@ -130,6 +130,7 @@ export const zhCN: Dictionary = {
   'format.check': '检查格式',
 
   'body.sourceOnly': '正以源码模式编辑。',
+  'action.editSource': '切换源码编辑',
   'body.richWarning': '富文本会重新排版这个文件。',
   'body.reason.mdx': '这是 MDX 文件，包含 import 和组件。',
   'body.reason.imports': '正文里包含 import 或 export。',

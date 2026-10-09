@@ -39,31 +39,35 @@ export function BodyField({
 }: BodyFieldProps) {
   const t = useTranslate();
   const verdict: BodyModeResult = classifyBody(value, { extension, forceSource, structuredFences });
-  const [override, setOverride] = useState(false);
-  const canUseRich = verdict.mode === 'rich' || override;
+  const [modeOverride, setModeOverride] = useState<'source' | 'rich' | null>(null);
+  const canUseRich = modeOverride ? modeOverride === 'rich' : verdict.mode === 'rich';
 
   return (
     <div className="body-field" data-mode={canUseRich ? 'rich' : 'source'}>
       <div className="body-head">
         <span className="field-label">{t('field.body')}</span>
         <div className="body-actions">
-          {verdict.mode === 'source' && !override && (
-            <button
-              type="button"
-              className="button"
-              onClick={() => {
+          <button
+            type="button"
+            className="button"
+            onClick={() => {
+              if (canUseRich) {
+                setModeOverride('source');
+              } else {
                 onOverrideSource?.(value);
-                setOverride(true);
-              }}
-            >
-              {t('action.editRich')}
-            </button>
+                setModeOverride('rich');
+              }
+            }}
+          >
+            {canUseRich ? t('action.editSource') : t('action.editRich')}
+          </button>
+          {canUseRich && (verdict.mode === 'source' || modeOverride === 'rich') && (
+            <span className="body-warning">{t('body.richWarning')}</span>
           )}
-          {override && <span className="body-warning">{t('body.richWarning')}</span>}
         </div>
       </div>
 
-      {verdict.mode === 'source' && !override && (
+      {!canUseRich && verdict.mode === 'source' && (
         <p className="field-hint" data-reason={verdict.reason}>
           {explain(verdict.reason, t)} {t('body.sourceOnly')}
         </p>

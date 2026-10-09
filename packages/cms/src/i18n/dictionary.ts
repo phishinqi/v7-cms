@@ -139,6 +139,7 @@ export const en = {
   'format.check': 'Check formatting',
 
   'body.sourceOnly': 'Editing as source.',
+  'action.editSource': 'Edit as source',
   'body.richWarning': 'Rich text will reformat this file.',
   'body.reason.mdx': 'This file is MDX, which carries imports and components.',
   'body.reason.imports': 'This body contains an import or export.',

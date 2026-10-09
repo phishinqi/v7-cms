@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.1
+
+- Keep Markdown tables in the source editor so the rich editor cannot flatten them.
+- Let authors switch between source and rich editing manually for every body field.
+
 ## v0.3.0
 
 - Automatically register tags and categories already present in content but missing from their registries while opening an entry.
